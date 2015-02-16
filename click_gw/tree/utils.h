@@ -40,7 +40,9 @@ unsigned intValue(int x) {
 /**
  * This is terrible - don't use it
  */
-int hashCode(int x);
+int hashCode(int x) {
+    return x;
+}
 
 template<class T> class XFastTrieNode1;
 
