@@ -1,0 +1,97 @@
+scrub on igb0 all fragment reassemble
+scrub on igb1 all fragment reassemble
+scrub on igb2 all fragment reassemble
+scrub on igb3 all fragment reassemble
+scrub on ix0 all fragment reassemble
+scrub on ix1 all fragment reassemble
+anchor "relayd/*" all
+anchor "openvpn/*" all
+anchor "ipsec/*" all
+block drop in log quick inet6 all label "Block all IPv6"
+block drop out log quick inet6 all label "Block all IPv6"
+block drop in log inet all label "Default deny rule IPv4"
+block drop out log inet all label "Default deny rule IPv4"
+block drop in log inet6 all label "Default deny rule IPv6"
+block drop out log inet6 all label "Default deny rule IPv6"
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echorep keep state
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echorep keep state
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echoreq keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echoreq keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type echoreq keep state
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routersol keep state
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routeradv keep state
+pass quick inet6 proto ipv6-icmp all icmp6-type unreach keep state
+pass quick inet6 proto ipv6-icmp all icmp6-type toobig keep state
+pass quick inet6 proto ipv6-icmp all icmp6-type neighbrsol keep state
+pass quick inet6 proto ipv6-icmp all icmp6-type neighbradv keep state
+block drop quick inet proto tcp from any port = 0 to any
+block drop quick inet proto tcp from any to any port = 0
+block drop quick inet proto udp from any port = 0 to any
+block drop quick inet proto udp from any to any port = 0
+block drop quick inet6 proto tcp from any port = 0 to any
+block drop quick inet6 proto tcp from any to any port = 0
+block drop quick inet6 proto udp from any port = 0 to any
+block drop quick inet6 proto udp from any to any port = 0
+block drop quick from <snort2c> to any label "Block snort2c hosts"
+block drop quick from any to <snort2c> label "Block snort2c hosts"
+block drop in log quick proto tcp from <sshlockout> to (self) port = 2222 label "sshlockout"
+block drop in log quick proto tcp from <webConfiguratorlockout> to (self) port = https label "webConfiguratorlockout"
+block drop in quick from <virusprot> to any label "virusprot overload table"
+block drop in log quick on igb0 from <bogons> to any label "block bogon IPv4 networks from WAN"
+block drop in on ! igb0 inet from [amp-ist-net]/27 to any
+block drop in inet from [amp-ist-address] to any
+block drop in on igb0 inet6 from fe80::21e:67ff:fe98:717d to any
+block drop in log quick on igb0 inet from 10.0.0.0/8 to any label "Block private networks from WAN block 10/8"
+block drop in log quick on igb0 inet from 127.0.0.0/8 to any label "Block private networks from WAN block 127/8"
+block drop in log quick on igb0 inet from 100.64.0.0/10 to any label "Block private networks from WAN block 100.64/10"
+block drop in log quick on igb0 inet from 172.16.0.0/12 to any label "Block private networks from WAN block 172.16/12"
+block drop in log quick on igb0 inet from 192.168.0.0/16 to any label "Block private networks from WAN block 192.168/16"
+block drop in log quick on igb0 inet6 from fc00::/7 to any label "Block ULA networks from WAN block fc00::/7"
+block drop in log quick on igb1 from <bogons> to any label "block bogon IPv4 networks from LAN10"
+block drop in on ! igb1 inet from [amp-ist-internal-net]/24 to any
+block drop in inet from [amp-ist-internal-self-gateway] to any
+block drop in on igb1 inet6 from fe80::21e:67ff:fe98:717e to any
+pass in quick on igb1 inet proto udp from any port = bootpc to 255.255.255.255 port = bootps keep state label "allow access to DHCP server"
+pass in quick on igb1 inet proto udp from any port = bootpc to [amp-ist-internal-self-gateway] port = bootps keep state label "allow access to DHCP server"
+pass out quick on igb1 inet proto udp from [amp-ist-internal-self-gateway] port = bootps to any port = bootpc keep state label "allow access to DHCP server"
+block drop in log quick on igb2 from <bogons> to any label "block bogon IPv4 networks from LAN11"
+block drop in on ! igb2 inet from [amp-ist-internal-net-11]/24 to any
+block drop in inet from [amp-ist-internal-net-11-self-gateway] to any
+block drop in on igb2 inet6 from fe80::21e:67ff:fe98:717f to any
+block drop in log quick on igb3 from <bogons> to any label "block bogon IPv4 networks from LAN12"
+block drop in on ! igb3 inet from [[amp-ist-internal-net-12]/24 to any
+block drop in inet from [amp-ist-internal-net-12-self-gateway] to any
+block drop in on igb3 inet6 from fe80::21e:67ff:fe98:7180 to any
+block drop in log quick on ix0 from <bogons> to any label "block bogon IPv4 networks from LAN100"
+block drop in on ! ix0 inet from [amp-ist-internal-net-100]/24 to any
+block drop in inet from [amp-ist-internal-net-100-self-gateway] to any
+block drop in on ! ix1 inet from [amp-ist-internal-net-101]/24 to any
+block drop in inet from [amp-ist-internal-net-101-self-gateway] to any
+block drop in on ix0 inet6 from fe80::21e:67ff:fe93:df4c to any
+block drop in on ix1 inet6 from fe80::21e:67ff:fe93:df4d to any
+pass in on lo0 inet all flags S/SA keep state label "pass IPv4 loopback"
+pass out on lo0 inet all flags S/SA keep state label "pass IPv4 loopback"
+pass in on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback"
+pass out on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback"
+pass out inet all flags S/SA keep state allow-opts label "let out anything IPv4 from firewall host itself"
+pass out inet6 all flags S/SA keep state allow-opts label "let out anything IPv6 from firewall host itself"
+pass out route-to (igb0 [amp-ist-defaultroute]) inet from [amp-ist-address] to ! [amp-ist-net]/27 flags S/SA keep state allow-opts label "let out anything from firewall host itself"
+pass in quick on igb1 proto tcp from any to (igb1) port = https flags S/SA keep state label "anti-lockout rule"
+pass in quick on igb1 proto tcp from any to (igb1) port = http flags S/SA keep state label "anti-lockout rule"
+pass in quick on igb1 proto tcp from any to (igb1) port = 2222 flags S/SA keep state label "anti-lockout rule"
+anchor "userrules/*" all
+pass in quick on openvpn all flags S/SA keep state label "USER_RULE: OpenVPN wizard"
+pass in quick on igb0 reply-to (igb0 [amp-ist-router]) inet proto udp from any to [amp-ist-address] port = 1194 keep state label "USER_RULE: OpenVPN wizard"
+pass in quick on igb0 reply-to (igb0 [amp-ist-router]) inet proto tcp from any to [amp-ist-address] port = 2222 flags S/SA keep state label "USER_RULE: Custom SSH Port"
+pass in quick on igb0 reply-to (igb0 [amp-ist-router]) inet proto tcp from any to [amp-ist-internal-net-10-jenkins-master] port = https flags S/SA keep state label "USER_RULE: NAT HTTPS port forward to AMP Jenkins Master"
+pass in quick on igb1 inet from [amp-ist-internal-net-10]/24 to any flags S/SA keep state label "USER_RULE: Default allow LAN to any rule"
+pass in quick on igb0 reply-to (igb0 [amp-ist-router]) inet proto tcp from any to [amp-ist-internal-net-10-jenkins-master] port = ssh flags S/SA keep state label "USER_RULE: NAT SSH port forward to AMP Jenkins Master"
+anchor "tftp-proxy/*" all
