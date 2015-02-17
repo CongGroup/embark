@@ -26,10 +26,10 @@ inline uint128_t ntoh128(uint128_t n)
     uint32_t n1 = (n >> 32) & 0xffffffff;
     uint32_t n2 = (n >> 64) & 0xffffffff;
     uint32_t n3 = (n >> 96) & 0xffffffff;
-    uint128_t h0 = ntohl(h0);
-    uint128_t h1 = ntohl(h1);
-    uint128_t h2 = ntohl(h2);
-    uint128_t h3 = ntohl(h3);
+    uint128_t h0 = ntohl(n0);
+    uint128_t h1 = ntohl(n1);
+    uint128_t h2 = ntohl(n2);
+    uint128_t h3 = ntohl(n3);
     return (h3) | (h2 << 32) | (h1 << 64) | (h0 << 96);
 }
 

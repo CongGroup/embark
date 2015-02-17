@@ -34,8 +34,8 @@ MBArkGateway::encrypt(Packet *p)
   WritablePacket *q = p->uniqueify();
   click_ip6 *ip = (click_ip6 *)q->data();
   click_udp *udp = (click_udp *)(ip + 1);
-  uint128_t *src_addr = &(ip->ip6_src);
-  uint128_t *dst_addr = &(ip->ip6_dst);
+  uint128_t *src_addr = (uint128_t *) &(ip->ip6_src);
+  uint128_t *dst_addr = (uint128_t *) &(ip->ip6_dst);
   uint16_t *src_port = &(udp->uh_sport);
   uint16_t *dst_port = &(udp->uh_dport);
 
@@ -44,8 +44,8 @@ MBArkGateway::encrypt(Packet *p)
   uint16_t cipher_src_port = htons(src_port_tree_.generate_ciphertext(ntohs(*src_port)));
   uint16_t cipher_dst_port = htons(dst_port_tree_.generate_ciphertext(ntohs(*dst_port)));
 
-  memcpy(&(ip->ip6_src), &cipher_src_addr, sizeof(click_in6_addr));
-  memcpy(&(ip->ip6_dst), &cipher_dst_addr, sizeof(click_in6_addr));
+  memcpy(&(ip->ip6_src), &cipher_src_addr, sizeof(uint128_t));
+  memcpy(&(ip->ip6_dst), &cipher_dst_addr, sizeof(uint128_t));
   memcpy(&(udp->uh_sport), &cipher_src_port, sizeof(uint16_t));
   memcpy(&(udp->uh_dport), &cipher_dst_port, sizeof(uint16_t));
 

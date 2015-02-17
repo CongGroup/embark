@@ -10,6 +10,16 @@ LDFLAGS =
 main: $(OBJFILES) build/main.o
 	$(CXX) $(LDFLAGS) -o $@ $^
 
+click: mbarkgw.cc
+	cp -r ../click /tmp/
+	cp -r tree /tmp/click/elements/local/
+	cp -r mbarkgw.* /tmp/click/elements/local/
+	cp -r ope_tree.h /tmp/click/elements/local/
+	cp *.click /tmp/click/conf/
+	cd /tmp/click; ./configure --enable-local --enable-ip6
+	make -C /tmp/click elemlist
+	make -C /tmp/click 
+
 build/main.o: main.cc
 	mkdir -p build
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

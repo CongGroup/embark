@@ -37,21 +37,6 @@ unsigned intValue(int x) {
 	return (unsigned)x;
 }
 
-/**
- * This is terrible - don't use it
- */
-int hashCode(int x) {
-    return x;
-}
-
-template<class T> class XFastTrieNode1;
-
-
-template<class T>
-unsigned hashCode(const XFastTrieNode1<T> *u) {
-	return u->prefix;
-}
-
 } /* namespace ods */
 
 
