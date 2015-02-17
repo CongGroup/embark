@@ -3,13 +3,13 @@ BIB = bibtex
 
 .PHONY: clean
 
-mbark.pdf: mbark.tex mbark.bib
-	$(TEX) mbark
-	$(BIB) mbark
-	$(TEX) mbark
-	$(TEX) mbark
+mb.pdf: mb.tex mb.bib
+	$(TEX) mb
+	$(BIB) mb
+	$(TEX) mb
+	$(TEX) mb
 
-mbark.bib: 
+mb.bib: 
 
 clean:
-	rm -rf *.log *.aux *.pdf *.bbl *.blg
+	rm -rf *.log *.aux *.pdf *.bbl *.blg *.out *.synctex.gz
