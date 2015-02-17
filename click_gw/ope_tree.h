@@ -7,6 +7,32 @@
 
 typedef unsigned __int128 uint128_t;
 
+inline uint128_t hton128(uint128_t n)
+{
+    uint32_t h0 = n & 0xffffffff;
+    uint32_t h1 = (n >> 32) & 0xffffffff;
+    uint32_t h2 = (n >> 64) & 0xffffffff;
+    uint32_t h3 = (n >> 96) & 0xffffffff;
+    uint128_t n0 = htonl(h0);
+    uint128_t n1 = htonl(h1);
+    uint128_t n2 = htonl(h2);
+    uint128_t n3 = htonl(h3);
+    return (n3) | (n2 << 32) | (n1 << 64) | (n0 << 96);
+}
+
+inline uint128_t ntoh128(uint128_t n)
+{
+    uint32_t n0 = n & 0xffffffff;
+    uint32_t n1 = (n >> 32) & 0xffffffff;
+    uint32_t n2 = (n >> 64) & 0xffffffff;
+    uint32_t n3 = (n >> 96) & 0xffffffff;
+    uint128_t h0 = ntohl(h0);
+    uint128_t h1 = ntohl(h1);
+    uint128_t h2 = ntohl(h2);
+    uint128_t h3 = ntohl(h3);
+    return (h3) | (h2 << 32) | (h1 << 64) | (h0 << 96);
+}
+
 static inline 
 uint128_t random128(std::default_random_engine& engine)
 {
@@ -21,7 +47,7 @@ uint128_t random128(std::default_random_engine& engine)
 static inline 
 uint128_t random_bound(std::default_random_engine& engine, const uint128_t& low, const uint128_t& high)
 {
-    return (random128(engine) % (high - low + 1)) + low;
+    return (random128(engine) % (high - low)) + low;
 }
 
 template <class Node, class EncType>

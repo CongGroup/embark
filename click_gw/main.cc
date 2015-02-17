@@ -28,6 +28,11 @@ operator<<( std::ostream& dest, uint128_t value )
 int main()
 {
     OPETree1<uint64_t> tree;
+    auto range = tree.ciphertext_range(324);
+    std::cout << (range.first) << " " << (range.second) << std::endl;
+
+    std::cout << tree.generate_ciphertext(324) << std::endl;
+
     tree.add(832423);
     tree.add(23948689);
     tree.add(8819290436560);
