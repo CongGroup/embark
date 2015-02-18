@@ -1,0 +1,191 @@
+#ifndef CLICK_SENDDEVICE_USERLEVEL_HH
+#define CLICK_SENDDEVICE_USERLEVEL_HH
+#include <click/element.hh>
+#include <click/string.hh>
+#include <click/task.hh>
+#include <click/timer.hh>
+#include <click/notifier.hh>
+#include "elements/userlevel/polldevice.hh"
+
+/* dpdk stuff */
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <sys/types.h>
+#include <string.h>
+#include <sys/queue.h>
+#include <netinet/in.h>
+#include <setjmp.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <errno.h>
+#include <getopt.h>
+
+#include <rte_config.h>
+
+#include <rte_common.h>
+#include <rte_log.h>
+#include <rte_memory.h>
+#include <rte_memcpy.h>
+#include <rte_memzone.h>
+#include <rte_tailq.h>
+#include <rte_eal.h>
+#include <rte_per_lcore.h>
+#include <rte_launch.h>
+#include <rte_atomic.h>
+#include <rte_cycles.h>
+#include <rte_prefetch.h>
+#include <rte_lcore.h>
+#include <rte_per_lcore.h>
+#include <rte_branch_prediction.h>
+#include <rte_interrupts.h>
+#include <rte_pci.h>
+#include <rte_random.h>
+#include <rte_debug.h>
+#include <rte_ether.h>
+#include <rte_ethdev.h>
+#include <rte_ring.h>
+#include <rte_mempool.h>
+#include <rte_mbuf.h>
+//#include <click/dpdk.hh>
+
+CLICK_DECLS
+
+/*
+ * =title ToDevice.u
+ * =c
+ * ToDevice(DEVNAME [, I<keywords>])
+ * =s netdevices
+ * sends packets to network device (user-level)
+ * =d
+ *
+ * This manual page describes the user-level version of the ToDevice element.
+ * For the Linux kernel module element, read the ToDevice(n) manual page.
+ *
+ * Pulls packets and sends them out the named device using
+ * Berkeley Packet Filters (or Linux equivalent).
+ *
+ * Keyword arguments are:
+ *
+ * =over 8
+ *
+ * =item BURST
+ *
+ * Integer. Maximum number of packets to pull per scheduling. Defaults to 1.
+ *
+ * =item METHOD
+ *
+ * Word. Defines the method ToDevice will use to write packets to the
+ * device. Linux targets generally support PCAP and LINUX; other targets
+ * support PCAP or, occasionally, other methods. Generally defaults to PCAP.
+ *
+ * =item DEBUG
+ *
+ * Boolean.  If true, print out debug messages.
+ *
+ * =back
+ *
+ * This element is only available at user level.
+ *
+ * =n
+ *
+ * Packets sent via ToDevice should already have a link-level
+ * header prepended. This means that ARP processing,
+ * for example, must already have been done.
+ *
+ * The L<FromDevice(n)> element's OUTBOUND keyword argument determines whether
+ * FromDevice receives packets sent by a ToDevice element for the same
+ * device.
+ *
+ * Packets that are written successfully are sent on output 0, if it exists.
+ * Packets that fail to be written are pushed out output 1, if it exists.
+
+ * KernelTun lets you send IP packets to the host kernel's IP processing code,
+ * sort of like the kernel module's ToHost element.
+ *
+ * =a
+ * FromDevice.u, FromDump, ToDump, KernelTun, ToDevice(n) */
+
+#if defined(__linux__)
+# define SENDDEVICE_ALLOW_LINUX 0
+#endif
+#if HAVE_PCAP && (HAVE_PCAP_INJECT || HAVE_PCAP_SENDPACKET)
+extern "C" {
+# include <pcap.h>
+}
+# define SENDDEVICE_ALLOW_PCAP 0
+#endif
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__NetBSD__)
+# define SENDDEVICE_ALLOW_DEVBPF 0
+#elif defined(__sun)
+# define SENDDEVICE_ALLOW_PCAPFD 0
+#endif
+class PollDevice;
+
+class SendDevice : public Element { public:
+
+    SendDevice();
+    ~SendDevice();
+
+    const char *class_name() const		{ return "SendDevice"; }
+    const char *port_count() const		{ return "1/0-2"; }
+    const char *processing() const		{ return "l/h"; }
+    const char *flags() const			{ return "S2"; }
+
+    int configure_phase() const { return KernelFilter::CONFIGURE_PHASE_TODEVICE; }
+    int configure(Vector<String> &, ErrorHandler *);
+    int initialize(ErrorHandler *);
+    void cleanup(CleanupStage);
+    void add_handlers();
+
+    String ifname() const			{ return _ifname; }
+  //int fd() const				{ return _fd; }
+
+    bool run_task(Task *);
+  //void selected(int fd, int mask);
+  struct rte_mbuf *pkts_burst[MAX_PKT_BURST];
+
+private:
+
+    Task _task;
+    Timer _timer;
+
+    String _ifname;
+#if SENDDEVICE_ALLOW_PCAP
+    pcap_t *_pcap;
+#endif
+#if SENDDEVICE_ALLOW_LINUX || SENDDEVICE_ALLOW_DEVBPF || SENDDEVICE_ALLOW_PCAPFD
+    int _fd;
+#endif
+    enum { method_linux, method_pcap, method_devbpf, method_pcapfd };
+    int _method;
+    NotifierSignal _signal;
+
+    Packet *_q;
+    int _burst;
+  uint8_t _portid;
+  uint16_t _queueid;
+
+    bool _debug;
+#if SENDDEVICE_ALLOW_PCAP
+    bool _my_pcap;
+#endif
+#if SENDDEVICE_ALLOW_LINUX || SENDDEVICE_ALLOW_DEVBPF || SENDDEVICE_ALLOW_PCAPFD
+    bool _my_fd;
+#endif
+    int _backoff;
+    unsigned int _pulls;
+  //maz: added for drops on senddevice() on transmit
+  unsigned int _drops;
+    
+  enum { h_debug, h_signal, h_pulls, h_q, h_drops };
+    PollDevice *find_fromdevice() const;
+  //int send_packet(Packet *p);
+    static int write_param(const String &in_s, Element *e, void *vparam, ErrorHandler *errh);
+    static String read_param(Element *e, void *thunk);
+
+};
+
+CLICK_ENDDECLS
+#endif

@@ -1,0 +1,7 @@
+pd0::PollDevice(p787p1, QUEUE 0, BURST 32)->Queue(100)->sd0::SendDevice(p785p2, QUEUE 0, BURST 32)
+pd1::PollDevice(p786p2, QUEUE 0, BURST 32)->Queue(100)->sd1::SendDevice(p786p1, QUEUE 0, BURST 32)
+
+StaticThreadSched(pd0 0)
+StaticThreadSched(pd1 1)
+StaticThreadSched(sd0 0)
+StaticThreadSched(sd1 1)

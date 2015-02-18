@@ -1,0 +1,53 @@
+elementclass PacketSource {
+  //FromDump contains complete packets up to EtherHeader
+  
+  //s::FromDump("/home/justine/mfiveseven.2.pcap", BIGMEM 20000) ->
+  //Strip(14) ->
+  //EncapSeqNo ->
+  //Random Source and InfiniteSource just generate Payloads, need to
+  //Encapsulate in UDP/IP header and EtherEncap.
+
+//  s::RandomSource(LENGTH 1200, BURST 64) ->
+  s::InfiniteSource(LENGTH 1000, BURST 32) ->
+  DynamicUDPIPEncap(1.0.0.1, 1234, 2.0.0.2, 1234, 1, 10) ->
+  SetIPChecksum ->
+//EncapSeqNo->
+  EtherEncap(0x800, 00:1e:67:9f:49:2a, 00:1e:67:9f:4d:aa ) ->
+  output;
+}
+
+//Each thread has own Discard elt and one packet source.
+
+
+
+i0::PacketSource;
+i1::PacketSource;
+i2::PacketSource;
+i3::PacketSource;
+
+i0 -> Queue(1000) -> td0::SendDevice(DEVNAME p513p1, QUEUE 0);
+i1 ->  Queue(1000) -> td1::SendDevice(p513p1, QUEUE 1);
+i2 ->  Queue(1000) -> td2::SendDevice(p513p1, QUEUE 2);
+i3 ->  Queue(1000) -> td3::SendDevice(p513p1, QUEUE 3);
+
+
+
+//dm::DriverManager(
+//  set a 0,
+//  label x,
+//  //print "WAITING",
+//  wait 1s,
+//  set e1 $(egress1.count),
+// set e0 $(egress0.count), 
+//  set e2 $(egress2.count), 
+//  set e3 $(egress3.count), 
+//  set b $(add $e0 $e1 $e2 $e3),
+//  //set b $(egress0.count),
+//  print "done $(sub $b $a) packets in 1s",
+//  set a $b,
+//  goto x 1
+//); 
+
+//StaticThreadSched(i0/s 0, dm 1)
+StaticThreadSched(i0/s 0, i1/s 1, i2/s 2, i3/s 3, td0 0, td1 1, td2 2, td3 3)
+//StaticThreadSched(i0/s 0, i1/s 1, dm 2)
