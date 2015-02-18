@@ -4,6 +4,7 @@
 #include "tree/ScapegoatTree.h"
 #include <limits>
 #include <random>
+#include <arpa/inet.h>
 
 typedef unsigned __int128 uint128_t;
 
