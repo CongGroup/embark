@@ -35,7 +35,7 @@ inline uint128_t ntoh128(uint128_t n)
 }
 
 static inline 
-uint128_t random128(std::default_random_engine& engine)
+uint128_t random128(std::random_device& engine)
 {
     uint128_t x0 = engine();
     uint128_t x1 = engine();
@@ -46,7 +46,7 @@ uint128_t random128(std::default_random_engine& engine)
 
 // TODO: Not exactly uniformed dist
 static inline 
-uint128_t random_bound(std::default_random_engine& engine, const uint128_t& low, const uint128_t& high)
+uint128_t random_bound(std::random_device& engine, const uint128_t& low, const uint128_t& high)
 {
     return (random128(engine) % (high - low)) + low;
 }
@@ -57,7 +57,7 @@ protected:
     using ods::BinaryTree<Node>::nil;
     using ods::BinaryTree<Node>::r;
 
-    std::default_random_engine generator;
+    std::random_device generator;
 
     uint128_t max_ciphertext_less_equal_than(const EncType& v) const;
     uint128_t min_ciphertext_greater_than(const EncType& v) const;
