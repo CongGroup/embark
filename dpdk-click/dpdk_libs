@@ -1,0 +1,1 @@
+export DPDK_LIBS='-lethdev -lrte_cmdline -lrte_eal -lrte_hash -lrte_lpm -lrte_malloc -lrte_mbuf -lrte_mempool -lrte_pmd_igb -lrte_pmd_ixgbe -lrte_ring -lrte_timer' 
