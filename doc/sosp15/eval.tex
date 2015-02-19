@@ -1,1 +1,45 @@
+%!TEX root = mb.tex
+
 \section{Evaluation} \label{sec:eval}
+
+To evalute \sys, we try to answer two questions:
+
+\begin{enumerate}
+\item What kind of middleboxes can \sys support?
+
+\item What is the performance overhead \sys brings?
+\end{enumerate}
+
+\todo{do we want to have a section on whether it changes the processing at the middlebox? 
+perhaps also a discussion
+of how easy it is to setup/configure/admin support for gateway?}
+
+\subsection{Functionality}
+
+Table~\ref{tab:apps} lists the various applications supported in the APLOMB model~\cite{aplomb} 
+and whether \sys supports them. 
+
+\begin{table}[t!]
+\begin{tabular}{p{3cm}|p{1.4cm}|p{2cm}|p{1cm}}
+Application & \sys supports? & Operations used & Details \\
+\hline \hline
+IP Firewall &  Yes  &  & \S\ref{sec:firewall} \\
+Application Firewall & XX & & \S\ref{sec:firewall}\\
+NAT & Yes  & & \S\ref{sec:nat} \\
+VPN Gateway & Yes & none & \S\ref{sec:vpn} \\ 
+Load Balancer L4 & & & \S\ref{sec:loadb}\\
+Load Balancer L7 & & & \S\ref{sec:loadb}\\
+WAN optimizer  & & & \S\ref{sec:not_supp}\\
+Web proxy/cache forward/ reverse & & & \S\ref{sec:proxy}\\
+IDS & & & \S\ref{sec:IDS}\\
+Exfiltration/parental filtering & & & \S\ref{sec:IDS} \\
+\todo{split this} 
+\end{tabular}
+\caption{Middlebox applications supported by \sys. \label{tab:apps}}
+\end{table}
+
+\todo{L4 firewall vs the other firewalls}
+
+cannot support reverse proxy and wan optimization -- explain why -- also these are causing problems to aplomb that some consider not even putting on cloud 
+
+\subsection{Performance evaluation}
