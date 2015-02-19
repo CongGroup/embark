@@ -16,7 +16,7 @@ click: mbarkgw.cc
 	cp -r mbarkgw.* /tmp/click/elements/local/
 	cp -r ope_tree.h /tmp/click/elements/local/
 	cp *.click /tmp/click/conf/
-	cd /tmp/click; ./configure --enable-local --enable-ip6 --enable-nanotimestamp
+	cd /tmp/click; ./configure --enable-nanotimestamp --enable-analysis --enable-ip6 --enable-ipsec --enable-local --enable-multithread --enable-intel-cpu 
 	make -C /tmp/click elemlist
 	make -C /tmp/click 
 

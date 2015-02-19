@@ -1,20 +1,31 @@
-FromDevice(DEVNAME en0)
-    -> SetTimestamp
-    -> Strip(14)
-    -> chk_ip :: CheckIPHeader;
+c :: Classifier(
+    12/86dd,
+    12/0806,
+    12/0800,
+    -);
 
-chk_ip[0]
-//    -> IPPrint
+FromDevice(DEVNAME en0) -> c;
+
+// Ignore IPv6 for now
+c[0] 
+    -> Discard;
+
+// ARP
+c[1] 
+    -> Discard;
+
+// IPv4
+c[2]
+//    -> Print
+    -> Strip(14)
+    -> chk_ip :: CheckIPHeader
     -> ProtocolTranslator46
+    -> SetTimestamp
     -> chk_ip6 :: CheckIP6Header
-//    -> IP6Print
     -> MBArkGateway
-//    -> IP6Print
     -> accum :: TimestampAccum
     -> Discard;
 
-chk_ip[1]
-    -> Discard;
-
-chk_ip6[1]
+// Other
+c[3] 
     -> Discard;
