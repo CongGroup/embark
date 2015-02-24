@@ -22,7 +22,7 @@ c[2]
     -> ProtocolTranslator46
     -> SetTimestamp
     -> chk_ip6 :: CheckIP6Header
-    -> MBArkGateway
+    -> MBArkGateway(FILENAME conf/fw.rules)
     -> accum :: TimestampAccum
     -> Discard;
 

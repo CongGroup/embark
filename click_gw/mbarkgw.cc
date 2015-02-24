@@ -1,6 +1,7 @@
 #include <click/config.h>
 #include <click/confparse.hh>
 #include <click/error.hh>
+#include <click/args.hh>
 #include <clicknet/ip.h>
 #include <clicknet/ip6.h>
 #include <clicknet/icmp.h>
@@ -19,6 +20,101 @@ MBArkGateway::MBArkGateway()
 
 MBArkGateway::~MBArkGateway()
 {
+}
+
+int
+MBArkGateway::configure(Vector<String> &conf, ErrorHandler *errh)
+{
+  if (_ff.configure_keywords(conf, this, errh) < 0)
+    return -1;
+  if (Args(conf, this, errh)
+  .read_mp("FILENAME", FilenameArg(), _ff.filename())
+  .complete() < 0)
+    return -1;
+  return 0;
+}
+
+int
+MBArkGateway::initialize(ErrorHandler *errh)
+{
+  if (_ff.initialize(errh) < 0)
+    return -1;
+  String line;
+  while (_ff.read_line(line, errh) > 0)
+  {
+    //click_chatter("Loading: %s", line.c_str());
+    String component[6];
+    int index = 0, start = 0;
+    for (int i = 0; i < line.length(); ++i) 
+    {
+      if (line[i] == '\t')
+      {
+        component[index++] = line.substring(start, i-start);
+        start = i+1;
+      }
+    }
+    // ip src
+    {
+      int delim = component[0].find_left('/');
+      String prefix(component[0].substring(1, delim-1));
+      int mask_len = atoi(component[0].substring(delim+1).c_str());
+      //click_chatter("prefix: %s, len: %d", prefix.c_str(), mask_len);
+      IPAddress mask(IPAddress::make_prefix(mask_len));
+      IPAddress addr(IPAddress(prefix) & mask);
+      IP6Address start(addr);
+      IP6Address end(addr | (~mask));
+      click_chatter("start: %s, end: %s", start.s().c_str(), end.s().c_str());
+
+      uint128_t *p1 = (uint128_t *) start.data();
+      src_addr_tree_.add(ntoh128(*p1));
+      uint128_t *p2 = (uint128_t *) end.data();
+      src_addr_tree_.add(ntoh128(*p2));
+      //assert(ntoh128(*p1) <= ntoh128(*p2));
+    }
+    // ip dst
+    {
+      int delim = component[1].find_left('/');
+      String prefix(component[1].substring(0, delim));
+      int mask_len = atoi(component[1].substring(delim+1).c_str());
+      //click_chatter("prefix: %s, len: %d", prefix.c_str(), mask_len);
+      IPAddress mask(IPAddress::make_prefix(mask_len));
+      IPAddress addr(IPAddress(prefix) & mask);
+      IP6Address start(addr);
+      IP6Address end(addr | (~mask));
+      //click_chatter("start: %s, end: %s", start.s().c_str(), end.s().c_str());
+
+      uint128_t *p = (uint128_t *) start.data();
+      dst_addr_tree_.add(ntoh128(*p));
+      p = (uint128_t *) end.data();
+      dst_addr_tree_.add(ntoh128(*p));
+    }
+    // port src
+    {
+      int delim = component[2].find_left(':');
+      String start = component[2].substring(0, delim);
+      String end = component[2].substring(delim+1);
+      src_port_tree_.add(atoi(start.c_str()));
+      src_port_tree_.add(atoi(end.c_str()));
+    }
+    // port dst
+    {
+      int delim = component[3].find_left(':');
+      String start = component[3].substring(0, delim);
+      String end = component[3].substring(delim+1);
+      dst_port_tree_.add(atoi(start.c_str()));
+      dst_port_tree_.add(atoi(end.c_str()));
+    }
+    // proto
+    {
+      int delim = component[4].find_left('/');
+      String val = component[4].substring(0, delim);
+      String mask = component[4].substring(delim+1);
+      uint8_t proto = strtoul(val.c_str(), nullptr, 16) & strtoul(mask.c_str(), nullptr, 16);
+      proto_tree_.add(proto);
+    }
+  }
+  click_chatter("Finished loading firewall rules.");
+  return 0;
 }
 
 void
