@@ -13,4 +13,11 @@ Compare to CryptDB here carefully.
 
 \subsection{Work related to our building blocks}
 
--- what we build on here and the relationship of OPE with mOPE and others
+-- what we build on here and the relationship of OPE with mOPE and others, range queries and others
+
+% some points on comparison to mOPE from a technical standpoint
+%The tree is stored at the gateway. The tree contains as nodes the ends of the intervals as opposed to all values encoded-- thus, the tree is much smaller. firewalls have on the order of thousands such rules, so the tree is not large. also store only ranges and not everything encoded, making it smaller and fit into the gateway, etc., they need adjustments when they encrypt too, etc. -- better point to related work for this
+%Difference:
+% we encode different values in the tree, have a different encryption algorithm, and create a much smaller tree that can be stored at the gateway. no roundtrips any more; they don't have the deterministic property
+%store the tree at the gateway.
+% This tree is stored at the gateway. The tree stores edges of the interval 

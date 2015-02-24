@@ -60,7 +60,7 @@
 	<array>
 		<dict>
 			<key>Bounds</key>
-			<string>{{114.24691772460938, 106.5}, {87, 14}}</string>
+			<string>{{114.24691772460938, 113}, {87, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -115,7 +115,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{358.24691772460938, 303.5}, {60, 14}}</string>
+			<string>{{358.24691772460938, 301.5}, {60, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -170,7 +170,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{251.49383544921875, 301}, {53, 14}}</string>
+			<string>{{251.49383544921875, 301.5}, {53, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -280,7 +280,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{407.99691772460938, 317.5}, {60, 14}}</string>
+			<string>{{407.99691772460938, 317}, {60, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -335,7 +335,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{201.5, 317.5}, {53, 14}}</string>
+			<string>{{201.5, 316.5}, {53, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -390,7 +390,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{298.24691772460938, 317.5}, {60, 14}}</string>
+			<string>{{298.24691772460938, 316.5}, {60, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -500,7 +500,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{470.99383544921875, 297.5}, {112.75308227539062, 14}}</string>
+			<string>{{468.49383544921875, 301.5}, {112.75308227539062, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -555,7 +555,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{107.5, 297.5}, {53, 14}}</string>
+			<string>{{107.5, 298}, {53, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -667,7 +667,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{287, 118}, {93, 14}}</string>
+			<string>{{286, 118.5}, {93, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -777,7 +777,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{134, 197}, {60, 14}}</string>
+			<string>{{133.5, 197}, {60, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -887,7 +887,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{344.5, 197}, {73, 14}}</string>
+			<string>{{337.5, 197}, {73, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -1577,7 +1577,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2015-02-23 14:23:37 +0000</string>
+	<string>2015-02-23 14:34:19 +0000</string>
 	<key>Modifier</key>
 	<string>Raluca Ada Popa</string>
 	<key>NotesVisible</key>
@@ -1677,7 +1677,7 @@
 		<key>SidebarWidth</key>
 		<integer>120</integer>
 		<key>VisibleRegion</key>
-		<string>{{2, 47}, {751, 366.5}}</string>
+		<string>{{2, 52.5}, {751, 366.5}}</string>
 		<key>Zoom</key>
 		<real>2</real>
 		<key>ZoomValues</key>

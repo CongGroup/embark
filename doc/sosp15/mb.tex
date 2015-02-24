@@ -154,10 +154,13 @@
 \newcommand{\eval}{\mathsf{Eval}}
 \newcommand{\sig}{\mathsf{sig}}
 \newcommand{\Enc}{\mathsf{Enc}}
+\newcommand{\enc}{\Enc}
 
-\renewcommand{\mod}{\mathsf{mod}}
+\renewcommand{\mod}{\mathsf{mod}\xspace}
 
-
+\newcommand{\low}{\mathsf{low}\xspace}
+\newcommand{\high}{\mathsf{high}\xspace}
+\newcommand{\prf}{\mathsf{prf}\xspace}
 
 \newcommand{\twosnortcom}{67\%}
 \newcommand{\twosnortemerge}{42\%}
@@ -221,7 +224,7 @@
 \newcommand{\vs}[1]{{\color{Red} VS: {#1}}}
 \newcommand{\sr}[1]{{\color{CarnationPink} SR: {#1}}} % :)
 \newcommand{\shaddi}[1]{{\color{SkyBlue} SH: {#1}}} % :)
-
+\newcommand{\qu}[1]{{\color{blue} Q: {#1}}} 
 
 
 \begin{document}
@@ -355,6 +358,8 @@
 
 \input{primitives}
 
+\input{range}
+
 \input{apps}
 
 \input{integration}
@@ -374,11 +379,16 @@
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
 \bibliographystyle{abbrv}
-\bibliography{mbark}  % sigproc.bib is the name of the Bibliography in this case
+    \bibliography{related_work,cryptobib,rp,rp-str,rp-conf}
+  % sigproc.bib is the name of the Bibliography in this case
 % You must have a proper ".bib" file
 %  and remember to run:
 % latex bibtex latex latex
 % to resolve all references
+
+
+
+
 %
 % ACM needs 'a single self-contained file'!
 %
