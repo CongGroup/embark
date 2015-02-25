@@ -63,7 +63,7 @@ MBArkGateway::initialize(ErrorHandler *errh)
       IPAddress addr(IPAddress(prefix) & mask);
       IP6Address start(addr);
       IP6Address end(addr | (~mask));
-      click_chatter("start: %s, end: %s", start.s().c_str(), end.s().c_str());
+      //click_chatter("start: %s, end: %s", start.s().c_str(), end.s().c_str());
 
       uint128_t *p1 = (uint128_t *) start.data();
       src_addr_tree_.add(ntoh128(*p1));
