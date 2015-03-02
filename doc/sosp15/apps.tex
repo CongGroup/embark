@@ -2,6 +2,70 @@
 
 \section{Firewall}\label{sec:firewall}
 
+Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
+in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
+can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
+<action, protocol, src ip, src port, dst ip, dst port>. Without loss of generality, we take \texttt{pf}, the 
+default firewall under BSD, as an example to illustrate how \sys works with firewalls. Figure \ref{fig:fwrule1} 
+shows an example of \texttt{pf} rules. 
+
+\begin{figure}[h]\label{fig:fwrule1}
+\begin{lstlisting}[frame=single]
+ext_if = "kue0"
+
+block out log quick on $ext_if \
+from 157.161.48.0/24 to any
+
+block in quick on $ext_if \
+from any to 255.255.255.255
+
+pass out on $ext_if proto tcp \
+from any to any port 80
+\end{lstlisting}
+\caption{\texttt{pf} configuration example}
+\end{figure}
+
+To work with \sys, we need to rewrite the rules above. Using the Range Match scheme, we encode all IP addresses, 
+prefixes, and port numbers. Note that \texttt{any} is the alias of \texttt{0.0.0.0/0}. Recall that in Section \ref{sec:range}
+we want to keep the chance of collision as low as possible, therefore we map the IPv4 addresses into the IPv6 space.
+For example, to encode the IP prefix \texttt{157.161.48.0/24}, the gateway first extends it to \texttt{::ffff:157.161.48.0/120}.
+Now the prefix represents the range from \texttt{::ffff:157.161.48.0} to \texttt{::ffff:157.161.48.255}. The gateway then insert
+both endpoints to the tree, and gets their encoded values. 
+
+Suppose those two values are \texttt{fd6a:1faf:577b:bee4:0:0:0:0} and
+\texttt{fd6a:1faf:577b:bee4:0:1:0:1}. Note that we can't represent this range using a single prefix, instead it has to be 
+represented by at least two prefixes (\texttt{fd6a:1faf:577b:bee4:0:0:0:0/96} and \texttt{fd6a:1faf:577b:bee4:0:1:0:0/127}).
+In this case, we have to split the original rule into 2 new rules:
+
+\begin{lstlisting}[frame=single]
+block out log quick on $ext_if \
+from fd6a:1faf:577b:bee4:0:0:0:0/96 to any
+
+block out log quick on $ext_if \
+from fd6a:1faf:577b:bee4:0:1:0:0/127 to any
+\end{lstlisting}
+
+\todo{evaluate how many additional new rules are needed.}
+
+After the gateway has rewritten the rules, it sends the rules back to the firewall on the cloud so that the
+firewall can filter packets using the new rules.
+
+Every time the gateway forwards a packet from the user, it replace the IPv4 header with the IPv6 header 
+using the Stateless IP/ICMP Translation (SIIT) \cite{rfc2765}. The purpose of this operation is to leave 
+enough address space for avoiding address collision. The gateway then encrypts the source IP, source port, 
+destination IP, destination port fields using the Range Match scheme in Section \ref{sec:range}. In addition,
+the gateway appends an additional header containing the ciphertexts.
+
+\todo{a diagram that shows the packet format before and after encryption}
+
+To remark, a key contribution of our scheme is that firewall implementation don't need to be changed. The central 
+piece of packet filtering is packet classification, which is essentially a problem of finding a hyperrectangle 
+that contains a point from a given set of hyperrectangles. Our Range Match scheme keeps the order among the coordinates 
+of hyperrectangles, and the order between the coordinates of hyperrectangles and points. In other words, 
+their topological relations are preserved. Therefore firewalls still work with \sys without modification. This 
+property is important, since many high-speed firewalls are implemented in hardware, which is difficult and 
+expensive to redesign.
+
 - describe how we rewrite rules 
 
 - give an example of a rewritten rule
