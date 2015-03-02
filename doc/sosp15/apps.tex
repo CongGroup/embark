@@ -23,7 +23,34 @@ L7 load balancer
 
 \section{Proxy/cache}\label{sec:proxy}
 
+
+we are focusing on the transparent proxy
+- discuss the kind of proxies we are focusing on
+
+proxies have two benefits: latency savings which aplomb does not give you 
+and bandwidth savings, which aplomb gives you
+ 
 L7 Proxy / Cache
+
+explain how the proxy finds if there is  a match --looks at header bytes
+extra field attached to the packet -- gateway understands http and points out file id, 
+
+discuss both cases: cache miss and hit
+
+- two indep tcp connections 
+
+how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
+http and tags what is content and what is ID
+
+the web proxy needs to send http response 
+
+proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
+and matches GET and a few others -- avoid parsing http this way
+
+
+discuss how the proxy can reconstruct the response?
+can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
+--- check the http header details
 
 \section{IDS and Exfiltration}\label{sec:IDS}
 
