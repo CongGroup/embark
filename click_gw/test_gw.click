@@ -1,32 +1,34 @@
-c :: Classifier(
-    12/86dd,
-    12/0806,
-    12/0800,
-    -);
+elementclass MBarkGateway {
+    $rule |
+    input -> ProtocolTranslator46
+    -> MBArkGateway(FILENAME $rule)
+}
 
-//FromDevice(DEVNAME en0) -> c;
-FromDump(FILENAME /project/cs/netsys/data/pcaps/m57/m57.pcap, STOP true) -> c;
+//FromDump(FILENAME /project/cs/netsys/data/pcaps/m57/m57.pcap, STOP true) -> c;
 
-// Ignore IPv6 for now
-c[0] 
-    -> Discard;
+pd0::PollDevice(p513p1, QUEUE 0, BURST 32) -> Strip(14)
+    -> gw0::MBarkGateway(conf/test_fw.rules)
+    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
+    -> SimpleQueue(20000)
+    -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
 
-// ARP
-c[1] 
-    -> Discard;
+pd1::PollDevice(p513p1, QUEUE 1, BURST 32) -> Strip(14)
+    -> gw1::MBarkGateway(conf/test_fw.rules)
+    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
+    -> SimpleQueue(20000)
+    -> sd1::SendDevice(p513p2, QUEUE 1, BURST 32);
 
-// IPv4
-c[2]
-//    -> Print
-    -> Strip(14)
-    -> chk_ip :: CheckIPHeader
-    -> ProtocolTranslator46
-    -> SetTimestamp
-    -> chk_ip6 :: CheckIP6Header
-    -> MBArkGateway(FILENAME conf/test_fw.rules)
-    -> accum :: TimestampAccum
-    -> Discard;
+pd2::PollDevice(p513p1, QUEUE 2, BURST 32) -> Strip(14)
+    -> gw2::MBarkGateway(conf/test_fw.rules)
+    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
+    -> SimpleQueue(20000)
+    -> sd2::SendDevice(p513p2, QUEUE 2, BURST 32);
 
-// Other
-c[3] 
-    -> Discard;
+pd3::PollDevice(p513p1, QUEUE 3, BURST 32) -> Strip(14)
+    -> gw3::MBarkGateway(conf/test_fw.rules)
+    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
+    -> SimpleQueue(20000)
+    -> sd3::SendDevice(p513p2, QUEUE 3, BURST 32);
+
+StaticThreadSched(pd0 1, pd1 2, pd2 3, pd3 4);
+StaticThreadSched(sd0 5, sd1 6, sd2 7, sd3 8);
