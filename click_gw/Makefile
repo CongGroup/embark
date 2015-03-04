@@ -34,7 +34,7 @@ dpdk: mbarkgw.cc
 	cp *.click $(BUILD_DIR)/dpdk-click/conf/
 	cp *.rules $(BUILD_DIR)/dpdk-click/conf/
 	cp *.sh $(BUILD_DIR)/dpdk-click/
-	cd $(BUILD_DIR)/dpdk-click; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
+	cd $(BUILD_DIR)/dpdk-click; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
 	#make -C $(BUILD_DIR)/dpdk-click elemlist
 	make -C $(BUILD_DIR)/dpdk-click
 
