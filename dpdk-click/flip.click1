@@ -1,1 +1,0 @@
-PollDevice(p787p1, QUEUE 0, BURST 32)->Queue(100)->SendDevice(p787p1, QUEUE 0, BURST 32)

@@ -30,7 +30,7 @@ CLICKLINUX_SRCDIR = NONE
 CLICKLINUX_MAKEARGS = 
 CLICKLINUX_FIXINCLUDES_PROGRAM = 
 
-CLICKCPPFLAGS = -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include
+CLICKCPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include
 CLICKCFLAGS = -g -O2 -W -Wall
 CLICKKERNEL_CFLAGS =  -O2
 CLICKCXXFLAGS = -g -O2
@@ -39,7 +39,7 @@ CLICKDEPCFLAGS = -MD -MP
 
 CLICKDEFS = -DHAVE_CONFIG_H
 CLICKINCLUDES = -I$(clickincludedir) -I$(clicksrcdir) 
-CLICKLDFLAGS = -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
+CLICKLDFLAGS = -L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib
 CLICKLDMODULEFLAGS = 
 
 CLICKAUTOCONF = autoconf

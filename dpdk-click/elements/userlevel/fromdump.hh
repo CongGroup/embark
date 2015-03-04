@@ -108,6 +108,10 @@ This can result in slightly better performance on some machines. FromDump's
 regular file discipline is pretty optimized, so the difference is often small
 in practice. Default is true on most operating systems, but false on Linux.
 
+=item BIGMEM
+
+Boolean. Load the whole pcap in to memory for faster performance at runtime (but slower performance at initialization!)
+
 =back
 
 You can supply at most one of START and START_AFTER, and at most one of END,
@@ -228,6 +232,10 @@ class FromDump : public Element { public:
     bool _last_time_relative : 1;
     bool _last_time_interval : 1;
     bool _active;
+    int _bigmem;
+    int _bigmemidx;
+    int _packetscount;
+    Packet** _bigmembuf;
     unsigned _extra_pkthdr_crap;
     unsigned _sampling_prob;
     int _minor_version;

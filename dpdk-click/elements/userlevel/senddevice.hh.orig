@@ -146,6 +146,7 @@ class SendDevice : public Element { public:
   //void selected(int fd, int mask);
   struct rte_mbuf *pkts_burst[MAX_PKT_BURST];
 
+  //void push(int, Packet* p);
 private:
 
     Task _task;

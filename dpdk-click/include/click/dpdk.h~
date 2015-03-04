@@ -10,7 +10,7 @@ extern "C" {
 #define RTE_LOGTYPE_DPDK RTE_LOGTYPE_USER1
 #define DPDK_MAX_PORTS 32
 #define MBUF_SIZE (2048 + sizeof(struct rte_mbuf) + RTE_PKTMBUF_HEADROOM)
-#define NB_MBUF   8192 * 2
+#define NB_MBUF   8192*6
 
 /* Multi-queue and RSS related configs, set CLICK_RSS_ON to 1 if you need to turn on the 
    feature and set RX and TX number of queues > 1, ow, set RX queue numbers to 1
@@ -25,9 +25,9 @@ extern "C" {
 //values should not be changed here unless you have read the NIC's programming
 //manual, DPDK user guide for setting these and know what you are doing
 /**< CRC stripped by hardware in the NIC*/
-#define HW_STRIP_CRC 1
+#define HW_STRIP_CRC 0
 /**< turn on IP checksum calc by hardware in the NIC*/
-#define HW_IP_CHECKSUM 1
+#define HW_IP_CHECKSUM 0
 #define SPLIT_HDR_SIZE 0
 #define HEADER_SPLIT 0
 #define HW_VLAN_FILTER 0

@@ -59,7 +59,7 @@ class Unqueue2 : public Element { public:
 
   private:
 
-    int _burst;
+    uint32_t _burst;
     unsigned _count;
     Task _task;
     Vector<Storage *> _queues;

@@ -34,121 +34,122 @@ RandomSource::~RandomSource()
 {
 }
 
-int
+  int
 RandomSource::configure(Vector<String> &conf, ErrorHandler *errh)
 {
-    ActiveNotifier::initialize(Notifier::EMPTY_NOTIFIER, router());
-    counter_t limit = -1;
-    int burstsize = 1;
-    int datasize = -1;
-    bool active = true, stop = false;
-    HandlerCall end_h;
+  ActiveNotifier::initialize(Notifier::EMPTY_NOTIFIER, router());
+  counter_t limit = -1;
+  int burstsize = 1;
+  int datasize = -1;
+  bool active = true, stop = false;
+  HandlerCall end_h;
 
-    if (Args(conf, this, errh)
-	.read_mp("LENGTH", datasize)
-	.read_p("LIMIT", limit)
-	.read_p("BURST", burstsize)
-	.read_p("ACTIVE", active)
-	.read("STOP", stop)
-	.read("END_CALL", HandlerCallArg(HandlerCall::writable), end_h)
-	.complete() < 0)
-	return -1;
-    if (datasize < 0 || datasize >= 64*1024)
-	return errh->error("bad length %d", datasize);
-    if (burstsize < 1)
-	return errh->error("burst size must be >= 1");
-    if (stop && end_h)
-	return errh->error("END_CALL and STOP are mutually exclusive");
+  if (Args(conf, this, errh)
+      .read_mp("LENGTH", datasize)
+      .read_p("LIMIT", limit)
+      .read_p("BURST", burstsize)
+      .read_p("ACTIVE", active)
+      .read("STOP", stop)
+      .read("END_CALL", HandlerCallArg(HandlerCall::writable), end_h)
+      .complete() < 0)
+    return -1;
+  if (datasize < 0 || datasize >= 64*1024)
+    return errh->error("bad length %d", datasize);
+  if (burstsize < 1)
+    return errh->error("burst size must be >= 1");
+  if (stop && end_h)
+    return errh->error("END_CALL and STOP are mutually exclusive");
 
-    _datasize = datasize;
-    _limit = limit;
-    _burstsize = burstsize;
-    _count = 0;
-    _active = active;
-    delete _end_h;
-    if (end_h)
-	_end_h = new HandlerCall(end_h);
-    else if (stop)
-	_end_h = new HandlerCall("stop");
-    else
-	_end_h = 0;
+  _datasize = datasize;
+  _limit = limit;
+  _burstsize = burstsize;
+  _count = 0;
+  _active = active;
+  delete _end_h;
+  if (end_h)
+    _end_h = new HandlerCall(end_h);
+  else if (stop)
+    _end_h = new HandlerCall("stop");
+  else
+    _end_h = 0;
 
-    return 0;
+  return 0;
 }
 
-bool
+  bool
 RandomSource::run_task(Task *)
 {
-    if (!_active || !_nonfull_signal)
-	return false;
-    int n = _burstsize;
-    if (_limit >= 0 && _count + n >= (ucounter_t) _limit)
-	n = (_count > (ucounter_t) _limit ? 0 : _limit - _count);
-    for (int i = 0; i < n; i++) {
-	Packet *p = make_packet();
-	output(0).push(p);
-    }
-    _count += n;
-    if (n > 0)
-	_task.fast_reschedule();
-    else if (_end_h && _limit >= 0 && _count >= (ucounter_t) _limit)
-	(void) _end_h->call_write();
-    return n > 0;
+  if (!_active || !_nonfull_signal)
+    return false;
+  int n = _burstsize;
+  if (_limit >= 0 && _count + n >= (ucounter_t) _limit)
+    n = (_count > (ucounter_t) _limit ? 0 : _limit - _count);
+  for (int i = 0; i < n; i++) {
+    Packet *p = make_packet();
+    p->_parent_thread = (uint8_t) home_thread()->thread_id();
+    output(0).push(p);
+  }
+  _count += n;
+  if (n > 0)
+    _task.fast_reschedule();
+  else if (_end_h && _limit >= 0 && _count >= (ucounter_t) _limit)
+    (void) _end_h->call_write();
+  return n > 0;
 }
 
-Packet *
+  Packet *
 RandomSource::pull(int)
 {
-    if (!_active) {
-    done:
-	if (Notifier::active())
-	    sleep();
-	return 0;
-    }
-    if (_limit >= 0 && _count >= (ucounter_t) _limit) {
-	if (_end_h)
-	    (void) _end_h->call_write();
-	goto done;
-    }
-    _count++;
-    Packet *p = make_packet();
-    return p;
+  if (!_active) {
+done:
+    if (Notifier::active())
+      sleep();
+    return 0;
+  }
+  if (_limit >= 0 && _count >= (ucounter_t) _limit) {
+    if (_end_h)
+      (void) _end_h->call_write();
+    goto done;
+  }
+  _count++;
+  Packet *p = make_packet();
+  return p;
 }
 
-Packet *
+  Packet *
 RandomSource::make_packet()
 {
-    WritablePacket *p = Packet::make(36, (const unsigned char*)0, _datasize, 0);
+  WritablePacket *p = Packet::make(36, (const unsigned char*)0, _datasize, 0);
 
-    int i;
-    char *d = (char *) p->data();
-    for (i = 0; i < _datasize; i += sizeof(int))
-	*(int*)(d + i) = click_random();
-    for( ; i < _datasize; i++)
-	*(d + i) = click_random();
+  int i;
+  char *d = (char *) p->data();
+  for (i = 0; i < _datasize; i += sizeof(int))
+    *(int*)(d + i) = click_random();
+  for( ; i < _datasize; i++)
+    *(d + i) = click_random();
 
-    if (_timestamp)
-	p->timestamp_anno().assign_now();
-    return p;
+  if (_timestamp)
+    p->timestamp_anno().assign_now();
+  return p;
 }
 
-void
+  void
 RandomSource::add_handlers()
 {
-    add_data_handlers("limit", Handler::OP_READ | Handler::CALM, &_limit);
-    add_write_handler("limit", change_param, h_limit);
-    add_data_handlers("burst", Handler::OP_READ | Handler::CALM, &_burstsize);
-    add_write_handler("burst", change_param, h_burst);
-    add_data_handlers("active", Handler::OP_READ | Handler::CHECKBOX, &_active);
-    add_write_handler("active", change_param, h_active);
-    add_data_handlers("count", Handler::OP_READ, &_count);
-    add_write_handler("reset", change_param, h_reset, Handler::BUTTON);
-    add_data_handlers("length", Handler::OP_READ | Handler::CALM, &_datasize);
-    add_write_handler("length", change_param, h_length);
-    if (output_is_push(0))
-	add_task_handlers(&_task);
+  add_data_handlers("limit", Handler::OP_READ | Handler::CALM, &_limit);
+  add_write_handler("limit", change_param, h_limit);
+  add_data_handlers("burst", Handler::OP_READ | Handler::CALM, &_burstsize);
+  add_write_handler("burst", change_param, h_burst);
+  add_data_handlers("active", Handler::OP_READ | Handler::CHECKBOX, &_active);
+  add_write_handler("active", change_param, h_active);
+  add_data_handlers("count", Handler::OP_READ, &_count);
+  add_write_handler("reset", change_param, h_reset, Handler::BUTTON);
+  add_data_handlers("length", Handler::OP_READ | Handler::CALM, &_datasize);
+  add_write_handler("length", change_param, h_length);
+  if (output_is_push(0))
+    add_task_handlers(&_task);
 }
 
-CLICK_ENDDECLS
-EXPORT_ELEMENT(RandomSource)
+  CLICK_ENDDECLS
+  EXPORT_ELEMENT(RandomSource)
 ELEMENT_MT_SAFE(RandomSource)
