@@ -140,14 +140,16 @@ MBArkGateway::encrypt(Packet *p)
   click_ip6 *ip = (click_ip6 *)q->data();
   ext_hdr *option = (ext_hdr *)(ip + 1);
 
-  q->put(sizeof(ext_hdr));
-  memcpy(option + 1, option, ip->ip6_plen);
+  q = q->put(sizeof(ext_hdr));
+  uint16_t plen = ntohs(ip->ip6_plen);
+
+  memcpy(option + 1, option, plen);
   memset(option, 0, sizeof(ext_hdr));
   option->next_hdr = ip->ip6_nxt;
   option->hdr_ext_len = 51;
 
   ip->ip6_nxt = 60;
-  ip->ip6_plen += sizeof(ext_hdr);
+  ip->ip6_plen = htons(plen + sizeof(ext_hdr));
 
   click_udp *udp = (click_udp *)(option + 1);
 
