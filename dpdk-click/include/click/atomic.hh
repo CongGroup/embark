@@ -83,13 +83,7 @@ class atomic_uint32_t { public:
 
   private:
 
-#if CLICK_LINUXMODULE
-    atomic_t _val;
-#elif HAVE_MULTITHREAD
     volatile uint32_t _val;
-#else
-    uint32_t _val;
-#endif
 
 };
 

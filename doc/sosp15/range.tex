@@ -1,6 +1,8 @@
 %!TEX root = mb.tex
 
-\subsection{Range match on encrypted packets} \label{sec:range}
+\clan{TODO: Reorganize this section, so that it does not have much to do with network processing. Talk about principles primarily in this section, then go into details in firewall section.}
+
+\subsubsection{Range match on encrypted packets} \label{sec:range}
 
 Matching an encrypted value from a packet against an encrypted range is a basic operation for many middleboxes (e.g., firewall). 
 For example, it is needed to implement a firewall. 
@@ -52,7 +54,7 @@ In addition to being more secure and more fit to this setting than the order-pre
 \qu{what is more in our favor - to present it as a new encryption scheme that can be understood by a systems audience, or as a new encoding scheme that is mostly a systems technique as above?}
 
 
-\subsection{Our Range Match scheme} 
+\subsubsection{Our Range Match scheme} 
 
 
 Recall that we want to design an encoding algorithm using which we can encode intervals  $[\Enc(s_1), \Enc(e_1)]$, $\dots$, $[\Enc(s_n), \Enc(e_n)]$ to be stored at the service provider and then we can encode  $\Enc(v)$, the service provider can determine in which interval $v$ lies, if it lies in any interval at all. 
@@ -93,7 +95,7 @@ readjust all the encodings of these intervals to make space for the new interval
 
 We now explain concretely the API and the implementation of the scheme. 
 
-\subsection{Gateway API}
+\subsubsection{Gateway API}
 
 The gateway can use the following functions. 
 
@@ -167,7 +169,7 @@ Since we are using a scapegoat tree, the number of nodes that change position du
 
 DeleteRange is similar, except that the only result is the list $L$ of changes. 
 
-\subsection{Cloud API}
+\subsubsection{Cloud API}
 
 The cloud can run ``$\ge$'' and "$\le$" between any encoded value $\enc(v)$ and encoded enpoint $\enc(s)$ and $\enc(e)$, and obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$ is meaningless, and returns a random value.
 

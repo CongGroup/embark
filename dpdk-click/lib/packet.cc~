@@ -569,6 +569,33 @@ Packet::make(unsigned char *data, uint32_t length,
     }
     return p;
 }
+
+/*
+WritablePacket *
+Packet::make(unsigned char *data, uint32_t length, unsigned char *ptr_head, uint16_t buf_len,
+             void (*destructor)(unsigned char *, size_t), bool has_rte_mbuf)
+{
+# if HAVE_CLICK_PACKET_POOL
+    WritablePacket *p = WritablePacket::pool_allocate(false);
+# else
+    WritablePacket *p = new WritablePacket;
+# endif
+    if (p) {
+        p->initialize();
+        p->_has_rte_mbuf = has_rte_mbuf;        
+        p->_head = ptr_head;
+	//getting the mbuf address of the packet
+	p->ptr_mbuf = RTE_MBUF_FROM_BADDR(ptr_head);
+        p->_data = data;
+        //there is no current specific/extra tailroom for rte_mbufs 
+        //only what is left beyond pkt_len up to buf_len
+        p->_tail = data + length;
+        p->_end = ptr_head + buf_len;
+        p->_destructor = destructor;
+    }
+    return p;
+}
+*/
 #endif
 
 
@@ -635,11 +662,6 @@ WritablePacket *
 Packet::expensive_uniqueify(int32_t extra_headroom, int32_t extra_tailroom,
 			    bool free_on_failure)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_uniquefy");  
-    return 0;
-  }
     assert(extra_headroom >= (int32_t)(-headroom()) && extra_tailroom >= (int32_t)(-tailroom()));
 
 #if CLICK_LINUXMODULE
@@ -820,12 +842,6 @@ Packet::dup_jumbo_m(struct mbuf *m)
 WritablePacket *
 Packet::expensive_push(uint32_t nbytes)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_push");
-    return 0;
-  }
-
   static int chatter = 0;
   if (headroom() < nbytes && chatter < 5) {
     click_chatter("expensive Packet::push; have %d wanted %d",
@@ -851,12 +867,6 @@ Packet::expensive_push(uint32_t nbytes)
 WritablePacket *
 Packet::expensive_put(uint32_t nbytes)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_pull");
-    return 0;
-  }
-
   static int chatter = 0;
   if (tailroom() < nbytes && chatter < 5) {
     click_chatter("expensive Packet::put; have %d wanted %d",

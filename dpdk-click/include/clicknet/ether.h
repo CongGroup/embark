@@ -29,8 +29,6 @@ struct click_ether {
 #define ETHERTYPE_PPPOE_DISC	0x8863
 #define ETHERTYPE_PPPOE_SESSION	0x8864
 #define ETHERTYPE_GRID		0x7fff	/* wvlan_cs driver won't transmit frames with high bit of protocol number set */
-#define ETHERTYPE_FTMB 0x7ff6
-
 
 struct click_arp {		/* Offsets relative to ARP (Ethernet) header */
     uint16_t	ar_hrd;		/* 0-1 (14-15)  hardware address format      */

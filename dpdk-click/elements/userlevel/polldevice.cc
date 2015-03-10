@@ -24,6 +24,9 @@
 #include <click/config.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <click/router.hh>
+#include <iostream>
+#include <click/master.hh>
 #if !defined(__sun)
 # include <sys/ioctl.h>
 #else
@@ -66,6 +69,7 @@ PollDevice::PollDevice()
     _fd = -1;
 #endif
 }
+
 
 PollDevice::~PollDevice()
 {
@@ -427,44 +431,20 @@ PollDevice::selected(int, int)
 bool
 PollDevice::run_task(Task *)
 {
+  //std::cout << "RUNNING POLLDEVICE " << std::endl;
     struct rte_mbuf *m;
     //unsigned lcore_id;
     unsigned i, j, nb_rx, ret;
 
     //lcore_id = rte_lcore_id();
+
     nb_rx = rte_eth_rx_burst((uint8_t) _portid,  _queueid, pkts_burst, _burst);
 	_count += nb_rx;
-	if (nb_rx > 0) {
-#if 0
-	    /* Prefetch first packets */
-	    for (j = 0; j < PREFETCH_OFFSET && j < nb_rx; j++)
-		rte_prefetch0(rte_pktmbuf_mtod(pkts_burst[j], void *));
-
-	    /* Prefetch and forward already prefetched packets */
-	    for (j = 0; j < (nb_rx - PREFETCH_OFFSET); j++) { 
-		rte_prefetch0(rte_pktmbuf_mtod(pkts_burst[j + PREFETCH_OFFSET], void *));
-		Packet *p = Packet::make(rte_pktmbuf_mtod(pkts_burst[j], u_char*), 
-					 rte_pktmbuf_pkt_len(pkts_burst[j]), 
-					 (u_char*) pkts_burst[j]->buf_addr, 
-					 pkts_burst[j]->buf_len, 
-					 &Packet::dest, true);
-		this->output(0).push(p);
-	    }
-		
-	    /* Forward remaining prefetched packets */
-	    for (; j < nb_rx; j++) {
-		Packet *p = Packet::make(rte_pktmbuf_mtod(pkts_burst[j], u_char*), 
-					 rte_pktmbuf_pkt_len(pkts_burst[j]), 
-					 (u_char*) pkts_burst[j]->buf_addr, 
-					 pkts_burst[j]->buf_len, 
-					 &Packet::dest, true);
-		this->output(0).push(p);
-	    }
-
-#endif
+	  //std::cout << "GRABBED " << nb_rx << " PACKETS " << std::endl;
+  if (nb_rx > 0) {
 #if 1
 	    for (j = 0; j < nb_rx; j++) {
-		m = pkts_burst[j];
+		    m = pkts_burst[j];
 		//this would be if a click pkt is created
 		//*Packet *p = Packet::make(this->_headroom, rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), 0); 
 		//*rte_pktmbuf_free(m);
@@ -476,9 +456,19 @@ PollDevice::run_task(Task *)
 		//Packet *p = Packet::make((u_char*) m, MBUF_SIZE, &dest);
             
 		//must also consider send m pointer itseld for mbuf although the macro based on buf_add, head can be used
-		Packet *p = Packet::make(rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), (u_char*) m->buf_addr, m->buf_len, &Packet::dest, true);
-            
-		//ret = rte_eth_tx_burst((uint8_t) 1, 0, pkts_burst, (uint16_t) nb_rx);
+    Packet *p = Packet::make(rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), (u_char*) m->buf_addr, m->buf_len, &Packet::dest, true);
+    if(nb_rx == 1){
+      p->_pd_batch_id = 3; //3 = start and end!
+    }else if(j == 0){
+      p->_pd_batch_id = 1; //1 = start
+    }else if(j == nb_rx - 1){
+      p->_pd_batch_id = 2; //2 = end
+    }else{
+      p->_pd_batch_id = 0; //nothing special
+    }
+	  p->_pd_batch_size = nb_rx;	
+    p->_parent_thread = (uint8_t) home_thread()->thread_id();
+    //ret = rte_eth_tx_burst((uint8_t) 1, 0, pkts_burst, (uint16_t) nb_rx);
 		//click_chatter("PollDevice(%s): recvpkts: %d", _ifname.c_str(), _count);
 		//if (_count < 33)
 		//    click_chatter("pktlen= %d, datalen: %d", rte_pktmbuf_pkt_len(m), rte_pktmbuf_data_len(m));

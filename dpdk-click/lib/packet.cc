@@ -181,6 +181,8 @@ CLICK_DECLS
 
 Packet::~Packet()
 {
+    _parent_thread = 255;
+    _pd_batch_size = 0;
     // This is a convenient place to put static assertions.
     static_assert(addr_anno_offset % 8 == 0 && user_anno_offset % 8 == 0,
 		  "Annotations must begin at multiples of 8 bytes.");
@@ -416,7 +418,6 @@ WritablePacket::recycle(WritablePacket *p)
 	assert(packet_pool.pcount <= CLICK_PACKET_POOL_SIZE);
     }
     if (data) {
-      click_chatter("Warning::Reccyle data in Packet");
 	++packet_pool.pdcount;
 	PacketData *pd = reinterpret_cast<PacketData *>(data);
 	pd->next = packet_pool.pd;
@@ -536,6 +537,45 @@ Packet::make(uint32_t headroom, const void *data,
 #endif
 }
 
+WritablePacket *
+Packet::make_log_pkt(uint64_t timestep, uint16_t timesheld,
+	     uint8_t tid, uint16_t firstpkt_dport, uint32_t firstpkt_dip)
+{
+/*
+///////#if CLICK_LINUXMODULE
+    int want = 1;
+    if (struct sk_buff *skb = skbmgr_allocate_skbs(headroom, length + tailroom, &want)) {
+	assert(want == 1);
+	// packet comes back from skbmgr with headroom reserved
+	__skb_put(skb, length);	// leave space for data
+	if (data)
+	    memcpy(skb->data, data, length);
+///////# if PACKET_CLEAN
+	skb->pkt_type = HOST | PACKET_CLEAN;
+///////# else
+	skb->pkt_type = HOST;
+/////////# endif
+	WritablePacket *q = reinterpret_cast<WritablePacket *>(skb);
+	q->clear_annotations();
+	return q;
+    } else
+	return 0;
+///////#else
+*/
+    WritablePacket *p = WritablePacket::pool_allocate(default_headroom, 46, 0);
+    if (!p) return 0;
+   
+    //Read from tail...
+	  memcpy(&(p->data()[38]), &timestep, 8);
+	  memcpy(&(p->data()[36]), &timesheld, 2);
+	  memcpy(&(p->data()[35]), &tid, 1);
+    memcpy(&(p->data()[33]), &firstpkt_dport, 2);
+    memcpy(&(p->data()[29]), &firstpkt_dip, 4);
+    return p;
+}
+
+
+
 #if CLICK_USERLEVEL
 /** @brief Create and return a new packet (userlevel).
  * @param data data used in the new packet
@@ -636,11 +676,6 @@ WritablePacket *
 Packet::expensive_uniqueify(int32_t extra_headroom, int32_t extra_tailroom,
 			    bool free_on_failure)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_uniquefy");  
-    return 0;
-  }
     assert(extra_headroom >= (int32_t)(-headroom()) && extra_tailroom >= (int32_t)(-tailroom()));
 
 #if CLICK_LINUXMODULE
@@ -821,12 +856,6 @@ Packet::dup_jumbo_m(struct mbuf *m)
 WritablePacket *
 Packet::expensive_push(uint32_t nbytes)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_push");
-    return 0;
-  }
-
   static int chatter = 0;
   if (headroom() < nbytes && chatter < 5) {
     click_chatter("expensive Packet::push; have %d wanted %d",
@@ -852,12 +881,6 @@ Packet::expensive_push(uint32_t nbytes)
 WritablePacket *
 Packet::expensive_put(uint32_t nbytes)
 {
-  //check to see if this packet has rte_mbuf
-  if (_has_rte_mbuf) {
-    click_chatter("Packet err: Click+dpdk does not currently support expensive_pull");
-    return 0;
-  }
-
   static int chatter = 0;
   if (tailroom() < nbytes && chatter < 5) {
     click_chatter("expensive Packet::put; have %d wanted %d",

@@ -56,21 +56,41 @@ class PushNullElement : public Element { public:
 
 };
 
-#define BUFFER_LEN 10000000
-class FakeLoggerNullElement : public Element { public:
+class LockingPushNullElement : public Element { public:
 
-  FakeLoggerNullElement();
-  ~FakeLoggerNullElement();
+  LockingPushNullElement();
+  ~LockingPushNullElement();
 
-  const char *class_name() const	{ return "FakeLoggerNull"; }
+  const char *class_name() const	{ return "LockingPushNull"; }
   const char *port_count() const	{ return PORTS_1_1; }
   const char *processing() const	{ return PUSH; }
 
-  uint32_t index;
-  void* log_buffer;
   void push(int, Packet *);
 
+  atomic_uint32_t _ticket;
+  atomic_uint32_t _nowserving;
 };
+
+
+class BatchLockingPushNullElement : public Element { public:
+
+  BatchLockingPushNullElement();
+  ~BatchLockingPushNullElement();
+
+  int configure(Vector<String> &conf, ErrorHandler *errh);
+  const char *class_name() const	{ return "BatchLockingPushNull"; }
+  const char *port_count() const	{ return PORTS_1_1; }
+  const char *processing() const	{ return PUSH; }
+
+  void push(int, Packet *);
+
+  Packet*** _q;
+  uint8_t* _occupancy;
+  atomic_uint32_t _ticket;
+  atomic_uint32_t _nowserving;
+};
+
+
 
 
 /*

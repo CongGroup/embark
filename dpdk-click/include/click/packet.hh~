@@ -1429,7 +1429,7 @@ Packet::make(unsigned char *data, uint32_t length, unsigned char *ptr_head, uint
              void (*destructor)(unsigned char *, size_t), bool has_rte_mbuf)
 {                                       
 #if HAVE_CLICK_PACKET_POOL
-  WritablePacket *p = WritablePacket::pool_allocate(false);
+  WritablePacket *p = WritablePacket::pool_allocate(false);                                        
 #else                                                 
   WritablePacket *p = new WritablePacket;                                                          
 #endif                                                                         
@@ -1460,8 +1460,8 @@ Packet::kill()
 {
 #if CLICK_USERLEVEL
   //maz: freeing rte_mbuf, this pkt contains rte_mbuf                                  
-  if (this->_has_rte_mbuf)
-    rte_pktmbuf_free(this->ptr_mbuf);
+  if (p->_has_rte_mbuf)
+    rte_pktmbuf_free(p->ptr_mbuf);
 #endif
 #if CLICK_LINUXMODULE
     struct sk_buff *b = skb();
@@ -1480,7 +1480,7 @@ Packet::kill()
 }
 
 /** @brief Delete this packet.
- * maz: we need this kill-lite since the main kill destroys rte_mbuf, needed for
+ * maz: we need this kill-light since the main kill destroys rte_mbuf, needed for
  * senddevice like operation.
  * The packet header (including annotations) is destroyed and its memory
  * returned to the system.  The packet's data is also freed if this is the
@@ -1496,7 +1496,7 @@ Packet::kill_lite()
 # endif
     skbmgr_recycle_skbs(b);
 #elif HAVE_CLICK_PACKET_POOL
-    //if (_use_count.dec_and_test())
+    if (_use_count.dec_and_test())
 	WritablePacket::recycle(static_cast<WritablePacket *>(this));
 #else
     if (_use_count.dec_and_test())

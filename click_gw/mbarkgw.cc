@@ -8,8 +8,16 @@
 #include <clicknet/icmp6.h>
 #include <clicknet/tcp.h>
 #include <clicknet/udp.h>
+#include <openssl/evp.h>
 
 #include "mbarkgw.hh"
+
+struct ext_hdr {
+  uint8_t next_hdr;
+  uint8_t hdr_ext_len;
+  unsigned char __padding[2];
+  unsigned char ciphertext[48];
+};
 
 CLICK_DECLS
 
@@ -128,12 +136,50 @@ void
 MBArkGateway::encrypt(Packet *p)
 {
   WritablePacket *q = p->uniqueify();
+
   click_ip6 *ip = (click_ip6 *)q->data();
-  click_udp *udp = (click_udp *)(ip + 1);
+  ext_hdr *option = (ext_hdr *)(ip + 1);
+
+  q = q->put(sizeof(ext_hdr));
+  uint16_t plen = ntohs(ip->ip6_plen);
+
+  memcpy(option + 1, option, plen);
+  memset(option, 0, sizeof(ext_hdr));
+  option->next_hdr = ip->ip6_nxt;
+  option->hdr_ext_len = 51;
+
+  ip->ip6_nxt = 60;
+  ip->ip6_plen = htons(plen + sizeof(ext_hdr));
+
+  click_udp *udp = (click_udp *)(option + 1);
+
   uint128_t *src_addr = (uint128_t *) &(ip->ip6_src);
   uint128_t *dst_addr = (uint128_t *) &(ip->ip6_dst);
   uint16_t *src_port = &(udp->uh_sport);
   uint16_t *dst_port = &(udp->uh_dport);
+
+  EVP_CIPHER_CTX ctx;
+  unsigned char key[32] = {0}; // TODO: something fake
+  unsigned char iv[16] = {0};
+  int outlen = 0, totallen = 0;
+
+  EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), key, iv);
+
+  EVP_EncryptUpdate(&ctx, option->ciphertext, &outlen, (unsigned char *) src_addr, sizeof(uint128_t));
+  totallen += outlen;
+  
+  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) dst_addr, sizeof(uint128_t));
+  totallen += outlen;
+
+  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) src_port, sizeof(uint16_t));
+  totallen += outlen;
+
+  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) dst_port, sizeof(uint16_t));
+  totallen += outlen;
+
+  EVP_EncryptFinal(&ctx, option->ciphertext + totallen, &outlen);
+  totallen += outlen;
+
 
   uint128_t cipher_src_addr = hton128(src_addr_tree_.generate_ciphertext(ntoh128(*src_addr)));
   uint128_t cipher_dst_addr = hton128(dst_addr_tree_.generate_ciphertext(ntoh128(*dst_addr)));
@@ -150,3 +196,4 @@ MBArkGateway::encrypt(Packet *p)
 
 CLICK_ENDDECLS
 EXPORT_ELEMENT(MBArkGateway)
+ELEMENT_LIBS(-lssl -lcrypto)

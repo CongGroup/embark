@@ -17,6 +17,7 @@
  */
 
 #include <click/config.h>
+#include <iostream>
 #include "simplequeue.hh"
 #include <click/args.hh>
 #include <click/error.hh>
@@ -47,7 +48,9 @@ int
 SimpleQueue::configure(Vector<String> &conf, ErrorHandler *errh)
 {
     unsigned new_capacity = 1000;
-    if (Args(conf, this, errh).read_p("CAPACITY", new_capacity).complete() < 0)
+    String fn;
+
+    if (Args(conf,  errh).read_p("CAPACITY", new_capacity).consume() < 0)
 	return -1;
     _capacity = new_capacity;
     return 0;

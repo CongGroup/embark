@@ -16,10 +16,10 @@ extern "C" {
    feature and set RX and TX number of queues > 1, ow, set RX queue numbers to 1
    tx queue numbes can be set more than 1 without rss for lockless ops
 */
-#define CLICK_RSS_ON 0 
+#define CLICK_RSS_ON  1
 
-#define NUM_RX_QUEUE 1
-#define NUM_TX_QUEUE 1
+#define NUM_RX_QUEUE 4
+#define NUM_TX_QUEUE 4
 
 //following values configure rx unit operations in hw in the NIC for some offloading to the hw
 //values should not be changed here unless you have read the NIC's programming

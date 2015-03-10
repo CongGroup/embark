@@ -16,8 +16,8 @@ class MBArkGateway : public Element {
   MBArkGateway();
   ~MBArkGateway();
 
-  int configure(Vector<String> &, ErrorHandler *) CLICK_COLD;
-  int initialize(ErrorHandler *) CLICK_COLD;
+  int configure(Vector<String> &, ErrorHandler *);
+  int initialize(ErrorHandler *);
 
 //  MBArkGateway *hotswap_element() const;
 //  void take_state(Element *, ErrorHandler *);

@@ -17,6 +17,7 @@
  */
 
 #include <click/config.h>
+#include <iostream>
 #include "fullnotequeue.hh"
 CLICK_DECLS
 

@@ -22,11 +22,11 @@
 
 //PollDevice(eth4) -> Queue(100) -> c0:: AverageCounter() -> SendDevice(eth4, BURST 32);
 
-pd1::PollDevice(eth4, QUEUE 0, BURST 32) -> q1::SimpleQueue() -> sd1::SendDevice(eth7, BURST 32, QUEUE 0);
+pd1::PollDevice(eth4, QUEUE 0, BURST 32) -> q1::NotifierQueue() -> sd1::SendDevice(eth7, BURST 32, QUEUE 0);
 
-pd2::PollDevice(eth5, QUEUE 0, BURST 32) -> q2::SimpleQueue() -> sd2::SendDevice(eth6, BURST 32, QUEUE 0);
+pd2::PollDevice(eth5, QUEUE 0, BURST 32) -> q2::NotifierQueue() -> sd2::SendDevice(eth6, BURST 32, QUEUE 0);
 
-//pd22::PollDevice(eth3, PORTID 1, QUEUE 1, BURST 32) -> q22::SimpleQueue() ->sd22::SendDevice(eth4, BURST 32,  PORTID 2, QUEUE 1);
+//pd22::PollDevice(eth3, PORTID 1, QUEUE 1, BURST 32) -> q22::NotifierQueue() ->sd22::SendDevice(eth4, BURST 32,  PORTID 2, QUEUE 1);
 
 
 StaticThreadSched(pd1 0, q1 0, sd1 0);
@@ -38,9 +38,9 @@ StaticThreadSched(pd2 1, q2 1, sd2 1);
 //DFromToDevice(0, PORTID_R 0, PORTID_T 3);
 //DFromToDevice(0, PORTID_R 1, PORTID_T 2);
 
-pd3::PollDevice(eth7, QUEUE 0, BURST 32) -> q3::SimpleQueue() -> sd3::SendDevice(eth4, BURST 32, QUEUE 0);
+pd3::PollDevice(eth7, QUEUE 0, BURST 32) -> q3::NotifierQueue() -> sd3::SendDevice(eth4, BURST 32, QUEUE 0);
 
-pd4::PollDevice(eth6, QUEUE 0, BURST 32) -> q4::SimpleQueue() -> sd4::SendDevice(eth5, BURST 32, QUEUE 0);
+pd4::PollDevice(eth6, QUEUE 0, BURST 32) -> q4::NotifierQueue() -> sd4::SendDevice(eth5, BURST 32, QUEUE 0);
 
 StaticThreadSched(pd3 2, q3 2, sd3 2);
 StaticThreadSched(pd4 3, q4 3, sd4 3);

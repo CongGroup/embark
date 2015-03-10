@@ -20,11 +20,12 @@
 #include <click/master.hh>
 #include <click/router.hh>
 #include <click/error.hh>
+#include <iostream>
 #include <click/args.hh>
 CLICK_DECLS
 
-StaticThreadSched::StaticThreadSched()
-    : _next_thread_sched(0)
+  StaticThreadSched::StaticThreadSched()
+: _next_thread_sched(0)
 {
 }
 
@@ -32,42 +33,44 @@ StaticThreadSched::~StaticThreadSched()
 {
 }
 
-int
+  int
 StaticThreadSched::configure(Vector<String> &conf, ErrorHandler *errh)
 {
-    Element *e;
-    int preference;
-    for (int i = 0; i < conf.size(); i++) {
-	if (Args(this, errh).push_back_words(conf[i])
-	    .read_mp("ELEMENT", e)
-	    .read_mp("THREAD", preference)
-	    .complete() < 0)
-	    return -1;
-	if (e->eindex() >= _thread_preferences.size())
-	    _thread_preferences.resize(e->eindex() + 1, THREAD_UNKNOWN);
-	if (preference < -1 || preference >= master()->nthreads()) {
-	    errh->warning("thread preference %d out of range", preference);
-	    preference = (preference < 0 ? -1 : 0);
-	}
-	_thread_preferences[e->eindex()] = preference;
+  Element *e;
+  int preference;
+  for (int i = 0; i < conf.size(); i++) {
+    if (Args(this, errh).push_back_words(conf[i])
+        .read_mp("ELEMENT", e)
+        .read_mp("THREAD", preference)
+        .complete() < 0)
+      return -1;
+    std::cout << e->class_name() << " wants thread " << preference << std::endl;
+    if (e->eindex() >= _thread_preferences.size())
+      _thread_preferences.resize(e->eindex() + 1, THREAD_UNKNOWN);
+    if (preference < -1 || preference >= master()->nthreads()) {
+      errh->warning("thread preference %d out of range", preference);
+      preference = (preference < 0 ? -1 : 0);
     }
-    _next_thread_sched = router()->thread_sched();
-    router()->set_thread_sched(this);
-    return 0;
+    _thread_preferences[e->eindex()] = preference;
+  }
+  _next_thread_sched = router()->thread_sched();
+  router()->set_thread_sched(this);
+
+  return 0;
 }
 
-int
+  int
 StaticThreadSched::initial_home_thread_id(const Element *e)
 {
-    int eidx = e->eindex();
-    if (eidx >= 0 && eidx < _thread_preferences.size()
-	&& _thread_preferences[eidx] != THREAD_UNKNOWN)
-	return _thread_preferences[eidx];
-    if (_next_thread_sched)
-	return _next_thread_sched->initial_home_thread_id(e);
-    else
-	return THREAD_UNKNOWN;
+  int eidx = e->eindex();
+  if (eidx >= 0 && eidx < _thread_preferences.size()
+      && _thread_preferences[eidx] != THREAD_UNKNOWN)
+    return _thread_preferences[eidx];
+  if (_next_thread_sched)
+    return _next_thread_sched->initial_home_thread_id(e);
+  else
+    return THREAD_UNKNOWN;
 }
 
-CLICK_ENDDECLS
+  CLICK_ENDDECLS
 EXPORT_ELEMENT(StaticThreadSched)

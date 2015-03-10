@@ -102,14 +102,19 @@ class Packet { public:
 				void (*destructor)(unsigned char *, size_t)) CLICK_WARN_UNUSED_RESULT;
   bool _has_rte_mbuf;
   struct rte_mbuf *ptr_mbuf;
-  //destructor for the userlevel packet just for init phase of Pakcet::make
+  //destructor for the userlevel 
   static inline void dest (unsigned char * data, size_t len) { /*do nothing*/ }
   static inline WritablePacket *make(unsigned char *data, uint32_t length, 
 			      unsigned char *ptr_head, uint16_t buf_len, 
 			      void (*destructor)(unsigned char *, size_t),
                                 bool has_rte_mbuf) CLICK_WARN_UNUSED_RESULT;
-    
+
 #endif
+
+  static 
+  WritablePacket *make_log_pkt(uint64_t timestep, uint16_t timesheld, uint8_t tid, uint16_t firstpkt_dport, uint32_t firstpkt_dip);
+
+
 
     static void static_cleanup();
 
@@ -344,6 +349,11 @@ class Packet { public:
     inline const click_tcp *tcp_header() const;
     inline const click_udp *udp_header() const;
     //@}
+
+    //FOR RECORD AND REPLAY JUSTINE
+    uint8_t _parent_thread;
+    uint8_t _pd_batch_size;
+    uint8_t _pd_batch_id;
 
   private:
     /** @cond never */
@@ -1368,6 +1378,8 @@ Packet::make(const void *data, uint32_t length)
     return make(default_headroom, data, length, 0);
 }
 
+
+
 /** @brief Create and return a new packet.
  * @param length length of packet
  * @return new packet, or null if no packet could be created
@@ -1429,7 +1441,7 @@ Packet::make(unsigned char *data, uint32_t length, unsigned char *ptr_head, uint
              void (*destructor)(unsigned char *, size_t), bool has_rte_mbuf)
 {                                       
 #if HAVE_CLICK_PACKET_POOL
-  WritablePacket *p = WritablePacket::pool_allocate(false);
+  WritablePacket *p = WritablePacket::pool_allocate(false);                                        
 #else                                                 
   WritablePacket *p = new WritablePacket;                                                          
 #endif                                                                         
@@ -1480,7 +1492,7 @@ Packet::kill()
 }
 
 /** @brief Delete this packet.
- * maz: we need this kill-lite since the main kill destroys rte_mbuf, needed for
+ * maz: we need this kill-light since the main kill destroys rte_mbuf, needed for
  * senddevice like operation.
  * The packet header (including annotations) is destroyed and its memory
  * returned to the system.  The packet's data is also freed if this is the
@@ -1497,7 +1509,7 @@ Packet::kill_lite()
     skbmgr_recycle_skbs(b);
 #elif HAVE_CLICK_PACKET_POOL
     if (_use_count.dec_and_test())
-      WritablePacket::recycle(static_cast<WritablePacket *>(this));
+	WritablePacket::recycle(static_cast<WritablePacket *>(this));
 #else
     if (_use_count.dec_and_test())
 	delete this;

@@ -1,7 +1,9 @@
 %!TEX root = mb.tex
+\section{Applications}
+In this section we present how to apply the building blocks to real-world applications.
 
-\section{Firewall}\label{sec:firewall}
-
+\subsection{Firewall}\label{sec:firewall}
+\subsubsection{Convert firewall rules}
 Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
 in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
 can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
@@ -50,6 +52,7 @@ from fd6a:1faf:577b:bee4:0:1:0:0/127 to any
 After the gateway has rewritten the rules, it sends the rules back to the firewall on the cloud so that the
 firewall can filter packets using the new rules.
 
+\subsubsection{Encryption and Decryption}
 Every time the gateway forwards a packet from the user, it replace the IPv4 header with the IPv6 header 
 using the Stateless IP/ICMP Translation (SIIT) \cite{rfc2765}. The purpose of this operation is to leave 
 enough address space for avoiding address collision. The gateway then encrypts the source IP, source port, 
@@ -66,26 +69,34 @@ their topological relations are preserved. Therefore firewalls still work with \
 property is important, since many high-speed firewalls are implemented in hardware, which is difficult and 
 expensive to redesign.
 
-- describe how we rewrite rules 
 
-- give an example of a rewritten rule
-
-- describe how the packet looks like now, what fields are encrypted (ports, source IP, destination IP)
-
-- discuss how the firewall works: importantly, existing data structures still work, hardware is unchanged
-
-- anything else you think the section should contain
-
-\section{NAT}\label{sec:nat}
+\subsection{NAT}\label{sec:nat}
 
 give example of what a rule becomes
 
-\section{Load balancer}\label{sec:loadb}
+\subsection{Load balancer}\label{sec:loadb}
 
 L4 load balancer
 L7 load balancer
 
+
+
+
+
 \section{Proxy/cache}\label{sec:proxy}
+\begin{itemize}
+\item architecture overview
+\item HTTP request -- absolute url and Host + relative url
+\item tokenization special case \\
+    \begin{itemize}
+    \item in order to fetch the url from the header
+    \item tokenize HTTP methods: GET, POST, ...
+    \item tokenize attribute names: "Host:"
+    \item tokenize versions: "HTTP/1.1", ...
+    \end{itemize}
+\item walk through the whole process
+\item do not support pipelining yet
+\end{itemize}
 
 
 we are focusing on the transparent proxy
@@ -116,16 +127,156 @@ discuss how the proxy can reconstruct the response?
 can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
 --- check the http header details
 
+
 \section{IDS and Exfiltration}\label{sec:IDS}
 
-IDS/ exfiltration through watermarking/ parental filtering
+\todo{tie into the story of keyword match}
+
+A lot of middleboxes run intrusion detection systems (IDS) and exfiltration services on the payload of network packets.
+For example, middleboxes run network intrusion detection or IDS (e.g., using  Snort~\cite{Snort} 
+or Bro~\cite{Bro}) to detect if packets from a compromised sender contain an attack and they 
+perform data loss/ exfiltration prevention such as searching for watermarks in 
+documents~\cite{CMU_exfiltration_report} to detect if an insider outsources confidential information.
+
+In most of these systems, the middlebox has a set of {\em rules}, which are descriptions of attacks, and which 
+the middlebox tries to match against the traffic. The rules can contain {\em rule strings} which should be matched
+exactly against the traffic, offset information describing offsets in the packet where to search the rule string, and
+sometimes even regular expressions.
+
+To protect traffic privacy from the cloud, the payload of packets in \sys must be encrypted. 
+However, how can the middlebox now perform the detection on the encrypted traffic? 
+We know that nontrivial computation on encrypted data is very slow. ~\cite{CITE}
+
+A recent system, BlindBox~\todo{cite},  enables detection at the middlebox on the encrypted traffic
+in a practical way. 
+Unfortunately, BlindBox was designed for a different network setting than our setting 
+and does not fit our setting  as follows.
+
+
+BlindBox was designed for the common network setting when the endpoints are users who generate
+traffic that is encrypted and then sent through a middlebox. This means that the encryption algorithm
+has access to the contiguous byte sequence of the traffic. In contrast, in \sys, the encryption 
+happens at the gateway 
+which only receives packets from the user endpoints. 
+These packets can correspond to multiple flows and can be out of order, 
+making it challenging to encrypt each packet in such a way that the middlebox can  {\em detect 
+a rule string that spans multiple packets}, that is, a rule string where a part is at the end of a packet and the other part is at the beginning of the next packet.  Reconstructing the flow by putting the packets from each flow together and in order  is a very expensive 
+operation. Performing such reconstruction at the gateway is 
+very expensive, and would obviate a big part of the benefits of the Aplomb model. 
+
+
+\sys addresses this issue through a new technique called {\em cross-packet detection}. Using this technique,
+\sys can encrypt the packets in a special way that enables the middlebox to detect a rule string that spans multiple
+packets. The gateway does not have to do flow reconstruction and can perform the encryption 
+independently on a per packet basis. Only the middlebox
+needs to perform flow reconstruction, which is the norm in IDS. 
+
+
+Another difference of BlindBox's setting is the threat model. In BlindBox, user
+endpoints perform the encryption and since a potential attacker is also a user, 
+the endpoints are not trusted. As a result, in BlindBox the middlebox cannot
+give the rules to the endpoints either because this will enable an attacker to eschew the
+rules and because these rules are proprietary. In order to enable detection of the rules
+over the encrypted data, they need to be encrypted with the same key as the 
+key of the connection between the two endpoints. This situation requires BlindBox to perform
+a sophisticated computation at the start of each connection, which makes the connection
+startup time be slow. 
+
+
+In our model, the gateway is performing the encryption, which is trusted. Even if the
+user endpoint is malicious, the middlebox can share the rules with the gateway, and the
+endpoint has no way of obtaining those rules. In \sys, we exploited this property to create a
+much faster setup phase than in BlindBox. \todo{give some comparative numbers}
+
+
+
+
+We now describe the common parts our system has to BlindBox and the new techniques we introduce. 
+
+
+
+\begin{enumerate}
+\item  \item The threat model in BlindBox is different. BlindBox considers 
+\end{enumerate}
+
+- say what the problem is IDS/ exfiltration through watermarking/ parental filtering
+
+- a previous system did this, Blind box but lacking
+
+- reasons for lacking
+
+- we fix these reasons
+
+\subsection{Basic protocol}
+
+However, the rules also need to be encrypted
+under the key of the connection of the two users in order to be able to match the 
+traffic of the two users. 
+
+This protocol is based on BlindBox so we only explain it briefly, referring the reader for more details to~\cite{blindbox}. 
+
+
+only what one needs to know
+
+mention probable cause privacy, but no need to explain
+
+mention something about functionality -- we preserve it
+
+\subsection{\sys's IDS}
+
+builds on blindbox
+
+\subsubsection{Setup phase}
+
+
+\subsubsection{Packet boundaries}
+
+
 
 even though for this we use an existing scheme, we incorporate it into the whole
 system and make it work with the other components
 
 -- gateway checks that the rules from the service provider have a minimal length 
 
+Bryan Ford, Mike Walfish and Brad Karp -- who are on Sigcomm PC are also on SOSP Pc
+So we need to not kill BlindBox -- just present them as different, not as better necessarily.
+
+
+\subsection{Strawman}
+\begin{itemize}
+\item packet: tokenization
+\item signature
+\item how to match
+\item problem: signatures across boundaries
+\end{itemize}
+
+\subsection{Solution}
+Packets:
+\begin{itemize}
+\item tokenize as usual
+\item in addition, at the end of each packet, tokenize last k-1, ..., 1 bytes
+\item at the beginning, tokenize first 1, 2, ..., k-1 bytes
+\item suppose packet has a sequence number i, for a j-byte tail tokens, generate $e_k$(j bytes) XOR $prf_k$(i, k-j).
+\item Similarly, for a j-byte head tokens, generate $e_k$(j bytes) XOR $prf_k$(i-1, j)
+\end{itemize}
+
+Signatures:
+\begin{itemize}
+\item tokenize
+\item for each k byte token, also generate (1, k-1), (2, k-2), ..., (k-1, 1) byte token pairs
+\item for each pair (p1, p2), ids keeps p1 XOR p2 as a signature.
+\end{itemize}
+
+How to match:
+\begin{itemize}
+\item for normal tokens, direct match
+\item for head and tail tokens: when handling packet i and i+1, XOR the corresponding head and tail tokens with the signature.
+\end{itemize}
+
+
+
 
 \section{Discussion of other middleboxes}\label{sec:vpn} \label{sec:other} \label{sec:not_supp}
+
 
 VPN naturally remains the same. 
