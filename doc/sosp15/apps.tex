@@ -195,34 +195,80 @@ We now describe the common parts our system has to BlindBox and the new techniqu
 
 
 
-\begin{enumerate}
-\item  \item The threat model in BlindBox is different. BlindBox considers 
-\end{enumerate}
-
-- say what the problem is IDS/ exfiltration through watermarking/ parental filtering
-
-- a previous system did this, Blind box but lacking
-
-- reasons for lacking
-
-- we fix these reasons
 
 \subsection{Basic protocol}
+\todo{keep this short because it is blindbox}
 
-However, the rules also need to be encrypted
-under the key of the connection of the two users in order to be able to match the 
-traffic of the two users. 
+We now describe the part of our protocol that is common with BlindBox. 
+We do not delve on the details that are similar to BlindBox and barely summarize them here.
+For any details missed here, the reader should refer to the BlindBox paper~\cite{blindbox}.
 
-This protocol is based on BlindBox so we only explain it briefly, referring the reader for more details to~\cite{blindbox}. 
+The middlebox (MB) has a set of rules. The rules contain rule strings or regular expressions. 
+
+For example, consider the  simplified rule number 2003296 from the Snort Emerging Threats ruleset:
+
+\begingroup     \fontsize{9pt}{10pt}\selectfont
+\begin{tabbing}
+\green{alert} tcp \$EXTERNAL\_NET \$HTTP\_PORTS \\
+\green{alert} tcp   \$EXTERNAL\_NET  \= \kill
+\> -> \$HOME\_NET 1025:5000 ( \\
+
+te \= content \= \kill
+\> \green{content}:\ ``Server|3a| nginx/0.'';  \\
+\> \green{content}:\ ``Content-Type|3a| text/html''; \\
+\> \green{content}:\ ``|3a|80|3b|255.255.255.255''; )
+\end{tabbing}
+\endgroup
+
+Each content must be matched exactly against the traffic. ``|'' denotes binary data. 
+
+\paragraph{Connection setup.} 
+Two endpoints setup a connection with SSL key $k$. 
+In order for MB to detect a rule string (a content above) $r$ on encrypted traffic, it needs to have them encrypted 
+under the same key $k$ with AES: $\aes_k(r)$. 
+As explained, in BlindBox'es setup, MB cannot give $r$ to the users and the endpoints cannot give $k$ to MB 
+(or else, they don't have any privacy). As a result, BlindBox employs a sophisticated algorithm for encrypting
+these rules based on Yao garbled circuits~\cite{} which is slow. We will eliminate this slowdown in \S\ref{sec:IDS}.
 
 
-only what one needs to know
+\paragraph{Encrypt traffic at endpoint.}
+The stream of data at each endpoint gets encrypted with SSL as before 
+and separately with BlindBox. 
+For the BlindBox encryption, the stream gets tokenized and then encrypted. 
+The tokenization produces a set of keywords from the traffic stream (e.g.,
+a keyword for every offset in the packet). Each token $t$ then gets encrypted using
+a new and strong encryption scheme $\salt, H(\salt, \aes_k(t))$, where 
+$\salt$ is a random value and $H$ is a hash. 
 
-mention probable cause privacy, but no need to explain
+\paragraph{Match at middlebox.} 
+Given an encrypted rule $\encr = \aes_k(r)$ and an encrypted token $t$ from the traffic
+$\salt, c = H(\salt, \aes_k(t))$, the middlebox detects a match if $H(\salt, \encr) = c$. 
+BlindBox has a faster detection algorithm that performs this matching and we use it too.
 
-mention something about functionality -- we preserve it
 
-\subsection{\sys's IDS}
+\paragraph{Security and functionality.}
+BlindBox provides two types of security guarantees, SEC I and SEC II,  and we inherit these too. 
+SEC I is stronger than SEC II, but SEC II can support more general functionality. 
+Table~\ref{tab:BB_sec_func} in \S\ref{sec:eval} summarizes this tradeoff. 
+
+SEC I: The first security guarantee is that the middlebox does not learn anything about the data
+content except for which offsets match a malicious string, namely, a content in a rule. 
+If a part of the packet does not match a rule, the middlebox does not learn the content 
+of that part of the packet. The middlebox also learns the number of tokens, but not what
+the tokens are. For this security guarantee, BlindBox can support fully exfiltration 
+detection and a XXX of the rules of common IDS. 
+
+SEC II: The second security guarantee is a bit weaker, but still meaningful. This allows BlindBox
+to support regular expressions in a practical way, and thus support 100\% of IDS. 
+The privacy model is called prabable cause privacy which says that the middlebox
+learns an entire packet if the packet is suspicious (namely it contains a  malicious string from a rule). 
+If a packet does not contain any such string, the middlebox does not learn the content of the packet as 
+in SEC I. 
+
+put BB table in Eval 
+
+
+\subsection{\sys's IDS}\label{sec:IDS}
 
 builds on blindbox
 
