@@ -74,56 +74,7 @@ give example of what a rule becomes
 L4 load balancer
 L7 load balancer
 
-
-
-
-
-\section{Proxy/cache}\label{sec:proxy}
-\begin{itemize}
-\item architecture overview
-\item HTTP request -- absolute url and Host + relative url
-\item tokenization special case \\
-    \begin{itemize}
-    \item in order to fetch the url from the header
-    \item tokenize HTTP methods: GET, POST, ...
-    \item tokenize attribute names: "Host:"
-    \item tokenize versions: "HTTP/1.1", ...
-    \end{itemize}
-\item walk through the whole process
-\item do not support pipelining yet
-\end{itemize}
-
-
-we are focusing on the transparent proxy
-- discuss the kind of proxies we are focusing on
-
-proxies have two benefits: latency savings which aplomb does not give you 
-and bandwidth savings, which aplomb gives you
- 
-L7 Proxy / Cache
-
-explain how the proxy finds if there is  a match --looks at header bytes
-extra field attached to the packet -- gateway understands http and points out file id, 
-
-discuss both cases: cache miss and hit
-
-- two indep tcp connections 
-
-how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
-http and tags what is content and what is ID
-
-the web proxy needs to send http response 
-
-proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
-and matches GET and a few others -- avoid parsing http this way
-
-
-discuss how the proxy can reconstruct the response?
-can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
---- check the http header details
-
-
-\section{IDS and Exfiltration}\label{sec:IDS}
+\subsection{IDS and Exfiltration}\label{sec:IDS}
 
 \todo{tie into the story of keyword match}
 
@@ -202,7 +153,7 @@ We now describe the common parts our system has to BlindBox and the new techniqu
 
 - we fix these reasons
 
-\subsection{Basic protocol}
+\subsubsection{Basic protocol}
 
 However, the rules also need to be encrypted
 under the key of the connection of the two users in order to be able to match the 
@@ -217,7 +168,7 @@ mention probable cause privacy, but no need to explain
 
 mention something about functionality -- we preserve it
 
-\subsection{\sys's IDS}
+\subsubsection{\sys's IDS}
 
 builds on blindbox
 
@@ -237,7 +188,7 @@ Bryan Ford, Mike Walfish and Brad Karp -- who are on Sigcomm PC are also on SOSP
 So we need to not kill BlindBox -- just present them as different, not as better necessarily.
 
 
-\subsection{Strawman}
+\subsubsection{Strawman}
 \begin{itemize}
 \item packet: tokenization
 \item signature
@@ -245,7 +196,7 @@ So we need to not kill BlindBox -- just present them as different, not as better
 \item problem: signatures across boundaries
 \end{itemize}
 
-\subsection{Solution}
+\subsubsection{Solution}
 Packets:
 \begin{itemize}
 \item tokenize as usual
@@ -268,10 +219,52 @@ How to match:
 \item for head and tail tokens: when handling packet i and i+1, XOR the corresponding head and tail tokens with the signature.
 \end{itemize}
 
+\subsection{Proxy/cache}\label{sec:proxy}
+\begin{itemize}
+\item architecture overview
+\item HTTP request -- absolute url and Host + relative url
+\item tokenization special case \\
+    \begin{itemize}
+    \item in order to fetch the url from the header
+    \item tokenize HTTP methods: GET, POST, ...
+    \item tokenize attribute names: "Host:"
+    \item tokenize versions: "HTTP/1.1", ...
+    \end{itemize}
+\item walk through the whole process
+\item do not support pipelining yet
+\end{itemize}
 
 
+we are focusing on the transparent proxy
+- discuss the kind of proxies we are focusing on
 
-\section{Discussion of other middleboxes}\label{sec:vpn} \label{sec:other} \label{sec:not_supp}
+proxies have two benefits: latency savings which aplomb does not give you 
+and bandwidth savings, which aplomb gives you
+ 
+L7 Proxy / Cache
+
+explain how the proxy finds if there is  a match --looks at header bytes
+extra field attached to the packet -- gateway understands http and points out file id, 
+
+discuss both cases: cache miss and hit
+
+- two indep tcp connections 
+
+how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
+http and tags what is content and what is ID
+
+the web proxy needs to send http response 
+
+proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
+and matches GET and a few others -- avoid parsing http this way
+
+
+discuss how the proxy can reconstruct the response?
+can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
+--- check the http header details
+
+
+\subsection{Discussion of other middleboxes}\label{sec:vpn} \label{sec:other} \label{sec:not_supp}
 
 
 VPN naturally remains the same. 
