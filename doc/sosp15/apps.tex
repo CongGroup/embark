@@ -1,7 +1,9 @@
 %!TEX root = mb.tex
+\section{Applications}
+In this section we present how to apply the building blocks to real-world applications.
 
-\section{Firewall}\label{sec:firewall}
-
+\subsection{Firewall}\label{sec:firewall}
+\subsubsection{Convert firewall rules}
 Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
 in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
 can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
@@ -50,6 +52,7 @@ from fd6a:1faf:577b:bee4:0:1:0:0/127 to any
 After the gateway has rewritten the rules, it sends the rules back to the firewall on the cloud so that the
 firewall can filter packets using the new rules.
 
+\subsubsection{Encryption and Decryption}
 Every time the gateway forwards a packet from the user, it replace the IPv4 header with the IPv6 header 
 using the Stateless IP/ICMP Translation (SIIT) \cite{rfc2765}. The purpose of this operation is to leave 
 enough address space for avoiding address collision. The gateway then encrypts the source IP, source port, 
@@ -66,39 +69,63 @@ their topological relations are preserved. Therefore firewalls still work with \
 property is important, since many high-speed firewalls are implemented in hardware, which is difficult and 
 expensive to redesign.
 
-- describe how we rewrite rules 
 
-- give an example of a rewritten rule
-
-- describe how the packet looks like now, what fields are encrypted (ports, source IP, destination IP)
-
-- discuss how the firewall works: importantly, existing data structures still work, hardware is unchanged
-
-- anything else you think the section should contain
-
-\section{NAT}\label{sec:nat}
+\subsection{NAT}\label{sec:nat}
 
 give example of what a rule becomes
 
-\section{Load balancer}\label{sec:loadb}
+\subsection{Load balancer}\label{sec:loadb}
 
 L4 load balancer
 L7 load balancer
 
-\section{Proxy/cache}\label{sec:proxy}
+\subsection{IDS and Exfiltration}\label{sec:IDS}
+\subsubsection{Strawman}
+\begin{itemize}
+\item packet: tokenization
+\item signature
+\item how to match
+\item problem: signatures across boundaries
+\end{itemize}
 
-L7 Proxy / Cache
+\subsubsection{Solution}
+Packets:
+\begin{itemize}
+\item tokenize as usual
+\item in addition, at the end of each packet, tokenize last k-1, ..., 1 bytes
+\item at the beginning, tokenize first 1, 2, ..., k-1 bytes
+\item suppose packet has a sequence number i, for a j-byte tail tokens, generate $e_k$(j bytes) XOR $prf_k$(i, k-j).
+\item Similarly, for a j-byte head tokens, generate $e_k$(j bytes) XOR $prf_k$(i-1, j)
+\end{itemize}
 
-\section{IDS and Exfiltration}\label{sec:IDS}
+Signatures:
+\begin{itemize}
+\item tokenize
+\item for each k byte token, also generate (1, k-1), (2, k-2), ..., (k-1, 1) byte token pairs
+\item for each pair (p1, p2), ids keeps p1 XOR p2 as a signature.
+\end{itemize}
 
-IDS/ exfiltration through watermarking/ parental filtering
+How to match:
+\begin{itemize}
+\item for normal tokens, direct match
+\item for head and tail tokens: when handling packet i and i+1, XOR the corresponding head and tail tokens with the signature.
+\end{itemize}
 
-even though for this we use an existing scheme, we incorporate it into the whole
-system and make it work with the other components
+\subsection{Proxy/cache}\label{sec:proxy}
+\begin{itemize}
+\item architecture overview
+\item HTTP request -- absolute url and Host + relative url
+\item tokenization special case \\
+    \begin{itemize}
+    \item in order to fetch the url from the header
+    \item tokenize HTTP methods: GET, POST, ...
+    \item tokenize attribute names: "Host:"
+    \item tokenize versions: "HTTP/1.1", ...
+    \end{itemize}
+\item walk through the whole process
+\item do not support pipelining yet
+\end{itemize}
 
--- gateway checks that the rules from the service provider have a minimal length 
-
-
-\section{Discussion of other middleboxes}\label{sec:vpn} \label{sec:other} \label{sec:not_supp}
+\subsection{Discussion of other middleboxes}\label{sec:vpn} \label{sec:other} \label{sec:not_supp}
 
 VPN naturally remains the same. 

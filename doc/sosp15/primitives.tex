@@ -1,22 +1,36 @@
 \section{Building blocks}\label{sec:blocks}
 
+\begin{itemize}
+\item observation: operations performed by middleboxes are simple. for the applications we considered, range match and exact match are enough to cover those operations.
+\item exact match: x == y iff e(x) == e(y), a weaker version: x == y iff R(e(x), e(y))
+\item range match: x in [low, high] iff e(x) in [e(low), e(high)]
 
+\end{itemize}
+
+
+\subsection{Exact match}
+
+\begin{itemize}
+\item deterministic enc
+\item strawman: enc every byte -- not secure
+\item solution: det enc + tokenization
+\end{itemize}
+
+\subsection{Range match}
 An important operation over an encrypted packet is to determine if an encrypted field in the packet falls in an encrypted range.
 We will use the firewall as an example. 
 Consider the following firewall rule:
 
-
-
-
-\subsection{Range match encoding scheme}
-
-
 Constructing an encryption scheme that allows checking if an encrypted value is in an encrypted range, has been a challenge in the applied cryptography community. The reason is that ..
-So none of the existing schemes are satisfactory.
 
+\begin{itemize}
+\item preserve the order between encoded values
+\item candidate: OPE
+\item candidate: mOPE
+\item So none of the existing schemes are satisfactory. A new scheme \RM.
+\end{itemize}
 
-
-sOPE applies to cases when we know an upper bound on the values encrypted with OPE and this is a small number of values (say, less than 10,000).
+\RM applies to cases when we know an upper bound on the values encrypted with OPE and this is a small number of values (say, less than 10,000).
 
 The small number of values permits us to improve in two ways over mOPE [1]
 No more interaction. We store the tree in mOPE on the gateway (client) side, which means that the gateway can compute a new encryption by itself without help from service provider. The storage at the gateway will remain small.
@@ -24,10 +38,6 @@ Rare updates to ciphertexts. We can space out the ciphertexts of the values encr
 
 This also enjoys a stronger security than OPE! It leaks less than order.
 The reason is that, the server does not learn the order between the values in packets, and only whether they map between two values in the rules. 
-
-
-
-
 
 this one is new
 
@@ -37,15 +47,8 @@ would be good to explain the challenge from the
 
 \todo{a more interesting name to the scheme}
 
-\subsection{Network processing for range}
-
 prefix gets mapped into interval, at most a certain number
 
 talk about building certain data structures that all works the same
 
 firewall need not change 
-
-\subsection{Keyword match}
-
-
-equality (DET and Justine)
