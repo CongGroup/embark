@@ -40,8 +40,33 @@ Exfiltration/parental filtering & & & \S\ref{sec:IDS} \\
 \end{table}
 
 \todo{L4 firewall vs the other firewalls}
-
+\todo{some notes on this table from talking to Justine -- e.g., add what needs to be modified}
 cannot support reverse proxy and wan optimization -- explain why -- also these are causing problems to aplomb that some consider not even putting on cloud 
+
+
+Table for IDS:
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{l|c|c}
+    {\bf Dataset}&{\bf SEC I.}&{\bf SEC II.}\\
+    \hline
+    Document Watermarking~\cite{CMU_exfiltration_report}&100\%&100\%\\
+    \hline
+    Snort Community (HTTP)&\twosnortcom&100\%\\
+    \hline
+    Snort Emerging Threats (HTTP)&\twosnortemerge&100\%\\
+    \hline
+    StoneSoft (McAffee) IDS&40\%&100\%\\
+    \hline
+    LastLine IDS&29.1\%&100\%\\
+  \end{tabular}
+  \caption[]{\label{tbl:coverage} Fraction of attack signatures in public and industrial signature\
+ sets addressable with security guarantees I and II explained in \S\ref{sec:BB} \label{tab:BB_sec_func}. }
+\end{table}
+
+
+
 
 \subsection{Performance evaluation}
 
