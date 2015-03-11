@@ -96,7 +96,7 @@ To protect traffic privacy from the cloud, the payload of packets in \sys must b
 However, how can the middlebox now perform the detection on the encrypted traffic? 
 We know that nontrivial computation on encrypted data is very slow. ~\cite{CITE}
 
-A recent system, BlindBox~\todo{cite},  enables detection at the middlebox on the encrypted traffic
+A recent system, BlindBox~\cite{blindbox},  enables detection at the middlebox on the encrypted traffic
 in a practical way. 
 Unfortunately, BlindBox was designed for a different network setting than our setting 
 and does not fit our setting  as follows.
@@ -222,30 +222,10 @@ in SEC I.
 
 \subsection{\sys's IDS}\label{sec:IDS}
 
-\subsubsection{Basic protocol}
-
-However, the rules also need to be encrypted
-under the key of the connection of the two users in order to be able to match the 
-traffic of the two users. 
-
-This protocol is based on BlindBox so we only explain it briefly, referring the reader for more details to~\cite{blindbox}. 
 
 
-only what one needs to know
 
-mention probable cause privacy, but no need to explain
-
-mention something about functionality -- we preserve it
-
-\subsubsection{\sys's IDS}
-
-
-builds on blindbox
-
-\subsubsection{Setup phase}
-
-
-\subsubsection{Packet boundaries}
+\subsection{Cross-packet encrypted detection}
 
 
 
