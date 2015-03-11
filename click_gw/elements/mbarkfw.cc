@@ -10,28 +10,21 @@
 #include <clicknet/udp.h>
 #include <openssl/evp.h>
 
-#include "mbarkgw.hh"
-
-struct ext_hdr {
-  uint8_t next_hdr;
-  uint8_t hdr_ext_len;
-  unsigned char __padding[2];
-  unsigned char ciphertext[48];
-};
+#include "mbarkfw.hh"
 
 CLICK_DECLS
 
-MBArkGateway::MBArkGateway()
+MBArkFirewall::MBArkFirewall()
 {
 }
 
 
-MBArkGateway::~MBArkGateway()
+MBArkFirewall::~MBArkFirewall()
 {
 }
 
 int
-MBArkGateway::configure(Vector<String> &conf, ErrorHandler *errh)
+MBArkFirewall::configure(Vector<String> &conf, ErrorHandler *errh)
 {
   if (_ff.configure_keywords(conf, this, errh) < 0)
     return -1;
@@ -43,7 +36,7 @@ MBArkGateway::configure(Vector<String> &conf, ErrorHandler *errh)
 }
 
 int
-MBArkGateway::initialize(ErrorHandler *errh)
+MBArkFirewall::initialize(ErrorHandler *errh)
 {
   if (_ff.initialize(errh) < 0)
     return -1;
@@ -126,14 +119,14 @@ MBArkGateway::initialize(ErrorHandler *errh)
 }
 
 void
-MBArkGateway::push(int, Packet *p)
+MBArkFirewall::push(int, Packet *p)
 {
     encrypt(p);
 }
 
 
 void
-MBArkGateway::encrypt(Packet *p)
+MBArkFirewall::encrypt(Packet *p)
 {
   WritablePacket *q = p->uniqueify();
 
@@ -141,12 +134,12 @@ MBArkGateway::encrypt(Packet *p)
   ext_hdr *option = (ext_hdr *)(ip + 1);
 
   q = q->put(sizeof(ext_hdr));
-  uint16_t plen = ntohs(ip->ip6_plen);
+  int plen = ntohs(ip->ip6_plen);
 
   memcpy(option + 1, option, plen);
   memset(option, 0, sizeof(ext_hdr));
   option->next_hdr = ip->ip6_nxt;
-  option->hdr_ext_len = 51;
+  option->hdr_ext_len = 6;
 
   ip->ip6_nxt = 60;
   ip->ip6_plen = htons(plen + sizeof(ext_hdr));
@@ -180,20 +173,21 @@ MBArkGateway::encrypt(Packet *p)
   EVP_EncryptFinal(&ctx, option->ciphertext + totallen, &outlen);
   totallen += outlen;
 
-
   uint128_t cipher_src_addr = hton128(src_addr_tree_.generate_ciphertext(ntoh128(*src_addr)));
   uint128_t cipher_dst_addr = hton128(dst_addr_tree_.generate_ciphertext(ntoh128(*dst_addr)));
   uint16_t cipher_src_port = htons(src_port_tree_.generate_ciphertext(ntohs(*src_port)));
   uint16_t cipher_dst_port = htons(dst_port_tree_.generate_ciphertext(ntohs(*dst_port)));
 
+  /*
   memcpy(&(ip->ip6_src), &cipher_src_addr, sizeof(uint128_t));
   memcpy(&(ip->ip6_dst), &cipher_dst_addr, sizeof(uint128_t));
   memcpy(&(udp->uh_sport), &cipher_src_port, sizeof(uint16_t));
   memcpy(&(udp->uh_dport), &cipher_dst_port, sizeof(uint16_t));
+  */
 
   output(0).push(q);
 }
 
 CLICK_ENDDECLS
-EXPORT_ELEMENT(MBArkGateway)
+EXPORT_ELEMENT(MBArkFirewall)
 ELEMENT_LIBS(-lssl -lcrypto)

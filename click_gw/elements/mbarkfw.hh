@@ -8,21 +8,28 @@
 
 #include "ope_tree.h"
 
+struct ext_hdr {
+  uint8_t next_hdr;
+  uint8_t hdr_ext_len;
+  unsigned char __padding[6];
+  unsigned char ciphertext[48];
+};
+
 CLICK_DECLS
 
-class MBArkGateway : public Element {
+class MBArkFirewall : public Element {
 
  public:
-  MBArkGateway();
-  ~MBArkGateway();
+  MBArkFirewall();
+  ~MBArkFirewall();
 
   int configure(Vector<String> &, ErrorHandler *);
   int initialize(ErrorHandler *);
 
-//  MBArkGateway *hotswap_element() const;
+//  MBArkFirewall *hotswap_element() const;
 //  void take_state(Element *, ErrorHandler *);
 
-  const char *class_name() const		{ return "MBArkGateway"; }
+  const char *class_name() const		{ return "MBArkFirewall"; }
   const char *port_count() const		{ return PORTS_1_1; }
   void push(int port, Packet *p);
   void encrypt(Packet *);

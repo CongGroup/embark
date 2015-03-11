@@ -1,7 +1,7 @@
 elementclass MBarkGateway {
     $rule | input 
     -> ProtocolTranslator46
-    -> MBArkGateway(FILENAME $rule)
+    -> MBArkFirewall(FILENAME $rule)
     -> output
 }
 
