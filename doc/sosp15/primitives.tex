@@ -2,6 +2,8 @@
 
 \section{Building blocks}\label{sec:blocks}
 
+\todo{make sure apps use these building blocks and use the notation in this section}
+
 \begin{itemize}
 \item observation: operations performed by middleboxes are simple. for the applications we considered, range match and exact match are enough to cover those operations.
 \item exact match: x == y iff e(x) == e(y), a weaker version: x == y iff R(e(x), e(y))
@@ -12,7 +14,51 @@
 
 \subsection{Keyword match}
 
-\input{boundary}
+
+%\input{boundary}
+
+Keyword match allows detecting if an encrypted keyword matches an encrypted data item by equality.
+For example, given a certain type of encryption of the keyword ``malicious'', $\kwenc(``malicious'')$ someone can determine that it matches the second string in the list of encrypted data items [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')] but it should learn nothing else about the other strings.
+
+A few systems such as CryptDB~\cite{cryptdb, some other} used deterministic encryption for this purpose, which has the property that if $x = y$ then $\enc(x) = \enc(y)$. This encryption scheme is weaker than ours because it leaks equality relations even when no keyword is provided for matching. In contrast, we use strong encryption scheme, a randomized encryption scheme that leaks the minimum information needed: which string in the list matches the keyword and nothing else about the strings in the list. 
+
+Since we are in a network setting where the matching is run over packets, sometimes a keyword to be matched spans two packets. \todo{give example here and explain why it is challenging}. Hence we had to come up with a new such scheme. \todo{make it sound like contribution}
+
+We employ two types of keyword matches: simple match (as above) and one for cross-boundary match. 
+
+
+we will call the keywords rules because 
+
+ and Enc(``malicious''), they should be able 
+
+The API of this encryption scheme is in 
+
+
+\begin{tabular}{c|c|c|c}
+Scheme    & Function        & Input(s) & Output \\
+\hline
+ both                & $\keygen$     & security parameter	      & a secret key $k$ \\ 
+                 & $\kwenc$	& $k$, a rule string $r$   &  encryption of $r$, $\encr$ \\
+\hline
+  simple               & $\enc$           &  $k$, a string $s$                        &  encryption of $s$, $\ct$          \\
+                 & $\match$  & $\encr$, $\ct$ & yes/no if there is match \\
+\hline
+  cross-               & $\encleft$  & $k$, a string $s$ &encryption of $s$, $\ct_L$   \\
+   boundary              & $\encright$ & $k$, a string $s$ & encryption of $s$, $\ct_R$  \\
+                 & $\match$ & $\encr$, $\ct_L$, $\ct_R$ & yes/no if there is a match \\
+\end{tabular}
+
+
+\subsection{Simple match}
+
+\todo{FINISH}
+
+searchable enc
+
+more secure than DET
+
+for full enc explain why it does not leak security, it was already proven and we dont need to 
+also for DET point to that paper 
 
 2 types:
 
