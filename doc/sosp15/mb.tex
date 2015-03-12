@@ -37,6 +37,10 @@
   %\usepackage{algorithmic}
   
 \usepackage[noend]{algpseudocode}
+
+% edit the comments 
+\usepackage{eqparbox}
+\renewcommand{\algorithmiccomment}[1]{\eqparbox{COMMENT}{// {\emph #1}}}
   
 %\usepackage{multicol}
 %\usepackage{amsmath, amssymb}
