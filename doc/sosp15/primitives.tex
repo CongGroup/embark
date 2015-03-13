@@ -12,7 +12,7 @@
 \end{itemize}
 
 
-\subsection{Keyword match}
+\section{Building block: Keyword match}
 
 
 %\input{boundary}
@@ -22,7 +22,7 @@ For example, given a certain type of encryption of the keyword ``malicious'', $\
 
 A few systems such as CryptDB~\cite{cryptdb, some other} used deterministic encryption for this purpose, which has the property that if $x = y$ then $\enc(x) = \enc(y)$. This encryption scheme is weaker than ours because it leaks equality relations even when no keyword is provided for matching. In contrast, we use strong encryption scheme, a randomized encryption scheme that leaks the minimum information needed: which string in the list matches the keyword and nothing else about the strings in the list. 
 
-Since we are in a network setting where the matching is run over packets, sometimes a keyword to be matched spans two packets. \todo{give example here and explain why it is challenging}. Hence we had to come up with a new such scheme. \todo{make it sound like contribution}
+Since we are in a network setting where the matching is run over packets, sometimes a keyword to be matched spans two packets. \todo{give example here and explain why it is challenging}. Hence we had to come up with a new such scheme. \todo{it is a new contribution}
 
 We employ two types of keyword matches: simple match (as above) and one for cross-boundary match. 
 
@@ -48,6 +48,10 @@ Scheme    & Function        & Input(s) & Output \\
                  & $\match$ & $\encr$, $\ct_L$, $\ct_R$ & yes/no if there is a match \\
 \end{tabular}
 
+-- make sure the API so far is clear and a reader can skip the crypto to the systems becasue they don't have
+to understand it 
+-- might be better without table because it is more clear
+\todo{cross bondary has two rules in the encryption}
 
 \subsection{Simple match}
 
@@ -73,7 +77,13 @@ all randomized and strong
 \item solution: det enc + tokenization
 \end{itemize}
 
-\subsection{Range match}
+\subsection{Cross-boundary match}
+
+We present this encryption scheme when we talk about IDS in \S\ref{sec:IDS} because its API and design is
+motivated by the network setting.
+\todo{or should I extract it here?}
+
+\section{Building block: Range match}
 An important operation over an encrypted packet is to determine if an encrypted field in the packet falls in an encrypted range.
 We will use the firewall as an example. 
 Consider the following firewall rule:

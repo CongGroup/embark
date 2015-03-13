@@ -266,8 +266,27 @@ and ``cure'' token in the second packet, none of which match "insecure".
  
  Ideally, we would like to preserve the security guarantee that MB only learns if an $m$-bytes rule string matches at an offset, but nothing else. To achieve this and address the challenges above, we provide a new way to encrypt the strings on borders of packets. 
  
- The insight is to for the gateway to somehow tie together the last $i$ bytes from the end of a packet to the first $m-i$ bytes from the beginning of the next packet. This is difficult because the gateway cannot order packets. Nevertheless, each packet has a serial number at a fixed offset in the packet, which is easy to read for the gateway. The encryption of the packet's payload margins proceeds as follows:
+ The goal is for the gateway to somehow tie together the last $i$ bytes from the end of a packet to the first $m-i$ bytes from the beginning of the next packet. This is difficult because the gateway cannot order packets. We have a few insights to make this goal possible. First, recall that each packet has a serial number at a fixed offset in the packet, which is easy to read for the gateway. The second packet has the serial number of the first packet plus one. Hence, we will tie together the two packets through the serial number. Second, the encrypted rule should not contain the two parts of the rule encrypted separately (or separably) so that an attacker cannot detect each string individually. To achieve this, we encrypt the rule into $g^{\aes_k(\mathsf{left}), \aes_k(\mathsf{right})}$, for a random $g$. Finally, we use a set of other cryptographic insights which we do not explain here because the focus is on the system. A reader uninterested in the crypto can directly skip to the protocol description \S\ref{sec:cross_prot}. 
  
+ \subsection{Crypto scheme}
+ 
+ All operations are in a group $\bbG$ of prime order $p$, even if we don't say so.  
+ 
+ The scheme is as follows:
+ \begin{itemize}
+ \item $\keygen$: generate a random key $k$ for AES and a random value $g$. The final key is $(k, g)$. 
+ \item $\kwenc((k,g),  r_1, r_2)$: output $\encr = g^{\aes_k(r_1) \cdot \aes_k(r_2)}$. 
+ \item $\encleft((k, g), a, \sno)$: choose a random $\salt$ and output $\salt, \ct_L = H(\salt, g^{\aes_k(a) \cdot \aes_k(\sno)^{-1}})$.
+ \item $\encright((k, g), b, \sno):$ output $\ct_R = \aes_k(b) \cdot \aes_k(\sno+1)$. 
+ \item $\match(\encr, (\salt, \ct_L), \ct_R)$: check whether \[H(\salt, \encr^{\ct_R}) \stackrel{?}{=} \ct_L.\]
+ \end{itemize}
+ 
+ It is easy to check that if a rule consists of strings $(r_1, r_2)$ and we have $r_1$ at the end (right) of a packet and $r_2$ at the beginning (left) of the next packet, a match will be flagged. 
+ The reason is that the right encryption is done with a serial number of $\sno +1$ to match the serial number of the left encryption of the subsequent packet. 
+ 
+The security of the scheme relies on the standard Diffie-Hellman assumption. We prove formally that this scheme achieves the same security as the regular matching scheme (\S\ref{simple_match}) in XXX, as if the rule was not split over two packets. 
+ 
+\subsection{Protocol using the scheme} \label{sec:cross_prot}
  
  \begin{framed}
 \begin{algorithmic}[1]
@@ -320,6 +339,8 @@ to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, w
 \section{Application: Proxy/cache}\label{sec:proxy}
 
 
+- emphasize networking aspect, more than crypto
+- delegate html pipelining to a longer discussion, and treatment of corner cases, figures
 
 \begin{itemize}
 \item architecture overview
@@ -335,6 +356,7 @@ to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, w
 \item do not support pipelining yet
 \end{itemize}
 
+- also relies on the cross boundaries matching but we do not present here 
 
 we are focusing on the transparent proxy
 - discuss the kind of proxies we are focusing on
