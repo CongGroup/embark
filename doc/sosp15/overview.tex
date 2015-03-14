@@ -77,18 +77,32 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 
 \subsection{\sys overview}
 
+To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
+As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
+the same secret key. The gateway encrypts all traffic going to the middlebox in the cloud using \sys's protocols.
+The middlebox in the cloud processes {\em encrypted traffic} using \sys's protocols. 
+After the processing, the middlebox
+will produce encrypted traffic which it sends back to the gateway. The gateway decrypts the traffic using the key $k$, 
+and forwards it as in the setup.
 
-The gateway encrypts
-the traffic with a secret key and sends it to the middlebox in the cloud. The MB in the cloud performs various processing 
-on the {\em encrypted traffic} without decrypting it (in fact, MB never gets the secret key). The result from MB is also encrypted traffic
-that MB then sends to the gateway. The gateway decrypts the traffic and sends it to the external site. 
-Note that any SSL connection between to the external site is maintained, but when we talk about encryption in this paper, we focus only
-on \sys's added encryption. 
+Throughout this process, MB handles only the encrypted traffic and never gets the decryption key. This ensures
+that an attacker that steals all data from the cloud, will only see encrypted traffic and hence protects the privacy of the 
+traffic. 
+
+MB encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
+
+\todo{need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
+encrypt things}
 
 
-traffic between gateway and middlebox is encrypted
 
-goals on the gateway
+
+-- handling two gateways with non-determinism
+
+
+
+
+-- goals on the gateway
 
 -- have a way to show that what the gateway does is generic 
    
@@ -98,12 +112,10 @@ goals on the gateway
 
 which app for which operation
 
-Sys overview
+
 - need to discuss somewhere the above goals from the gateway
-A LOT OF SYSTEMS BUILDING
+%A LOT OF SYSTEMS BUILDING
 
-Sys architecture
-need to spend quite some time on sys architecture
 
-why we choose certain operations
+- why we choose certain operations
 
