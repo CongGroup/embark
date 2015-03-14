@@ -14,8 +14,6 @@ To evalute \sys, we try to answer two questions:
 perhaps also a discussion
 of how easy it is to setup/configure/admin support for gateway?}
 
-microbenchmark boundary encryption, IDS encryption, range match, equality
-
 \subsection{Functionality}
 
 Table~\ref{tab:apps} lists the various applications supported in the APLOMB model~\cite{aplomb} 
@@ -40,15 +38,14 @@ Exfiltration/parental filtering & & & \S\ref{sec:IDS} \\
 \end{tabular}
 \caption{Middlebox applications supported by \sys. \label{tab:apps}}
 \end{table}
-\todo{make sure this does not duplicate intro table}
 
 \todo{L4 firewall vs the other firewalls}
-\todo{some notes on this table from talking to Justine -- e.g., add what needs to be modified; also add what operations each uses}
+\todo{some notes on this table from talking to Justine -- e.g., add what needs to be modified}
 cannot support reverse proxy and wan optimization -- explain why -- also these are causing problems to aplomb that some consider not even putting on cloud 
 
 
 Table for IDS:
-
+\eat{
 \begin{table}[t]
   \centering
   \begin{tabular}{l|c|c}

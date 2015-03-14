@@ -183,11 +183,8 @@ these rules based on Yao garbled circuits~\cite{}, which is slow. We eliminate t
 The stream of data at each endpoint gets encrypted with SSL as before 
 and separately with BlindBox. 
 For the BlindBox encryption, the stream gets tokenized and then encrypted. 
-The tokenization produces a set of keywords from the traffic stream, e.g.,
-at every offset in the stream, a keyword of size $m=8$ is produced.
-For simplicity of presentation, assume that each rule string is also $m$ bytes long, although
-~\cite{blindbox} explains how to detect rules that are longer.
- Each token $t$ then gets encrypted using
+The tokenization produces a set of keywords from the traffic stream (e.g.,
+a keyword for every offset in the packet). Each token $t$ then gets encrypted using
 a new and strong encryption scheme $\salt, H(\salt, \aes_k(t))$, where 
 $\salt$ is a random value and $H$ is a hash. 
 
@@ -225,123 +222,54 @@ in SEC I.
 
 \subsection{\sys's IDS}\label{sec:IDS}
 
-We now describe \sys's IDS. This consists of the protocol above together with two new techniques 
-for enabling detection of rule strings that span multiple packets and speeding up the connection
-setup time. 
-
-
-\subsubsection{Cross-packet encrypted detection}
-
-Since the gateway receives packets as opposed to byte streams as in BlindBox, the gateway
-must be able to encrypt the packets in such a way that enables detecting a rule string that
-spans multiple packets. The gateway must not reconstruct the flow by piecing together packets in order
-and only work with one packet at a time.
-
-For example, if the stream has two packets with the payload
-``this is inse'' and ``cure string''. MB might have a rule with the rule string ``insecure'': 
-``drop packet \{content: insecure\}''.  
-
-If the gateway produces tokens per packet, there will be a ``inse'' token in the first packet
-and ``cure'' token in the second packet, none of which match "insecure". 
-
- Let $m$ be the token length.
- 
- \paragraph{Strawman} The first idea is to have the gateway tokenize the end and beginning of each 
- packet in shorter tokens than $m$ for all possible ways that a string of $m$ bytes could have been split in.
- Also, MB will also have encrypted rules that correspond to all possible breakdowns
- of a rule of size $m$. 
- For example, for the packet ``this is inse'', the gateway produces additional tokens for the end of the packet
- "is inse", "s inse", $\dots$, "se", "e" and for the packet ``cure string'' the beginning tokens ``cure st", ``cure s", $\dots$,  ``cu", ``c".
- Besides having an encryption of ``insecure", MB also gets encryptions of the pairs (``i", ``nsecure"), (``in", ``secure"), 
- $\dots$ (``insecur", ``e").
- MB will detect the attack because it has the rule (``inse'', ``cure"), it reconstructs the flow, and will see that a packet contains at the end ``inse'' and the next packet
- contains ``cure" which match the rule. 
- 
- While this strawman achieves correct functionality, it has a set of serious security issues:
- \begin{enumerate}
- \item some rules are now less than $m$ bytes long (e.g., some are one letter long) and the attacker learns further information by seeing where they match. A short rule string can match a packet even if the corresponding full $m$-bytes rule string it is part of does not match in the packet. For example, if a packet ends in ``in'' and the next packet starts with ``telligent", MB will know that the first packet ended in ``in" because it has a rule string for ``in". MB should not learn this information unless the byte stream contains the string ``insecure". 
-
- \item MB can combine {\em non-consecutive} packets together and see if the form ``insecure'' on their border.
- \end{enumerate}
- 
- Ideally, we would like to preserve the security guarantee that MB only learns if an $m$-bytes rule string matches at an offset, but nothing else. To achieve this and address the challenges above, we provide a new way to encrypt the strings on borders of packets. 
- 
- The goal is for the gateway to somehow tie together the last $i$ bytes from the end of a packet to the first $m-i$ bytes from the beginning of the next packet. This is difficult because the gateway cannot order packets. We have a few insights to make this goal possible. First, recall that each packet has a serial number at a fixed offset in the packet, which is easy to read for the gateway. The second packet has the serial number of the first packet plus one. Hence, we will tie together the two packets through the serial number. Second, the encrypted rule should not contain the two parts of the rule encrypted separately (or separably) so that an attacker cannot detect each string individually. To achieve this, we encrypt the rule into $g^{\aes_k(\mathsf{left}), \aes_k(\mathsf{right})}$, for a random $g$. Finally, we use a set of other cryptographic insights which we do not explain here because the focus is on the system. A reader uninterested in the crypto can directly skip to the protocol description \S\ref{sec:cross_prot}. 
- 
- \subsection{Crypto scheme}
- 
- All operations are in a group $\bbG$ of prime order $p$, even if we don't say so.  
- 
- The scheme is as follows:
- \begin{itemize}
- \item $\keygen$: generate a random key $k$ for AES and a random value $g$. The final key is $(k, g)$. 
- \item $\kwenc((k,g),  r_1, r_2)$: output $\encr = g^{\aes_k(r_1) \cdot \aes_k(r_2)}$. 
- \item $\encleft((k, g), a, \sno)$: choose a random $\salt$ and output $\salt, \ct_L = H(\salt, g^{\aes_k(a) \cdot \aes_k(\sno)^{-1}})$.
- \item $\encright((k, g), b, \sno):$ output $\ct_R = \aes_k(b) \cdot \aes_k(\sno+1)$. 
- \item $\match(\encr, (\salt, \ct_L), \ct_R)$: check whether \[H(\salt, \encr^{\ct_R}) \stackrel{?}{=} \ct_L.\]
- \end{itemize}
- 
- It is easy to check that if a rule consists of strings $(r_1, r_2)$ and we have $r_1$ at the end (right) of a packet and $r_2$ at the beginning (left) of the next packet, a match will be flagged. 
- The reason is that the right encryption is done with a serial number of $\sno +1$ to match the serial number of the left encryption of the subsequent packet. 
- 
-The security of the scheme relies on the standard Diffie-Hellman assumption. We prove formally that this scheme achieves the same security as the regular matching scheme (\S\ref{simple_match}) in XXX, as if the rule was not split over two packets. 
- 
-\subsection{Protocol using the scheme} \label{sec:cross_prot}
- 
- \begin{framed}
-\begin{algorithmic}[1]
-
-\Procedure{MarginEncrypt}{$p$, a packet's payload}
-	\State \Comment Encrypt the left margin: 
-	\For{i = 1, m-1}
-		\State \todo{finish}
-	\EndFor
-\EndProcedure
-\end{algorithmic}
-\end{framed}
-
- 
- The middlebox reconstructs the flow and pieces together consecutive packets. For each packet, it performs detection 
-as in the basic protocol above. Moreover, MB has to check rules across packet margins. For this, it invokes  the 
-{\em MarginMatch} procedure below for every pair of consecutive packets. 
-
-\begin{framed}
-\begin{algorithmic}[1]
-\Procedure{MarginMatch}{$p_L$ and $p_R$, the payloads of two consecutive packets}
-	\State \todo{finish}
-\EndProcedure
-\end{algorithmic}
-\end{framed}
-
-no need for salt any more, the salt is in fact hte serial no
-
- 
- 
-  to account 
- for all the possible ways that an $m$ byte word could have been split at the boundary between the two packets.
- Each of these new tokens are encrypted using our protocol so far.
- MB 
- 
- and ``cure string''.
- 
- security
-
- 
- \subsubsection{Connection setup}
- 
- It turns out that \sys's setting allows us to greatly simplify and speed up the connection setup time. In \sys, a trusted gateway performs the encryption as opposed to untrusted user machines. Since the gateway is trusted, it can see the rules $r$, unlike in BlindBox. Hence, 
-to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, which has $k$, and can compute $\aes_k(r)$. This is much faster than using Yao garbled circuits as in BlindBox, using which the gateway would have to produce a garbled circuit for AES, send it to the middlebox, MB runs a special protocol to obtain some encoding of the rules $r$, and finally MB evaluates the garbled circuit on the encoding of $r$ and obtains $\aes_k(r)$. oblivious transfer~\cite{} to obtain the rule, resulting in XXX speedup and XXX less bandwidth usage. 
 
 
 
+\subsection{Cross-packet encrypted detection}
 
+
+
+even though for this we use an existing scheme, we incorporate it into the whole
+system and make it work with the other components
+
+-- gateway checks that the rules from the service provider have a minimal length 
+
+Bryan Ford, Mike Walfish and Brad Karp -- who are on Sigcomm PC are also on SOSP Pc
+So we need to not kill BlindBox -- just present them as different, not as better necessarily.
+
+
+\subsubsection{Strawman}
+\begin{itemize}
+\item packet: tokenization
+\item signature
+\item how to match
+\item problem: signatures across boundaries
+\end{itemize}
+
+\subsubsection{Solution}
+Packets:
+\begin{itemize}
+\item tokenize as usual
+\item in addition, at the end of each packet, tokenize last k-1, ..., 1 bytes
+\item at the beginning, tokenize first 1, 2, ..., k-1 bytes
+\item suppose packet has a sequence number i, for a j-byte tail tokens, generate $e_k$(j bytes) XOR $prf_k$(i, k-j).
+\item Similarly, for a j-byte head tokens, generate $e_k$(j bytes) XOR $prf_k$(i-1, j)
+\end{itemize}
+
+Signatures:
+\begin{itemize}
+\item tokenize
+\item for each k byte token, also generate (1, k-1), (2, k-2), ..., (k-1, 1) byte token pairs
+\item for each pair (p1, p2), ids keeps p1 XOR p2 as a signature.
+\end{itemize}
+
+How to match:
+\begin{itemize}
+\item for normal tokens, direct match
+\item for head and tail tokens: when handling packet i and i+1, XOR the corresponding head and tail tokens with the signature.
+\end{itemize}
 
 \section{Application: Proxy/cache}\label{sec:proxy}
-
-
-- emphasize networking aspect, more than crypto
-- delegate html pipelining to a longer discussion, and treatment of corner cases, figures
-
 \begin{itemize}
 \item architecture overview
 \item HTTP request -- absolute url and Host + relative url
@@ -356,7 +284,6 @@ to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, w
 \item do not support pipelining yet
 \end{itemize}
 
-- also relies on the cross boundaries matching but we do not present here 
 
 we are focusing on the transparent proxy
 - discuss the kind of proxies we are focusing on
