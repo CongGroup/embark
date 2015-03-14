@@ -20,7 +20,7 @@
 Keyword match allows detecting if an encrypted keyword matches an encrypted data item by equality.
 For example, given a certain type of encryption of the keyword ``malicious'', $\kwenc(``malicious'')$ someone can determine that it matches the second string in the list of encrypted data items [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')] but it should learn nothing else about the other strings.
 
-A few systems such as CryptDB~\cite{cryptdb, some other} used deterministic encryption for this purpose, which has the property that if $x = y$ then $\enc(x) = \enc(y)$. This encryption scheme is weaker than ours because it leaks equality relations even when no keyword is provided for matching. In contrast, we use strong encryption scheme, a randomized encryption scheme that leaks the minimum information needed: which string in the list matches the keyword and nothing else about the strings in the list. 
+A few systems such as CryptDB~\cite{cryptdb, someother} used deterministic encryption for this purpose, which has the property that if $x = y$ then $\enc(x) = \enc(y)$. This encryption scheme is weaker than ours because it leaks equality relations even when no keyword is provided for matching. In contrast, we use strong encryption scheme, a randomized encryption scheme that leaks the minimum information needed: which string in the list matches the keyword and nothing else about the strings in the list. 
 
 Since we are in a network setting where the matching is run over packets, sometimes a keyword to be matched spans two packets. \todo{give example here and explain why it is challenging}. Hence we had to come up with a new such scheme. \todo{it is a new contribution}
 
