@@ -2,19 +2,46 @@
 
 \section{Overview}\label{sec:overview}
 
+In this section, we present \sys's architecture, the threat model and applications supported.
+
+\subsection{Aplomb and NEF system setup}
+
+We recall the system setup in Aplomb and NEF setup, illustrated in Fig.~\ref{fig:sys-overview}. 
+There are three parties: enterprise(s), the cloud running the middlebox, and an external site providing
+some service. 
+The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
+
+There are two setups. The first setup occus when the enteprise communicates with an external site.  In this case, we have setup as in Fig.~\ref{fig:model1}.
+The traffic from a client inside the enteprise passes the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
+After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
+
+
+The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout. Each enterprise has it's own gateway.
+Traffic from a client in enterprise 1 passes through the gateway of this enterprise which redirects it to the middlebox in the cloud, which after processing the traffic, it sends it to the gateway of the second enterprise which then directs it to the appropriate receiver. This setup allows for better latency, as discussed in~\cite{aplomb}.
+
+
+
+
+better discuss what \sys adds here 
+
+and returns the traffic
+to the gateway which now forwards it to the external site. The answer from the external site follows the reverse direction of the
+request.
+
+
 
 \begin{figure}[t!]
 \centering
-\subfigure[Enterprise to enterprise communication]{
-  \includegraphics[width=3.3in]{fig/model_2.pdf}
-  \label{fig:model} }
+\subfigure[Enterprise to external site communication]{
+  \includegraphics[width=3.3in]{fig/model_1.pdf}
+  \label{fig:model1} }
 %
 \vfill  
-\subfigure[Enterprise to external site communication]{
-   \includegraphics[width=3.2in]{fig/model_1.pdf}
-     \label{fig:model}}
+\subfigure[Enterprise to enterprise communication]{
+   \includegraphics[width=3.1in]{fig/model_2.pdf}
+     \label{fig:model2}}
 %
-\caption{System setup \label{fig:sys-overview}}
+\caption{System architecture: Aplomb and NEF system setup with \sys's encryption \label{fig:sys-overview}}
 \end{figure}
 
 \begin{itemize}
@@ -24,11 +51,24 @@
 \item use cases
 \end{itemize}
 
-parties
+\subsection{Threat model}
 
+
+
+
+\subsection{\sys overview}
+
+The gateway encrypts
+the traffic with a secret key and sends it to the middlebox in the cloud. The MB in the cloud performs various processing 
+on the {\em encrypted traffic} without decrypting it (in fact, MB never gets the secret key). The result from MB is also encrypted traffic
+that MB then sends to the gateway. The gateway decrypts the traffic and sends it to the external site. 
+Note that any SSL connection between to the external site is maintained, but when we talk about encryption in this paper, we focus only
+on \sys's added encryption. 
 
 
 traffic between gateway and middlebox is encrypted
+
+goals on the gateway
 
 -- have a way to show that what the gateway does is generic 
    
