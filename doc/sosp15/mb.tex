@@ -6,12 +6,16 @@
 
 \usepackage{xspace}
 \newcommand{\sys}{MBArk\xspace}
+%\newcommand{\sys}{EMBArk\xspace}
 \newcommand{\RM}{RM\xspace}
 % MBArk
 % EMBArk
 
 \usepackage{fancyvrb}
 \usepackage{listings}
+
+
+
 \lstset{
   basicstyle=\footnotesize\ttfamily, 
   columns=fullflexible,
@@ -37,7 +41,11 @@
   %\usepackage{algorithmic}
   
 \usepackage[noend]{algpseudocode}
-\usepackage{flushend}
+
+% edit the comments 
+\usepackage{eqparbox}
+\renewcommand{\algorithmiccomment}[1]{\eqparbox{COMMENT}{// {\emph #1}}}
+  
 %\usepackage{multicol}
 %\usepackage{amsmath, amssymb}
 %\usepackage{amsthm}
@@ -99,13 +107,22 @@
 \newcommand{\MB}{MB\xspace}
 
 \newcommand{\sslk}{k_{\mathsf{SSL}}}
+\newcommand{\bbG}{\mathbb{G}}
 
 \newcommand{\garble}{\mathsf{Garble}}
 \newcommand{\eval}{\mathsf{Eval}}
-\newcommand{\sig}{\mathsf{sig}}
+\newcommand{\keygen}{\mathsf{KeyGen}}
 \newcommand{\Enc}{\mathsf{Enc}}
+\newcommand{\kwenc}{\mathsf{KWEnc}}
 \newcommand{\enc}{\Enc}
 \newcommand{\en}{\mathsf{enc}}
+\newcommand{\encleft}{\mathsf{EncLeft}}
+\newcommand{\encright}{\mathsf{EncRight}}
+\newcommand{\match}{\mathsf{Match}}
+
+\newcommand{\sig}{\mathsf{sig}}
+\newcommand{\ct}{\mathsf{ct}}
+\newcommand{\sno}{\mathsf{serial\_no}}
 
 \renewcommand{\mod}{\mathsf{mod}\xspace}
 
@@ -192,9 +209,8 @@
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{\sys: Securely outsourcing middleboxes to the cloud \\
-{\small \todo{ different title? remove "to the cloud"?}}
-}
+\title{\sys: Securely outsourcing middleboxes to the cloud }
+
 \subtitle{Paper ID: \#??}
 
 
@@ -300,6 +316,7 @@
 \category{H.4}{Information Systems Applications}{Miscellaneous}
 %A category including the fourth, optional field follows...
 \category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
+\todo{fix these categories}
 
 %\terms{Systems}
 
