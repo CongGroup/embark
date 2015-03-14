@@ -4,7 +4,7 @@
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
-\subsection{Aplomb and NEF system setup}
+\subsection{Aplomb and NEF architecture}
 
 We recall the system setup in Aplomb and NEF setup, illustrated in Fig.~\ref{fig:sys-overview}. 
 There are three parties: enterprise(s), the cloud running the middlebox, and an external site providing
@@ -14,19 +14,14 @@ The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) runni
 There are two setups. The first setup occus when the enteprise communicates with an external site.  In this case, we have setup as in Fig.~\ref{fig:model1}.
 The traffic from a client inside the enteprise passes the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
 After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
+The answer from the external site follows the reverse direction of the
+request.
 
 
 The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout. Each enterprise has it's own gateway.
 Traffic from a client in enterprise 1 passes through the gateway of this enterprise which redirects it to the middlebox in the cloud, which after processing the traffic, it sends it to the gateway of the second enterprise which then directs it to the appropriate receiver. This setup allows for better latency, as discussed in~\cite{aplomb}.
 
 
-
-
-better discuss what \sys adds here 
-
-and returns the traffic
-to the gateway which now forwards it to the external site. The answer from the external site follows the reverse direction of the
-request.
 
 
 
@@ -87,12 +82,38 @@ Throughout this process, MB handles only the encrypted traffic and never gets th
 that an attacker that steals all data from the cloud, will only see encrypted traffic and hence protects the privacy of the 
 traffic. 
 
-MB encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
+\sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
+
+At the same time, \sys supports a wide range of middlebox applications, in fact, all the applications considered in the 
+Aplomb model.
+
+
+\begin{table}[t!]
+\begin{tabular}{p{3cm}|p{2cm}|p{1cm}}
+Application  & Operations used & Details \\
+\hline \hline
+IP Firewall &    & \S\ref{sec:firewall} \\
+Application Firewall &  & \S\ref{sec:firewall}\\
+NAT &  & \S\ref{sec:nat} \\
+IP Forwarding  & & \\
+VPN Gateway &  none & \S\ref{sec:vpn} \\ 
+Load Balancer L4 & & \S\ref{sec:loadb}\\
+Load Balancer L7  & & \S\ref{sec:loadb}\\
+WAN optimizer  &  & \S\ref{sec:not_supp}\\
+Web proxy/cache  & & \S\ref{sec:proxy}\\
+intrusion detection (IDS)  & & \S\ref{sec:IDS}\\
+data exfiltration  & & \S\ref{sec:IDS} \\
+\todo{split this} 
+\end{tabular}
+\caption{Middlebox applications supported by \sys. \label{tab:apps}}
+\end{table}
+
+
 
 \todo{need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
 encrypt things}
 
-
+- security guarantees
 
 
 -- handling two gateways with non-determinism
