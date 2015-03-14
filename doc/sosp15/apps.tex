@@ -270,24 +270,39 @@ and ``cure'' token in the second packet, none of which match "insecure".
  
  \subsection{Crypto scheme}
  
+ \todo{sequence number}
+ \todo{say somewhere that we do not have full formalism, see some paper}
  All operations are in a group $\bbG$ of prime order $p$, even if we don't say so.  
  
  The scheme is as follows:
  \begin{itemize}
  \item $\keygen$: generate a random key $k$ for AES and a random value $g$. The final key is $(k, g)$. 
- \item $\kwenc((k,g),  r_1, r_2)$: output $\encr = g^{\aes_k(r_1) \cdot \aes_k(r_2)}$. 
- \item $\encleft((k, g), a, \sno)$: choose a random $\salt$ and output $\salt, \ct_L = H(\salt, g^{\aes_k(a) \cdot \aes_k(\sno)^{-1}})$.
- \item $\encright((k, g), b, \sno):$ output $\ct_R = \aes_k(b) \cdot \aes_k(\sno+1)$. 
+ \item $\kwenc((k,g),  r_1, r_2)$: receives as input a split of a rule into a part $r_1$, at the end of a packet, and $r_2$ at the beginning of the next packet. Outputs the encryption of the rule \[ \encr = g^{\aes_k(r_1, \text{``left"}) \cdot \aes_k(r_2, \text{``right"})}.\] 
+ \item $\encleft((k, g), s, \sno)$: receives as input the beginning $s$ of a packet with sequence number $\sno$. It chooses a random $\salt$ and outputs \[ \salt, \ct_L = H(\salt, g^{\aes_k(s) \cdot \aes_k(\sno)^{-1}}).\]
+ \item $\encright((k, g), s, \sno):$ receives as input the end of a packet $s$ with sequence number $\sno$ and outputs $\ct_R = \aes_k(s) \cdot \aes_k(\sno+1)$. 
  \item $\match(\encr, (\salt, \ct_L), \ct_R)$: check whether \[H(\salt, \encr^{\ct_R}) \stackrel{?}{=} \ct_L.\]
  \end{itemize}
  
  It is easy to check that if a rule consists of strings $(r_1, r_2)$ and we have $r_1$ at the end (right) of a packet and $r_2$ at the beginning (left) of the next packet, a match will be flagged. 
  The reason is that the right encryption is done with a serial number of $\sno +1$ to match the serial number of the left encryption of the subsequent packet. 
  
-The security of the scheme relies on the standard Diffie-Hellman assumption. We prove formally that this scheme achieves the same security as the regular matching scheme (\S\ref{simple_match}) in XXX, as if the rule was not split over two packets. 
+The security of the scheme relies on the standard Diffie-Hellman assumption. We prove formally that this scheme achieves the same security as the regular matching scheme (\S\ref{simple_match}) in XXX, as if the rule was not split over two packets. The scheme is implemented over elliptic curves allowing for faster exponentiation and shorter ciphertext sizes. 
+
  
 \subsection{Protocol using the scheme} \label{sec:cross_prot}
  
+ -- in comparison to BlindBox, new encryption scheme
+ 
+ 
+ -- call it N times
+ 
+ 
+\paragraph{Optimization.} The protocol above, requires $N$ exponentiations per rule per packet boundary. 
+Hence, there are $N R$ exponentiations per packet boundary which is a significant slowdown, considering that $R$ can be thousands. 
+While $N$ exponentiations are a most overhead, $N R$ is a significant overhead, where $R$ is the number of rules. To reduce 
+
+
+
  \begin{framed}
 \begin{algorithmic}[1]
 

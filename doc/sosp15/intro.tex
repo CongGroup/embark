@@ -86,16 +86,21 @@ Range match refers to when a value $x$ matches an interval of two values ($x_1$ 
 
 Table~\ref{fig:apps_ops} summarizes the middleboxes we support and the operations they rely on. 
 
+Another challenge is that there either do not exist encryption schemes for these operations or the existing encrytion schemes are too slow or too insecure for our setting. Performing a keyword match can be implemented using practical searchable encryption~\cite{song, blindbox, X}, which were extensively studied in the security literature.
+However, there is no practical encryption scheme that enables the cross-boundary match. 
+For this, we designed a new encryption scheme that is fast and provides the same security guarantee as the regular match -- as if the match were not happening across boundaries of packets. 
 
+Regarding range match, the closest encryption scheme is order preserving encryption (OPE)~\cite{mope, BCLO}. However, these are too slow for our setting and also leak the order of the values encrypted. We designed a new scheme, called {\em RangeMatch} which is fast (XXX faster than state of the art OPE schemes) and more secure -- it does not reveal the order of two values encrypted: the cloud only learns if an encrypted value falls in an encrypted interval. This scheme is actually a systems technique more than an encryption scheme: indeed, it leverages no cryptography, and instead it exploits the systems setup using a fast tree data structure. 
 
-
-
+The last challenge is to design and build a system that supports the variety of applications mentioned using the above two primitives, is practical and easy to deploy. 
+To address this challenge, we make the following contributions:
 \begin{itemize}
-
-\item how to secure (which information need to protect)
-\item how does mbark work: building blocks, applications secured (a nice table could go well here)
-\item perhaps aplomb overview figure already in intro
-\item contribution
+\item we provide a protocol for each of the applications in Table~\ref{tab:apps} employing the above two primitives,
+\item we design each of these protocols and we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, add layers of headers to packets, and sometimes add a second network flow.
+\item some of the applications above such as the firewall employ specialized hardware for efficiency -- {\em we do not modify these middleboxes}, allowing them to run on encrypted traffic unchanged. 
 \end{itemize}
 
+
 \subsection{Implementation and evaluation}
+
+We implemented and evaluted \sys. As mentioned, we support all applications fit in the cloud outsourcing model, as surveyed in~\cite{aplomb}. PERFORMANCE HERE
