@@ -1,12 +1,17 @@
 %!TEX root = mb.tex
 
+
+
+     
 \section{Overview}\label{sec:overview}
+
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
 \subsection{Aplomb and NFV architecture}
 
-We recall the system setup in Aplomb and NFV setup, illustrated in Fig.~\ref{fig:sys-overview}. 
+We recall the system setup in Aplomb and NFV setup  in Fig.~\ref{fig:sys-overview}.
+We do not delve into the details, motivation, and gains of this setup, and refer the reader to~\cite{aplomb} for details. 
 There are three parties: enterprise(s), the cloud running the middlebox, and an external site providing
 some service. 
 The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
@@ -24,20 +29,6 @@ Traffic from a client in enterprise 1 passes through the gateway of this enterpr
 
 
 
-
-\begin{figure}[t!]
-\centering
-\subfigure[Enterprise to external site communication]{
-  \includegraphics[width=3.3in]{fig/model_1.pdf}
-  \label{fig:model1} }
-%
-\vfill  
-\subfigure[Enterprise to enterprise communication]{
-   \includegraphics[width=3.1in]{fig/model_2.pdf}
-     \label{fig:model2}}
-%
-\caption{System architecture: Aplomb and NFV system setup with \sys's encryption \label{fig:sys-overview}}
-\end{figure}
 
 \begin{itemize}
 \item applications
@@ -70,6 +61,8 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 
 \subsection{\sys overview}
 
+\todo{maybe an overall packet structure would work well here, before and after us}
+
 To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
 As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
 the same secret key. The gateway encrypts all traffic going to the middlebox in the cloud using \sys's protocols.
@@ -88,27 +81,6 @@ At the same time, \sys supports a wide range of middlebox applications, in fact,
 Aplomb model.
 
 
-\begin{table}[t!]
-\begin{tabular}{p{3cm}|p{2cm}|p{1cm}}
-Application  & Operations used & Details \\
-\hline \hline
-IP Firewall &    & \S\ref{sec:firewall} \\
-Application Firewall &  & \S\ref{sec:firewall}\\
-NAT &  & \S\ref{sec:nat} \\
-IP Forwarding  & & \\
-VPN Gateway &  none & \S\ref{sec:vpn} \\ 
-Load Balancer L4 & & \S\ref{sec:loadb}\\
-Load Balancer L7  & & \S\ref{sec:loadb}\\
-WAN optimizer  &  & \S\ref{sec:not_supp}\\
-Web proxy/cache  & & \S\ref{sec:proxy}\\
-intrusion detection (IDS)  & & \S\ref{sec:IDS}\\
-data exfiltration  & & \S\ref{sec:IDS} \\
-\todo{split this} 
-\end{tabular}
-\caption{Middlebox applications supported by \sys. \label{tab:apps}}
-\end{table}
-
-
 
 \todo{need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
 encrypt things}
@@ -121,7 +93,8 @@ encrypt things}
 
 
 
--- goals on the gateway
+-- goals on the gateway, gateway only needs to know which apps are running, note that in our design
+it does not depend on the version, etc. 
 
 -- have a way to show that what the gateway does is generic 
    
