@@ -3,15 +3,31 @@ elementclass MBarkGateway {
     -> ProtocolTranslator46
     -> MBArkFirewall(FILENAME $rule)
     -> Print
-    -> MBArkProxy
-    -> output
+    -> proxy::MBArkProxy;
+    proxy[0] -> [0]output;
+    proxy[1] -> [1]output;
 }
 
-fd::FromDump(FILENAME /tmp/trace.pcap, STOP true);
+c :: Classifier(
+    12/0800, 
+    -);
 
-//fd0::FromDevice(en0) 
+//fd::FromDump(FILENAME /tmp/trace.pcap, STOP true);
 
-fd  -> Strip(14)
+fd::FromDevice(en0) 
+
+fd  -> c
+
+c[0] 
+    -> Strip(14)
     -> gw0::MBarkGateway(conf/fw.rules)
+
+c[1]
+    -> Discard
+
+gw0[0] 
     -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
+    -> Discard
+
+gw0[1]
     -> Discard

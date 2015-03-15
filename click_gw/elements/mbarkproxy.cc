@@ -40,12 +40,6 @@ MBArkProxy::configure(Vector<String> &conf, ErrorHandler *errh)
 bool
 MBArkProxy::parse_http_req(const char *data, int len, String& url)
 {
-  //click_chatter("trying to parse an HTTP packet. len: %d", len);
-
-  //char buf[1024] = {0};
-  //strncpy(buf, data, std::min(len, 64));
-  //click_chatter("%s", buf);
-
   if (strncmp(data, "GET ", 4) != 0)
     return false;
 
@@ -113,15 +107,15 @@ MBArkProxy::parse_http_req(const char *data, int len, String& url)
 void
 MBArkProxy::push(int, Packet *p)
 {
-  const click_ip6 *ip = (click_ip6 *)p->data();
-  const ext_hdr *option = (ext_hdr *)(ip + 1);
+  const click_ip6 *ip6 = (click_ip6 *)p->data();
+  const ext_hdr *option = (ext_hdr *)(ip6 + 1);
   const click_tcp *tcp = (click_tcp *)(option + 1);
 
   assert(option->hdr_ext_len == 6);
 
   if (option->next_hdr == 6 && ntohs(tcp->th_dport) == 80) 
   {
-    int ip_plen = ntohs(ip->ip6_plen);
+    int ip_plen = ntohs(ip6->ip6_plen);
     int d_offset = tcp->th_off * 4;
 
     const char *data = (const char *) tcp;
@@ -134,6 +128,27 @@ MBArkProxy::push(int, Packet *p)
     if (data_len > 0) {
       String url;
       parse_http_req(data, data_len, url);
+      WritablePacket *q = Packet::make(sizeof(click_ip6) + sizeof(click_udp) + url.length() + 1);
+
+      click_ip6 *ip6_new = (click_ip6 *)q;
+      click_udp *udp_new = (click_udp *)(ip6_new + 1);
+      char *payload = (char *)(udp_new + 1);
+
+      memcpy(ip6_new, ip6, sizeof(click_ip6));
+
+      int url_len = url.length();
+      ip6_new->ip6_plen = htons(sizeof(click_udp) + url_len + 1);
+      ip6_new->ip6_nxt = 17;
+
+      udp_new->uh_sum = 0;
+      udp_new->uh_ulen = htons(sizeof(click_udp) + url_len + 1);
+      udp_new->uh_sum = htons(in6_fast_cksum(&ip6_new->ip6_src, &ip6_new->ip6_dst, udp_new->uh_ulen, 
+        ip6_new->ip6_nxt, udp_new->uh_sum, (unsigned char *)(udp_new), udp_new->uh_ulen)); 
+
+      memcpy(payload, url.data(), url_len);
+      payload[url_len] = '\0';
+
+      output(1).push(q);
     }
   } else {
     //click_chatter("nxt_hdr: %x", option->next_hdr);
