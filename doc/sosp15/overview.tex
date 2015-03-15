@@ -8,7 +8,9 @@
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
-\subsection{Aplomb and NFV architecture}
+
+% TO CUT REMOVE: just mentino the figures and no need to explain 
+\subsection{Aplomb/NFV architecture}
 
 We recall the system setup in Aplomb and NFV setup  in Fig.~\ref{fig:sys-overview}.
 We do not delve into the details, motivation, and gains of this setup, and refer the reader to~\cite{aplomb} for details. 
@@ -16,41 +18,38 @@ There are three parties: enterprise(s), the cloud running the middlebox, and an 
 some service. 
 The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
 
-There are two setups. The first setup occus when the enteprise communicates with an external site.  In this case, we have setup as in Fig.~\ref{fig:model1}.
-The traffic from a client inside the enteprise passes the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
-After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
-The answer from the external site follows the reverse direction of the
-request.
-
-
-The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout. Each enterprise has it's own gateway.
-Traffic from a client in enterprise 1 passes through the gateway of this enterprise which redirects it to the middlebox in the cloud, which after processing the traffic, it sends it to the gateway of the second enterprise which then directs it to the appropriate receiver. This setup allows for better latency, as discussed in~\cite{aplomb}.
+There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enteprise communicates with an external site. The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout~\cite{aplomb} because  each enterprise has its own gateway.
 
 
 
 
+%The traffic from a client inside the enteprise passes through the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
+%After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
 
-\begin{itemize}
-\item applications
-\item use cases
-\end{itemize}
+
+
+%Traffic from a client in enterprise 1 passes through the gateway of this enterprise, then it goes  to the middlebox in the cloud, which after processing the traffic, sends it to the gateway of the second enterprise, and the traffic finally arrives at the receiver. This setup allows for better latency, as discussed in~\cite{aplomb}.
+
+
+
+
 
 \subsection{Threat model}
 
 The goal of \sys is to protect the privacy of the traffic against an attacker at the cloud 
 (cloud employee, or hacker gaining access to cloud machines). 
-We consider a strong cloud attacker, one that has gained access to {\em all cloud data}.
+We consider a strong cloud attacker, one that has gained access to {\em all the data on the cloud}.
 This includes any traffic and communication the cloud receives from the 
 gateway, any old logged information, cloud state, and so on. Nevertheless, we assume that 
-the cloud provides good service and runs middlebox functionality correctly.  The concern is
-about reading and leaking private data. 
+the cloud provides good service and runs middlebox functionality correctly.  We are only concerned with 
+the traffic's confidentiality.
 
 We assume that the gateways are trusted. They do not leak information.
 
 
-Some middlebox functionalities (such as intrusion detection, exfiltration detection) have a threat model
-of their own about the client and the server. For example, intrusion detection assumes that 
-the client or the server could misbehave and try to mount an attack, but at most one of them misbehaves 
+Some middlebox functionalities (such as intrusion detection or exfiltration detection) have a threat model
+of their own regarding the client and the server. For example, intrusion detection assumes that 
+the client or the server could misbehave and try to mount an attack, but at most one of them misbehaves~\cite{Bro}  
 (indeed, if both misbehave, they can send attack traffic to each other encrypted with a shared symmetric key and fundamentally
 no one can detect such an attack).  We preserve all these threat models unchanged. These applications rely
 on the good behavior of the middlebox to detect attacks in these threat models. Since we assume the middlebox executes
@@ -61,15 +60,13 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 
 \subsection{\sys overview}
 
-\todo{maybe an overall packet structure would work well here, before and after us}
 
 To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
 As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
 the same secret key. The gateway encrypts all traffic going to the middlebox in the cloud using \sys's protocols.
 The middlebox in the cloud processes {\em encrypted traffic} using \sys's protocols. 
 After the processing, the middlebox
-will produce encrypted traffic which it sends back to the gateway. The gateway decrypts the traffic using the key $k$, 
-and forwards it as in the setup.
+will produce encrypted traffic which it sends back to the gateway. The gateway decrypts the traffic using the key $k$.
 
 Throughout this process, MB handles only the encrypted traffic and never gets the decryption key. This ensures
 that an attacker that steals all data from the cloud, will only see encrypted traffic and hence protects the privacy of the 
@@ -77,15 +74,16 @@ traffic.
 
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
 
-At the same time, \sys supports a wide range of middlebox applications, in fact, all the applications considered in the 
-Aplomb model.
+
+Misc TODOs:
+
+- some of the paragraphs above are redundant with intro perhaps
+
+-maybe the overall packet structure here or should this bein systems implementation? 
 
 
-
-\todo{need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
-encrypt things}
-
-- security guarantees
+- need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
+encrypt things
 
 
 -- handling two gateways with non-determinism
@@ -108,10 +106,10 @@ which app for which operation
 - need to discuss somewhere the above goals from the gateway
 %A LOT OF SYSTEMS BUILDING
 
+- security guarantees:
 
 - why we choose certain operations
 
-\subsection{Security guarantees}
-- Need to summarize this somewhere as the overall security.
+- Need to summarize somewhere "overall" security
 
 - Somewhere we need to say that range match info leaks for header and keyword match for content. In some sense, these are minimal. 

@@ -1,21 +1,11 @@
 %!TEX root = mb.tex
 
-\section{Building blocks}\label{sec:blocks}
-
-\todo{make sure apps use these building blocks and use the notation in this section}
-
-\begin{itemize}
-\item observation: operations performed by middleboxes are simple. for the applications we considered, range match and exact match are enough to cover those operations.
-\item exact match: x == y iff e(x) == e(y), a weaker version: x == y iff R(e(x), e(y))
-\item range match: x in [low, high] iff e(x) in [e(low), e(high)]
-
-\end{itemize}
 
 
 \section{Building block: Keyword match}
 
 
-\input{boundary}
+%\input{boundary}
 
 Keyword match allows detecting if an encrypted keyword matches an encrypted data item by equality.
 For example, given a certain type of encryption of the keyword ``malicious'', $\kwenc(``malicious'')$ someone can determine that it matches the second string in the list of encrypted data items [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')] but it should learn nothing else about the other strings.
