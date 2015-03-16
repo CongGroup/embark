@@ -9,14 +9,14 @@ RTE_SDK := /home/clan/DPDK-1.5.0
 export RTE_TARGET
 export RTE_SDK
 
-#CPPFLAGS := -D__STDC_LIMIT_MACROS -DUSE_DPDK -I${RTE_SDK}/${RTE_TARGET}/include -std=gnu++11 -L${RTE_SDK}/${RTE_TARGET}/lib
-#export CPPFLAGS
+CPPFLAGS := -D__STDC_LIMIT_MACROS -DUSE_DPDK -I${RTE_SDK}/${RTE_TARGET}/include -std=gnu++11 -L${RTE_SDK}/${RTE_TARGET}/lib
+export CPPFLAGS
  
-#LDFLAGS := -L${RTE_SDK}/${RTE_TARGET}/lib
-#export LDFLAGS
+LDFLAGS := -L${RTE_SDK}/${RTE_TARGET}/lib
+export LDFLAGS
 
-#LIBS := -lethdev -lrte_kni -lrte_malloc -lrte_mempool -lrte_pmd_e1000 -lrte_pmd_ring -lrte_power -lrte_sched -lrte_cmdline -lrte_hash -lrte_lpm  -lrte_mbuf -lrte_meter -lrte_pmd_ixgbe -lrte_pmd_virtio -lrte_ring -lrte_timer -lrte_eal
-#export LIBS
+LIBS := -lethdev -lrte_kni -lrte_malloc -lrte_mempool -lrte_pmd_e1000 -lrte_pmd_ring -lrte_power -lrte_sched -lrte_cmdline -lrte_hash -lrte_lpm  -lrte_mbuf -lrte_meter -lrte_pmd_ixgbe -lrte_pmd_virtio -lrte_ring -lrte_timer -lrte_eal
+export LIBS
 
 .PHONY: clean
 
@@ -30,7 +30,7 @@ dpdk: elements/mbarkfw.cc
 	cp *.rules $(BUILD_DIR)/dpdk-click/conf/
 	cp *.sh $(BUILD_DIR)/dpdk-click/
 	cd $(BUILD_DIR)/dpdk-click; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include -Wno-literal-suffix" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
-	#make -C $(BUILD_DIR)/dpdk-click elemlist
+	make -C $(BUILD_DIR)/dpdk-click elemlist
 	make -C $(BUILD_DIR)/dpdk-click
 
 click: elements/mbarkfw.cc
