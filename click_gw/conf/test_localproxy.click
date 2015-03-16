@@ -2,7 +2,6 @@ elementclass MBarkGateway {
     $rule | input 
     -> ProtocolTranslator46
     -> MBArkFirewall(FILENAME $rule)
-    -> Print
     -> proxy::MBArkProxy;
     proxy[0] -> [0]output;
     proxy[1] -> [1]output;
@@ -12,9 +11,9 @@ c :: Classifier(
     12/0800, 
     -);
 
-//fd::FromDump(FILENAME /tmp/trace.pcap, STOP true);
+fd::FromDump(FILENAME /tmp/test.pcap, STOP true);
 
-fd::FromDevice(en0) 
+//fd::FromDevice(en0) 
 
 fd  -> c
 

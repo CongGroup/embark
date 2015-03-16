@@ -16,7 +16,7 @@ extern "C" {
    feature and set RX and TX number of queues > 1, ow, set RX queue numbers to 1
    tx queue numbes can be set more than 1 without rss for lockless ops
 */
-#define CLICK_RSS_ON  1
+#define CLICK_RSS_ON  0
 
 #define NUM_RX_QUEUE 4
 #define NUM_TX_QUEUE 4
