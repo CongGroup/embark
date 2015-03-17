@@ -5,13 +5,24 @@
 As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes (which \sys supports without modification) as well as DPI middleboxes (which \sys supports with modifications to their codebase). 
 Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
 
-To evaluate \sys more deeply, we now try to get a sense whether \sys is practical from a performance perspective, looking at the overheads due to encryption at (a) the gateway, and (b) the middleboxes themselves. Overall, we find that \sys with no DPI reduces gatway throughput by \todo{foo\%} and has zero overhead at the outsourced middleboxes. \sys with DPI enabled imposes a higher overhead, with the gateway throughput reduced by \todo{bar\%} and typical middlebox throughput reduced to \todo{baz\%} of baseline. 
+To evaluate \sys more deeply, we now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption and redirection. 
+Overall, we find that \sys provides client performance comparable to APLOMB~\cite{aplomb} -- e.g., page load times increase by \todo{foo}\% relative to APLOMB when caching is disabled, and by \todo{bar\%} when caching is enabled.
+\sys does impose some overhead at the gateway and middleboxes:
+\sys with no DPI reduces gatway throughput by \todo{foo\%} and has zero overhead at the outsourced middleboxes. \sys with DPI enabled imposes a higher overhead, with the gateway throughput reduced by \todo{bar\%} and typical middlebox throughput reduced to \todo{baz\%} of baseline. 
 
 \todo{methodology, datasets...}
 
-\subsection{Gateway and MB Throughput}
-We first provide some high-level throughput figures illustrating the overheads at the gatway and the middleboxes; in the following subsections we investigate the performance properties of each appliance in detail.
+\subsection{End-to-End Performance}
+We first inspect end-to-end client performance when traffic is redirected through \sys.
 
+{\it Does \sys provide web performance comparable to other outsourcing approaches?}
+Page load times relative to APLOMB.
+
+{\it How much does bandwidth increase between the gateway and the cloud from using \sys? How much would this bandwidth increase an enterprises networking costs?}
+
+
+
+\subsection{Gateway Performance}
 \begin{figure}[t]
   \includegraphics[width=3in]{fig/gatewayxput}
   \caption[]{\label{fig:gwxput} Throughput at the gateway without \sys, with header-only \sys, with HTTP-aware \sys, and with DPI-enabled \sys.}
@@ -21,6 +32,25 @@ We first provide some high-level throughput figures illustrating the overheads a
 \noindent{\it How does encryption impact throughput at the outsourcing gateway relative to an outsourcing gateway without \sys?}
 Figure~\ref{fig:gwxput}...
 
+\begin{figure}[t]
+  \includegraphics[width=3in]{fig/xputrange}
+  \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
+\end{figure}
+
+
+\begin{figure}[t]
+  \includegraphics[width=3in]{fig/latencyrange}
+  \caption[]{\label{fig:latencyrange} Per-packet latency as number of rules for range encrypt increases.}
+\end{figure}
+
+
+\noindent{\it How do throughput and latency at the gateway scale with the number of rules for range encryption?} 
+Figs~\ref{fig:latencyrange} and~\ref{fig:xputrange}
+
+\noindent{\it What is the memory overhead of the stateful range map encryption scheme?}
+
+
+\subsection{Middlebox Throughput}
 
 \begin{table}[t!]
 \begin{tabular}{p{2.5cm}|p{1.4cm}|p{2cm}|p{1cm}}
@@ -46,30 +76,9 @@ Exfiltration/parental filtering & & &  \\
 (Hopefully we can say, for most apps, not at all)
 Table~\ref{tbl:appsxput}...
 
-\subsection{In Detail: The Gateway}
 
-\begin{figure}[t]
-  \includegraphics[width=3in]{fig/xputrange}
-  \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
-\end{figure}
+\subsection{Header-Only Middleboxes}
 
-
-\begin{figure}[t]
-  \includegraphics[width=3in]{fig/latencyrange}
-  \caption[]{\label{fig:latencyrange} Per-packet latency as number of rules for range encrypt increases.}
-\end{figure}
-
-
-\noindent{\it How do throughput and latency scale with the number of rules for range encryption?} 
-Figs~\ref{fig:latencyrange} and~\ref{fig:xputrange}
-
-\noindent{\it What is the memory overhead of the stateful range map encryption scheme?}
-
-\noindent{\it How much does border packet encoding increase throughput relative to flow reconstruction?}
-
-\noindent{\it How much does bandwidth from the gateway to the cloud increase due to IPv4 to v6 conversion? Due to HTTP or DPI encryption?}
-
-\subsection{In Detail: Header-Only Middleboxes}
 
 \noindent{\bf Firewalls.} {\it Does \sys support all rules in a typical firewall configuration? How much does the ruleset ``expand'' due to encryption?}
 
@@ -78,7 +87,7 @@ Figs~\ref{fig:latencyrange} and~\ref{fig:xputrange}
 \noindent{\bf NAT.}
 \noindent{\bf LB...}
 
-\subsection{In Detail: DPI Middleboxes}
+\subsection{DPI Middleboxes}
 
 \noindent{\bf Proxy/Caching.}
 {\it How many active connections per second can the Proxy accept? How does this compare to an unencrypted Proxy implementation, like Squid?}
@@ -88,51 +97,18 @@ Figs~\ref{fig:latencyrange} and~\ref{fig:xputrange}
 \noindent{\bf Intrusion Detection}
 {\it How much does MBArk reduce flow completion times relative to BlindBox~\cite{blindbox}?}
 
-{\it How fast is detection time (with border encrypt) relative to BlindBox (without border encrypt)?}
+\begin{table}[h]
+\centering
+\begin{tabular}{l|l|l|l|l}
+&MBArk&APLOMB&BlindBox&SSL\\
+\hline
+\hline
+Handshake&&&&\\
+\hline
+Total FCT&&&&\\
+\end{tabular}
 
-\eat{
-\todo{do we want to have a section on whether it changes the processing at the middlebox? 
-perhaps also a discussion
-of how easy it is to setup/configure/admin support for gateway?}
-
-microbenchmark boundary encryption, IDS encryption, range match, equality
-
-\subsection{Functionality}
-
-Table~\ref{tab:apps} lists the various applications supported in the APLOMB model~\cite{aplomb} 
-and whether \sys supports them. 
-
-\todo{make sure this does not duplicate intro table}
-
-\todo{L4 firewall vs the other firewalls}
-\todo{some notes on this table from talking to Justine -- e.g., add what needs to be modified; also add what operations each uses}
-cannot support reverse proxy and wan optimization -- explain why -- also these are causing problems to aplomb that some consider not even putting on cloud 
-
-
-Table for IDS:
-
-\begin{table}[t]
-  \centering
-  \begin{tabular}{l|c|c}
-    {\bf Dataset}&{\bf SEC I.}&{\bf SEC II.}\\
-    \hline
-    Document Watermarking~\cite{CMU_exfiltration_report}&100\%&100\%\\
-    \hline
-    Snort Community (HTTP)&\twosnortcom&100\%\\
-    \hline
-    Snort Emerging Threats (HTTP)&\twosnortemerge&100\%\\
-    \hline
-    StoneSoft (McAffee) IDS&40\%&100\%\\
-    \hline
-    LastLine IDS&29.1\%&100\%\\
-  \end{tabular}
-  \caption[]{\label{tbl:coverage} Fraction of attack signatures in public and industrial signature\
- sets addressable with security guarantees I and II explained in \S\ref{sec:BB} \label{tab:BB_sec_func}. }
 \end{table}
 
-
-
-
-\subsection{Performance evaluation}
-
-}
+\noindent{\it What fraction of IDS rules can be supported without requiring decryption?}
+Table, Zhi's stuff.
