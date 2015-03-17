@@ -457,17 +457,6 @@ PollDevice::run_task(Task *)
             
 		//must also consider send m pointer itseld for mbuf although the macro based on buf_add, head can be used
     Packet *p = Packet::make(rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), (u_char*) m->buf_addr, m->buf_len, &Packet::dest, true);
-    if(nb_rx == 1){
-      p->_pd_batch_id = 3; //3 = start and end!
-    }else if(j == 0){
-      p->_pd_batch_id = 1; //1 = start
-    }else if(j == nb_rx - 1){
-      p->_pd_batch_id = 2; //2 = end
-    }else{
-      p->_pd_batch_id = 0; //nothing special
-    }
-	  p->_pd_batch_size = nb_rx;	
-    p->_parent_thread = (uint8_t) home_thread()->thread_id();
     //ret = rte_eth_tx_burst((uint8_t) 1, 0, pkts_burst, (uint16_t) nb_rx);
 		//click_chatter("PollDevice(%s): recvpkts: %d", _ifname.c_str(), _count);
 		//if (_count < 33)

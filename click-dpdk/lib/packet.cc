@@ -181,8 +181,6 @@ CLICK_DECLS
 
 Packet::~Packet()
 {
-    _parent_thread = 255;
-    _pd_batch_size = 0;
     // This is a convenient place to put static assertions.
     static_assert(addr_anno_offset % 8 == 0 && user_anno_offset % 8 == 0,
 		  "Annotations must begin at multiples of 8 bytes.");

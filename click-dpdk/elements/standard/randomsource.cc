@@ -86,7 +86,6 @@ RandomSource::run_task(Task *)
     n = (_count > (ucounter_t) _limit ? 0 : _limit - _count);
   for (int i = 0; i < n; i++) {
     Packet *p = make_packet();
-    p->_parent_thread = (uint8_t) home_thread()->thread_id();
     output(0).push(p);
   }
   _count += n;

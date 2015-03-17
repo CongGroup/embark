@@ -55,80 +55,9 @@ PushNullElement::~PushNullElement()
   void
 PushNullElement::push(int, Packet *p)
 {
-  //while(_lk.compare_swap(0, 1) != 0);
-  // do something here
-  //_lk.swap(0);
   output(0).push(p);
 }
 
-
-BatchLockingPushNullElement::BatchLockingPushNullElement()
-{
-  _ticket = 0;
-  _nowserving = 0;
-}
-
-int 
-
-BatchLockingPushNullElement::configure(Vector<String> &conf, ErrorHandler *errh){
-  _q = new Packet**[router()->master()->nthreads()];
-  _occupancy = new uint8_t[router()->master()->nthreads()];
-  for(int i = 0; i < router()->master()->nthreads(); i++){
-    _q[i] = new Packet*[128];
-    _occupancy[i] = 0; 
-  }
-  return 0;
-}
-
-BatchLockingPushNullElement::~BatchLockingPushNullElement()
-{
-}
-
-  void
-BatchLockingPushNullElement::push(int, Packet *p)
-{
-  int BATCHSIZE = 128;
-  uint8_t curthread = p->_parent_thread;
-  _q[p->_parent_thread][_occupancy[curthread]] = p;
-  _occupancy[curthread]++;
-
-  if((uint8_t) (_occupancy[curthread]) == (uint8_t) BATCHSIZE){
-    uint32_t myticket = _ticket.fetch_and_add(1);
-    while(myticket != _nowserving);
-    //Do something!
-    _nowserving++;
-
-    for(int i = 0; i < BATCHSIZE; i++){
-      output(0).push(_q[curthread][i]);
-    }
-    _occupancy[curthread] = 0;
-  }
-}
-
-
-
-LockingPushNullElement::LockingPushNullElement()
-{
-  _ticket = 0;
-  _nowserving = 0;
-}
-
-LockingPushNullElement::~LockingPushNullElement()
-{
-}
-
-  void
-LockingPushNullElement::push(int, Packet *p)
-{
-  /*uint32_t myticket = _ticket.fetch_and_add(1);
-    while(myticket != _nowserving);
-  //Do something!
-  _nowserving++;*/
-  while(_ticket.compare_swap(0, 1) != 0);
-  _ticket.swap(0);
-
-  output(0).push(p);
-}
 
 PullNullElement::PullNullElement()
 {
@@ -142,8 +71,6 @@ PullNullElement::~PullNullElement()
 PullNullElement::pull(int)
 {
   Packet * p = input(0).pull();
-  //while(_lk.compare_swap(0, 1) != 0);
-  //_lk.swap(0);
   return p;
 }
 
@@ -151,10 +78,6 @@ PullNullElement::pull(int)
   EXPORT_ELEMENT(NullElement)
   EXPORT_ELEMENT(PushNullElement)
   EXPORT_ELEMENT(PullNullElement)
-  EXPORT_ELEMENT(LockingPushNullElement)
-  EXPORT_ELEMENT(BatchLockingPushNullElement)
-  ELEMENT_MT_SAFE(BatchLockingPushNullElement)
-  ELEMENT_MT_SAFE(LockingPushNullElement)
   ELEMENT_MT_SAFE(NullElement)
   ELEMENT_MT_SAFE(PushNullElement)
 ELEMENT_MT_SAFE(PullNullElement)
