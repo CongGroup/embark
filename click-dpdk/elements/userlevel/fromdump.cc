@@ -472,7 +472,6 @@ FromDump::run_task(Task *)
       click_chatter("balls.");
       return false;
       }
-    p->_parent_thread = (uint8_t) home_thread()->thread_id();
     _bigmemidx = (_bigmemidx + 1) % _packetscount;
 
     output(0).push(p);
@@ -518,7 +517,6 @@ FromDump::pull(int)
   if(_bigmem > 0 && _bigmemidx < _packetscount){
     //std::cout << "PULLING PACKET!" << std::endl;
     Packet* p = _bigmembuf[_bigmemidx]->clone()->uniqueify();
-    p->_parent_thread = (uint8_t) home_thread()->thread_id();
     _bigmemidx = (_bigmemidx + 1) % _packetscount;
     return p;
   }

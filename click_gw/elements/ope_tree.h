@@ -35,18 +35,16 @@ inline uint128_t ntoh128(uint128_t n)
 }
 
 static inline 
-uint128_t random128(std::random_device& engine)
+uint128_t random128(std::mt19937_64& engine)
 {
     uint128_t x0 = engine();
     uint128_t x1 = engine();
-    uint128_t x2 = engine();
-    uint128_t x3 = engine();
-    return x0 | (x1 << 32) | (x2 << 64) | (x3 << 96);
+    return x0 | (x1 << 64);
 }
 
 // TODO: Not exactly uniformed dist
 static inline 
-uint128_t random_bound(std::random_device& engine, const uint128_t& low, const uint128_t& high)
+uint128_t random_bound(std::mt19937_64& engine, const uint128_t& low, const uint128_t& high)
 {
     return (random128(engine) % (high - low)) + low;
 }
@@ -58,11 +56,13 @@ protected:
     using ods::BinaryTree<Node>::r;
 
     std::random_device generator;
+    std::mt19937_64 prng;
 
     uint128_t max_ciphertext_less_equal_than(const EncType& v) const;
     uint128_t min_ciphertext_greater_than(const EncType& v) const;
 
 public:
+    OPETree() { prng.seed(generator()); }
     std::pair<uint128_t, uint128_t> ciphertext_range(const EncType& v) const;
     uint128_t generate_ciphertext(const EncType& v);
 };
@@ -76,7 +76,7 @@ OPETree<Node, EncType>::generate_ciphertext(const EncType& v)
 {
     uint128_t low = max_ciphertext_less_equal_than(v),
         high = min_ciphertext_greater_than(v);
-    return random_bound(generator, low, high);
+    return random_bound(prng, low, high);
 }
 
 template <class Node, class EncType>

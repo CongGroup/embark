@@ -182,15 +182,13 @@ IPRewriterBase::configure(Vector<String> &conf, ErrorHandler *errh)
     _timeouts[0] *= CLICK_HZ;	// _timeouts is measured in jiffies
     _timeouts[1] *= CLICK_HZ;
 
-    //for (int i = 0; i < conf.size(); ++i) {
-    for (int i = 0; i < 1; ++i) { // HACKED BY JUSTINE FOR SYNCHIPREWRITER THIS IS NOT THE RIGHT THING TO DO
-	IPRewriterInput is;
-	if (parse_input_spec(conf[i], is, i, errh) >= 0)
-	    _input_specs.push_back(is);
+    for (int i = 0; i < conf.size(); ++i) {
+        IPRewriterInput is;
+        if (parse_input_spec(conf[i], is, i, errh) >= 0)
+    	   _input_specs.push_back(is);
     }
 
-    return true;
-    //return _input_specs.size() == ninputs() ? 0 : -1; //JUSTINE
+    return _input_specs.size() == ninputs() ? 0 : -1; //JUSTINE
 }
 
 int

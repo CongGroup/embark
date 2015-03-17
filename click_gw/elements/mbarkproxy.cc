@@ -40,12 +40,6 @@ MBArkProxy::configure(Vector<String> &conf, ErrorHandler *errh)
 bool
 MBArkProxy::parse_http_req(const char *data, int len, String& url)
 {
-  //click_chatter("trying to parse an HTTP packet. len: %d", len);
-
-  //char buf[1024] = {0};
-  //strncpy(buf, data, std::min(len, 64));
-  //click_chatter("%s", buf);
-
   if (strncmp(data, "GET ", 4) != 0)
     return false;
 
@@ -88,7 +82,7 @@ MBArkProxy::parse_http_req(const char *data, int len, String& url)
         }
       case 3:
         if (*s == '\n') {
-          url_end = s - 2; 
+          url_end = s - 1; 
         }
         break;
       case 4:
@@ -104,7 +98,7 @@ MBArkProxy::parse_http_req(const char *data, int len, String& url)
       return false;
     url.append(url_start, url_end);
   }
-  url.append(p, q-1);
+  url.append(p, q);
 
   //click_chatter("%s", url.c_str());
   return true;
@@ -113,31 +107,83 @@ MBArkProxy::parse_http_req(const char *data, int len, String& url)
 void
 MBArkProxy::push(int, Packet *p)
 {
-  const click_ip6 *ip = (click_ip6 *)p->data();
-  const ext_hdr *option = (ext_hdr *)(ip + 1);
-  const click_tcp *tcp = (click_tcp *)(option + 1);
+  const click_ip6 *ip6 = (const click_ip6 *) p->data();
+  const click_tcp *tcp = nullptr;
+  
+  int data_len = 0;
+  const char *p_data = ((const char *) tcp) + tcp->th_off * 4;
 
-  assert(option->hdr_ext_len == 6);
-
-  if (option->next_hdr == 6 && ntohs(tcp->th_dport) == 80) 
+  if (ip6->ip6_v == 6) 
   {
-    int ip_plen = ntohs(ip->ip6_plen);
-    int d_offset = tcp->th_off * 4;
+    if (ip6->ip6_nxt == 60) 
+    {
+      const ext_hdr *option = (ext_hdr *)(ip6 + 1);
+      tcp = (click_tcp *)(option + 1);
+      data_len = ntohs(ip6->ip6_plen) - tcp->th_off * 4 - sizeof(ext_hdr);
 
-    const char *data = (const char *) tcp;
-    data += d_offset;
+      assert(option->hdr_ext_len == 6);
+    } 
+    else if (ip6->ip6_nxt == 6) 
+    {
+      tcp = (click_tcp *)(ip6 + 1);
+      data_len = ntohs(ip6->ip6_plen) - tcp->th_off * 4;
+    } 
+    else 
+    {
+      click_chatter("unknown ipv6 packet.");
+      //tcp = (click_tcp *)(ip6 + 1);
+    }
+  }
+  else
+  {
+    click_chatter("non-ipv6 packet.");
+  } 
+  /*
+  else if (*data & 0xf == 4) 
+  {
+    const click_ip *ip = (click_ip *) data;
+    if (ip->ip_p == 6) 
+    {
+      tcp = (click_tcp *) (data + ip->ip_hl * 4);
+      data_len = ntohs(ip->ip_len) - ip->ip_hl * 4 - tcp->th_off * 4;
+    }
+  } 
+  */
 
+  if (tcp != nullptr && ntohs(tcp->th_dport) == 80) {
+    const char *p_data = ((const char *) tcp) + tcp->th_off * 4;
     //click_chatter("ip_plen: %d, ext_hdr: %d, d_offset: %d", ip_plen, sizeof(ext_hdr), d_offset);
-
-    int data_len = ip_plen - d_offset - sizeof(ext_hdr);
 
     if (data_len > 0) {
       String url;
-      parse_http_req(data, data_len, url);
+
+      if (parse_http_req(p_data, data_len, url)) {
+        int url_len = url.length();
+        click_chatter("url: %s", url.c_str());
+
+        WritablePacket *q = Packet::make(sizeof(click_ip6) + sizeof(click_udp) + url_len + 1);
+        memset(q->data(), '\0', q->length());
+
+        click_ip6 *ip6_new = (click_ip6 *)q->data();
+        click_udp *udp_new = (click_udp *)(ip6_new + 1);
+        char *payload = (char *)(udp_new + 1);
+
+        memcpy(ip6_new, ip6, sizeof(click_ip6));
+
+        ip6_new->ip6_plen = htons(sizeof(click_udp) + url_len + 1);
+        ip6_new->ip6_nxt = 17;
+
+        udp_new->uh_sum = 0;
+        udp_new->uh_ulen = htons(sizeof(click_udp) + url_len + 1);
+        
+        strcpy(payload, url.c_str());
+
+        udp_new->uh_sum = htons(in6_fast_cksum(&ip6_new->ip6_src, &ip6_new->ip6_dst, udp_new->uh_ulen, 
+          ip6_new->ip6_nxt, udp_new->uh_sum, (unsigned char *)(udp_new), udp_new->uh_ulen)); 
+
+        output(1).push(q);
+      }
     }
-  } else {
-    //click_chatter("nxt_hdr: %x", option->next_hdr);
-    //if (option->next_hdr == 6) click_chatter("port: %d", ntohs(tcp->th_dport));
   }
 
   output(0).push(p);
