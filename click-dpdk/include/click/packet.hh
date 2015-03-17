@@ -350,11 +350,6 @@ class Packet { public:
     inline const click_udp *udp_header() const;
     //@}
 
-    //FOR RECORD AND REPLAY JUSTINE
-    uint8_t _parent_thread;
-    uint8_t _pd_batch_size;
-    uint8_t _pd_batch_id;
-
   private:
     /** @cond never */
     union Anno;

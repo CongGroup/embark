@@ -24,14 +24,14 @@ main: $(OBJFILES) build/main.o
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 dpdk: elements/mbarkfw.cc
-	cp -r ../dpdk-click $(BUILD_DIR)/
-	cp -r elements/* $(BUILD_DIR)/dpdk-click/elements/local/
-	cp conf/*.click $(BUILD_DIR)/dpdk-click/conf/
-	cp *.rules $(BUILD_DIR)/dpdk-click/conf/
-	cp *.sh $(BUILD_DIR)/dpdk-click/
-	cd $(BUILD_DIR)/dpdk-click; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include -Wno-literal-suffix" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
-	make -C $(BUILD_DIR)/dpdk-click elemlist
-	make -C $(BUILD_DIR)/dpdk-click
+	cp -r ../click-dpdk $(BUILD_DIR)/
+	cp -r elements/* $(BUILD_DIR)/click-dpdk/elements/local/
+	cp conf/*.click $(BUILD_DIR)/click-dpdk/conf/
+	cp *.rules $(BUILD_DIR)/click-dpdk/conf/
+	cp *.sh $(BUILD_DIR)/click-dpdk/
+	cd $(BUILD_DIR)/click-dpdk; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include -Wno-literal-suffix" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
+	make -C $(BUILD_DIR)/click-dpdk elemlist
+	make -C $(BUILD_DIR)/click-dpdk
 
 click: elements/mbarkfw.cc
 	cp -r ../click $(BUILD_DIR)/
