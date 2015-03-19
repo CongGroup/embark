@@ -22,6 +22,7 @@ class MBArkProxy : public Element {
 
 private:
   bool parse_http_req(const char *data, int len, String& url);
+  bool ipv4_;
 };
 
 CLICK_ENDDECLS

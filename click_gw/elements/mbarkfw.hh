@@ -6,6 +6,7 @@
 #include <click/element.hh>
 #include <click/fromfile.hh>
 
+#include "mbarktable.hh"
 #include "ope_tree.h"
 
 struct ext_hdr {
@@ -32,16 +33,24 @@ class MBArkFirewall : public Element {
   const char *class_name() const		{ return "MBArkFirewall"; }
   const char *port_count() const		{ return PORTS_1_1; }
   void push(int port, Packet *p);
-  void encrypt(Packet *);
+  void encrypt_v4(Packet *);
+  void encrypt_v6(Packet *);
 
 private:
   OPETree1<uint128_t> src_addr_tree_;
   OPETree1<uint128_t> dst_addr_tree_;
+  OPETree1<uint32_t> src_addr_tree_v4_;
+  OPETree1<uint32_t> dst_addr_tree_v4_;
+
   OPETree1<uint16_t> src_port_tree_;
   OPETree1<uint16_t> dst_port_tree_;
+  
   OPETree1<uint8_t> proto_tree_;
 
-  FromFile _ff;
+  FromFile ff_;
+  bool v4_;
+  MBarkTable *mbarkt_;
+  bool enable_;
 };
 
 CLICK_ENDDECLS

@@ -51,6 +51,7 @@ AESForward::configure(Vector<String> &conf, ErrorHandler *errh)
   _checked_aligned = true;
     }
 #endif
+    return 0;
 }
 
 
