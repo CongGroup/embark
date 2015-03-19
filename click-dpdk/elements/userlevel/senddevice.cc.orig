@@ -213,17 +213,17 @@ SendDevice::initialize(ErrorHandler *errh)
 #endif
 
 if (input_is_pull(0)) {
-    // check for duplicate writers
-    void *&used = router()->force_attachment("device_writer_" + _ifname + "_queue_" + String(_queueid));
-    if (used)
-      return errh->error("duplicate writer for device %<%s%>", _ifname.c_str());
-    used = this;
-
-    //ScheduleInfo::join_scheduler(this, &_task, errh);
-    ScheduleInfo::initialize_task(this, &_task, true, errh);
-    _signal = Notifier::upstream_empty_signal(this, 0, &_task);
-    }
-    return 0;
+  // check for duplicate writers
+  void *&used = router()->force_attachment("device_writer_" + _ifname + "_queue_" + String(_queueid));
+  if (used)
+    return errh->error("duplicate writer for device %<%s%>", _ifname.c_str());
+  used = this;
+  
+  //ScheduleInfo::join_scheduler(this, &_task, errh);
+  ScheduleInfo::initialize_task(this, &_task, true, errh);
+  _signal = Notifier::upstream_empty_signal(this, 0, &_task);
+ }
+ return 0;
 }
 
 void
@@ -240,36 +240,13 @@ SendDevice::cleanup(CleanupStage)
     _fd = -1;
 #endif
 }
-/*
-static unsigned _count=0;
 
-void SendDevice::push(int port, Packet* p) {
-  unsigned ret;
-  pkts_burst[_count] = p->ptr_mbuf;
-  _count++;
-  p->kill_lite();
-  p = 0;
-
-  if (_count == 32) {
-    ret = rte_eth_tx_burst((uint8_t) _portid, _queueid, pkts_burst, (uint16_t) _count);
-    if (unlikely(ret < _count)) {                                
-      _drops += (_count - ret);
-      do {
-	rte_pktmbuf_free(pkts_burst[ret]);
-      } while (++ret < _count);
-    }
-    _count = 0;
-  }//end if
-}
-*/
 bool
 SendDevice::run_task(Task *)
 {
-  //Packet *p = _q;
-  //_q = 0;
   Packet *p = 0;
-  int count;// r = 0;
-    unsigned ret;
+  int count;;
+  unsigned ret;
 
     count = 0;
     do {
@@ -313,31 +290,8 @@ SendDevice::run_task(Task *)
 	    break;
 	*/
     } while (count < _burst);
-    /*
-    if (r == -ENOBUFS || r == -EAGAIN) {
-	assert(!_q);
-	_q = p;
-	
-	if (!_backoff) {
-	    _backoff = 1;
-	    add_select(_fd, SELECT_WRITE);
-	} else {
-	    _timer.schedule_after(Timestamp::make_usec(_backoff));
-	    if (_backoff < 256)
-		_backoff *= 2;
-	    if (_debug) {
-		Timestamp now = Timestamp::now();
-		click_chatter("%{element} backing off for %d at %{timestamp}\n", this, _backoff, &now);
-	    }
-	}
-	return count > 0;
-    } else if (r < 0) {
-	click_chatter("SendDevice(%s): %s", _ifname.c_str(), strerror(-r));
-	checked_output_push(1, p);
-    }
-    */
     //click_chatter("SendDevice(%s): queue %d", _ifname.c_str(), _queueid);
-    if (count > 0) {
+    if (likely(count > 0)) {
       ret = rte_eth_tx_burst((uint8_t) _portid, _queueid, pkts_burst, (uint16_t) count);
       if (unlikely(ret < count)) {                                
 	_drops += (count - ret);
@@ -346,9 +300,11 @@ SendDevice::run_task(Task *)
 	} while (++ret < count);
       }
     }
+
     if (count || _signal)
       _task.reschedule();
-      return count > 0;
+
+    return count > 0;
 }
 
 

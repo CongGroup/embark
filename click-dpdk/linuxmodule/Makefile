@@ -100,7 +100,7 @@ LINUXCFLAGS = $(shell echo "$(CPPFLAGS) $(CFLAGS) $(LINUXINCLUDE)" \
 	-e "s,-Iinclude ,-I$(linux_builddir)/include ",g \
 	-e "s,-Iinclude2 ,-I$(linux_builddir)/include2 ",g \
 	-e s,-Iinclude/,-I$(linux_srcdir)include/,g )
-CLICKCPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
+CLICKCPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
 CLICKCFLAGS =  -O2
 CLICKCXXFLAGS =  -O2
 CLICKDEPCFLAGS = -Wp,-MD,$(depfile)
@@ -275,7 +275,7 @@ endif
 OBJS = $(LIB_CXX_OBJS) $(LIB_C_OBJS) $(STD_ELEMENT_OBJS) $(ELEMENT_OBJS) \
 	$(LINUXMODULE_CXX_OBJS) $(LINUXMODULE_C_OBJS) $(ELEMENTSCONF).o
 
-CPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
+CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
 CFLAGS =  -O2
 CXXFLAGS =  -O2
 DEPCFLAGS = -MD -MP
@@ -283,8 +283,8 @@ DEPCFLAGS = -MD -MP
 DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir) -I$(top_srcdir)
-LDFLAGS = -L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer
+LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
+LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)

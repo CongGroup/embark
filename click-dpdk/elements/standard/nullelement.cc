@@ -17,17 +17,6 @@
 
 #include <click/config.h>
 #include "nullelement.hh"
-#include <iostream>
-#include <click/task.hh>
-#include <click/routerthread.hh>
-#include <click/router.hh>
-#include <click/master.hh>
-#include <click/glue.hh>
-#include <click/args.hh>
-#include <click/task.hh>
-#include <click/error.hh>
-
-
 CLICK_DECLS
 
 NullElement::NullElement()
@@ -38,11 +27,35 @@ NullElement::~NullElement()
 {
 }
 
-  Packet *
+Packet *
 NullElement::simple_action(Packet *p)
 {
   return p;
 }
+
+FakeLoggerNullElement::FakeLoggerNullElement()
+{
+  log_buffer = new uint8_t[BUFFER_LEN]; 
+  index = 0;
+}
+
+FakeLoggerNullElement::~FakeLoggerNullElement()
+{
+}
+
+#include <iostream>
+void
+FakeLoggerNullElement::push(int, Packet *p)
+{
+  uint32_t bytes = p->end_data() - p->data();
+  //std::cout << bytes << "bytes" << std::endl;
+  memcpy(((void*) log_buffer) + index,(void*)  p->data(), bytes);
+  index += bytes;
+  index = index % BUFFER_LEN;
+  if(index >= BUFFER_LEN - 250) index = 0;
+  output(0).push(p);
+}
+
 
 PushNullElement::PushNullElement()
 {
@@ -52,12 +65,11 @@ PushNullElement::~PushNullElement()
 {
 }
 
-  void
+void
 PushNullElement::push(int, Packet *p)
 {
   output(0).push(p);
 }
-
 
 PullNullElement::PullNullElement()
 {
@@ -67,17 +79,18 @@ PullNullElement::~PullNullElement()
 {
 }
 
-  Packet *
+Packet *
 PullNullElement::pull(int)
 {
-  Packet * p = input(0).pull();
-  return p;
+  return input(0).pull();
 }
 
-  CLICK_ENDDECLS
-  EXPORT_ELEMENT(NullElement)
-  EXPORT_ELEMENT(PushNullElement)
-  EXPORT_ELEMENT(PullNullElement)
-  ELEMENT_MT_SAFE(NullElement)
-  ELEMENT_MT_SAFE(PushNullElement)
+CLICK_ENDDECLS
+EXPORT_ELEMENT(NullElement)
+EXPORT_ELEMENT(PushNullElement)
+EXPORT_ELEMENT(PullNullElement)
+EXPORT_ELEMENT(FakeLoggerNullElement)
+ELEMENT_MT_SAFE(NullElement)
+ELEMENT_MT_SAFE(FakeLoggerNullElement)
+ELEMENT_MT_SAFE(PushNullElement)
 ELEMENT_MT_SAFE(PullNullElement)

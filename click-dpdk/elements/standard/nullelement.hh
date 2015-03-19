@@ -56,6 +56,22 @@ class PushNullElement : public Element { public:
 
 };
 
+#define BUFFER_LEN 10000000
+class FakeLoggerNullElement : public Element { public:
+
+  FakeLoggerNullElement();
+  ~FakeLoggerNullElement();
+
+  const char *class_name() const	{ return "FakeLoggerNull"; }
+  const char *port_count() const	{ return PORTS_1_1; }
+  const char *processing() const	{ return PUSH; }
+
+  uint32_t index;
+  void* log_buffer;
+  void push(int, Packet *);
+
+};
+
 
 /*
 =c

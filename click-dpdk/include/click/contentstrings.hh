@@ -2,9 +2,6 @@
 #define CONTENT_STRINGS_H
 
 #include "paste.hh"
-#include "bn.h"
-
-typedef bn::Fp12 paired_value;
 
 /**
  * Content strings may have hex values in them, so we need
@@ -33,7 +30,6 @@ typedef struct content_string{
   string_type type;
   uint32_t strlen;
   uint32_t bytestream_offset; //If PLAINTEXT or USER_ENC
-  paired_value* cipher;
 } content_string_t;
 
 //Do ops on head only

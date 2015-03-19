@@ -19,7 +19,7 @@ CC = gcc
 CPP = gcc -E
 CXX = g++
 CXXCPP = g++ -E
-DEPCFLAGS = -MD -MP
+DEPCFLAGS = -maes -msse4 -MD -MP
 AR_CREATE = ar cru
 RANLIB = ranlib
 INSTALL = /usr/bin/install -c
@@ -63,9 +63,9 @@ endif
 GENERIC_OBJS = string.o straccum.o nameinfo.o \
 	bitvector.o vectorv.o templatei.o bighashmap_arena.o hashallocator.o \
 	ipaddress.o ipflowid.o etheraddress.o \
-	packet.o \
+	packet.o contentstrings.o tokenizer.o signaturetable.o trieset.o aes.o\
 	error.o timestamp.o glue.o task.o timer.o atomic.o fromfile.o gaprate.o \
-	element.o \
+	element.o pal.o \
 	confparse.o args.o variableenv.o lexer.o elemfilter.o routervisitor.o \
 	routerthread.o router.o master.o timerset.o selectset.o handlercall.o notifier.o \
 	integers.o md5.o crc32.o in_cksum.o iptable.o \
@@ -74,20 +74,21 @@ GENERIC_OBJS = string.o straccum.o nameinfo.o \
 
 EXTRA_DRIVER_OBJS = 
 
-LIBOBJS = $(GENERIC_OBJS) $(STD_ELEMENT_OBJS) clp.o exportstub.o
+LIBOBJS = $(wildcard /home/justine/mb-enc/justGarble/obj/*)  $(GENERIC_OBJS) $(STD_ELEMENT_OBJS) clp.o exportstub.o 
+
 STD_ELEMENT_OBJS = addressinfo.o alignmentinfo.o \
 	errorelement.o portinfo.o scheduleinfo.o
 OBJS = $(ELEMENT_OBJS) $(ELEMENTSCONF).o click.o
 
-CPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include -DCLICK_USERLEVEL
+CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_USERLEVEL
 CFLAGS = -g -O2 -W -Wall
 CXXFLAGS = -g -O2
 
 DEFS = -DHAVE_CONFIG_H
-INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
-	-I$(srcdir) -I$(top_srcdir)  
-LDFLAGS = -L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
+INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include  \
+	-I$(srcdir) -I$(top_srcdir) -I 
+LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
+LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)

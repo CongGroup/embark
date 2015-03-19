@@ -55,42 +55,42 @@ CLICK_DECLS
  */
 class Spinlock { public:
 
-  inline Spinlock();
-  inline ~Spinlock();
+    inline Spinlock();
+    inline ~Spinlock();
 
-  inline void acquire();
-  inline void release();
-  inline bool attempt();
-  inline bool nested() const;
+    inline void acquire();
+    inline void release();
+    inline bool attempt();
+    inline bool nested() const;
 
 #if CLICK_MULTITHREAD_SPINLOCK
   private:
 
-  atomic_uint32_t _lock;
-  int32_t _depth;
-  click_processor_t _owner;
+    atomic_uint32_t _lock;
+    int32_t _depth;
+    click_processor_t _owner;
 #endif
 
 };
 
 /** @brief Create a Spinlock. */
-  inline
+inline
 Spinlock::Spinlock()
 #if CLICK_MULTITHREAD_SPINLOCK
-: _depth(0), _owner(click_invalid_processor())
+    : _depth(0), _owner(click_invalid_processor())
 #endif
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  _lock = 0;
+    _lock = 0;
 #endif
 }
 
-  inline
+inline
 Spinlock::~Spinlock()
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  if (_depth != 0)
-    click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::~Spinlock(): assertion \"_depth == 0\" failed");
+    if (_depth != 0)
+	click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::~Spinlock(): assertion \"_depth == 0\" failed");
 #endif
 }
 
@@ -101,18 +101,18 @@ Spinlock::~Spinlock()
  * have already acquired, but you must release it as many times as you have
  * acquired it.
  */
-  inline void
+inline void
 Spinlock::acquire()
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  click_processor_t my_cpu = click_get_processor();
-  if (_owner != my_cpu) {
-    while (_lock.swap(1) != 0)
-      while (_lock != 0)
-        asm volatile ("" : : : "memory");
-    _owner = my_cpu;
-  }
-  _depth++;
+    click_processor_t my_cpu = click_get_processor();
+    if (_owner != my_cpu) {
+	while (_lock.swap(1) != 0)
+	    while (_lock != 0)
+		asm volatile ("" : : : "memory");
+	_owner = my_cpu;
+    }
+    _depth++;
 #endif
 }
 
@@ -122,22 +122,22 @@ Spinlock::acquire()
  * This function will acquire the lock and return true only if the Spinlock
  * can be acquired right away, without retries.
  */
-  inline bool
+inline bool
 Spinlock::attempt()
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  click_processor_t my_cpu = click_get_processor();
-  if (_owner != my_cpu) {
-    if (_lock.swap(1) != 0) {
-      click_put_processor();
-      return false;
+    click_processor_t my_cpu = click_get_processor();
+    if (_owner != my_cpu) {
+	if (_lock.swap(1) != 0) {
+	    click_put_processor();
+	    return false;
+	}
+	_owner = my_cpu;
     }
-    _owner = my_cpu;
-  }
-  _depth++;
-  return true;
+    _depth++;
+    return true;
 #else
-  return true;
+    return true;
 #endif
 }
 
@@ -146,20 +146,20 @@ Spinlock::attempt()
  * The Spinlock must have been previously acquired by either Spinlock::acquire
  * or Spinlock::attempt.
  */
-  inline void
+inline void
 Spinlock::release()
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  if (unlikely(_owner != click_current_processor()))
-    click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::release(): assertion \"owner == click_current_processor()\" failed");
-  if (likely(_depth > 0)) {
-    if (--_depth == 0) {
-      _owner = click_invalid_processor();
-      _lock = 0;
-    }
-  } else
-    click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::release(): assertion \"_depth > 0\" failed");
-  click_put_processor();
+    if (unlikely(_owner != click_current_processor()))
+	click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::release(): assertion \"owner == click_current_processor()\" failed");
+    if (likely(_depth > 0)) {
+	if (--_depth == 0) {
+	    _owner = click_invalid_processor();
+	    _lock = 0;
+	}
+    } else
+	click_chatter(SPINLOCK_ASSERTLEVEL "Spinlock::release(): assertion \"_depth > 0\" failed");
+    click_put_processor();
 #endif
 }
 
@@ -170,9 +170,9 @@ inline bool
 Spinlock::nested() const
 {
 #if CLICK_MULTITHREAD_SPINLOCK
-  return _depth > 1;
+    return _depth > 1;
 #else
-  return false;
+    return false;
 #endif
 }
 
@@ -202,35 +202,35 @@ Spinlock::nested() const
  */
 class SimpleSpinlock { public:
 
-  inline SimpleSpinlock();
-  inline ~SimpleSpinlock();
+    inline SimpleSpinlock();
+    inline ~SimpleSpinlock();
 
-  inline void acquire();
-  inline void release();
-  inline bool attempt();
+    inline void acquire();
+    inline void release();
+    inline bool attempt();
 
 #if CLICK_LINUXMODULE
   private:
-  spinlock_t _lock;
+    spinlock_t _lock;
 #elif CLICK_MULTITHREAD_SPINLOCK
   private:
-  atomic_uint32_t _lock;
+    atomic_uint32_t _lock;
 #endif
 
 };
 
 /** @brief Create a SimpleSpinlock. */
-  inline
+inline
 SimpleSpinlock::SimpleSpinlock()
 {
 #if CLICK_LINUXMODULE
-  spin_lock_init(&_lock);
+    spin_lock_init(&_lock);
 #elif CLICK_MULTITHREAD_SPINLOCK
-  _lock = 0;
+    _lock = 0;
 #endif
 }
 
-  inline
+inline
 SimpleSpinlock::~SimpleSpinlock()
 {
 }
@@ -240,15 +240,15 @@ SimpleSpinlock::~SimpleSpinlock()
  * On return, this thread has acquired the lock.  The function will spin
  * indefinitely until the lock is acquired.
  */
-  inline void
+inline void
 SimpleSpinlock::acquire()
 {
 #if CLICK_LINUXMODULE
-  spin_lock(&_lock);
+    spin_lock(&_lock);
 #elif CLICK_MULTITHREAD_SPINLOCK
-  while (_lock.swap(1) != 0)
-    while (_lock != 0)
-      asm volatile ("" : : : "memory");
+    while (_lock.swap(1) != 0)
+	while (_lock != 0)
+	    asm volatile ("" : : : "memory");
 #endif
 }
 
@@ -258,15 +258,15 @@ SimpleSpinlock::acquire()
  * This function will acquire the lock and return true only if the
  * SimpleSpinlock can be acquired right away, without retries.
  */
-  inline bool
+inline bool
 SimpleSpinlock::attempt()
 {
 #if CLICK_LINUXMODULE
-  return spin_trylock(&_lock);
+    return spin_trylock(&_lock);
 #elif CLICK_MULTITHREAD_SPINLOCK
-  return _lock.swap(1) == 0;
+    return _lock.swap(1) == 0;
 #else
-  return true;
+    return true;
 #endif
 }
 
@@ -275,13 +275,13 @@ SimpleSpinlock::attempt()
  * The SimpleSpinlock must have been previously acquired by either
  * SimpleSpinlock::acquire or SimpleSpinlock::attempt.
  */
-  inline void
+inline void
 SimpleSpinlock::release()
 {
 #if CLICK_LINUXMODULE
-  spin_unlock(&_lock);
+    spin_unlock(&_lock);
 #elif CLICK_MULTITHREAD_SPINLOCK
-  _lock = 0;
+    _lock = 0;
 #endif
 }
 
@@ -310,67 +310,67 @@ SimpleSpinlock::release()
  */
 class SpinlockIRQ { public:
 
-  inline SpinlockIRQ();
+    inline SpinlockIRQ();
 
 #if CLICK_LINUXMODULE
-  typedef unsigned long flags_t;
+    typedef unsigned long flags_t;
 #else
-  typedef int flags_t;
+    typedef int flags_t;
 #endif
 
-  inline flags_t acquire();
-  inline void release(flags_t);
+    inline flags_t acquire();
+    inline void release(flags_t);
 
 #if CLICK_LINUXMODULE
   private:
-  spinlock_t _lock;
+    spinlock_t _lock;
 #elif CLICK_USERLEVEL && HAVE_MULTITHREAD
   private:
-  Spinlock _lock;
+    Spinlock _lock;
 #endif
 
 };
 
 /** @brief Creates a SpinlockIRQ. */
-  inline
+inline
 SpinlockIRQ::SpinlockIRQ()
 {
 #if CLICK_LINUXMODULE
-  spin_lock_init(&_lock);
+    spin_lock_init(&_lock);
 #endif
 }
 
 /** @brief Acquires the SpinlockIRQ.
  * @return The current state of the interrupt flags.
  */
-  inline SpinlockIRQ::flags_t
+inline SpinlockIRQ::flags_t
 SpinlockIRQ::acquire()
 {
 #if CLICK_LINUXMODULE
-  flags_t flags;
-  spin_lock_irqsave(&_lock, flags);
-  return flags;
+    flags_t flags;
+    spin_lock_irqsave(&_lock, flags);
+    return flags;
 #elif CLICK_USERLEVEL && HAVE_MULTITHREAD
-  _lock.acquire();
-  return 0;
+    _lock.acquire();
+    return 0;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
 /** @brief Releases the SpinlockIRQ.
  * @param flags The value returned by SpinlockIRQ::acquire().
  */
-  inline void
+inline void
 SpinlockIRQ::release(flags_t flags)
 {
 #if CLICK_LINUXMODULE
-  spin_unlock_irqrestore(&_lock, flags);
+    spin_unlock_irqrestore(&_lock, flags);
 #elif CLICK_USERLEVEL && HAVE_MULTITHREAD
-  (void) flags;
-  _lock.release();
+    (void) flags;
+    _lock.release();
 #else
-  (void) flags;
+    (void) flags;
 #endif
 }
 
@@ -413,43 +413,43 @@ SpinlockIRQ::release(flags_t flags)
  */
 class ReadWriteLock { public:
 
-  inline ReadWriteLock();
+    inline ReadWriteLock();
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  inline ~ReadWriteLock();
+    inline ~ReadWriteLock();
 #endif
 
-  inline void acquire_read();
-  inline bool attempt_read();
-  inline void release_read();
-  inline void acquire_write();
-  inline bool attempt_write();
-  inline void release_write();
+    inline void acquire_read();
+    inline bool attempt_read();
+    inline void release_read();
+    inline void acquire_write();
+    inline bool attempt_write();
+    inline void release_write();
 
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
   private:
-  // allocate 32 bytes (size of a cache line) for every member
-  struct lock_t {
-    Spinlock _lock;
-    unsigned char reserved[32 - sizeof(Spinlock)];
-  } *_l;
+    // allocate 32 bytes (size of a cache line) for every member
+    struct lock_t {
+	Spinlock _lock;
+	unsigned char reserved[32 - sizeof(Spinlock)];
+    } *_l;
 #endif
 
 };
 
 /** @brief Creates a ReadWriteLock. */
-  inline
+inline
 ReadWriteLock::ReadWriteLock()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  _l = new lock_t[num_possible_cpus()];
+    _l = new lock_t[num_possible_cpus()];
 #endif
 }
 
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  inline
+inline
 ReadWriteLock::~ReadWriteLock()
 {
-  delete[] _l;
+    delete[] _l;
 }
 #endif
 
@@ -462,12 +462,12 @@ ReadWriteLock::~ReadWriteLock()
  *
  * @sa Spinlock::acquire
  */
-  inline void
+inline void
 ReadWriteLock::acquire_read()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  click_processor_t my_cpu = click_get_processor();
-  _l[my_cpu]._lock.acquire();
+    click_processor_t my_cpu = click_get_processor();
+    _l[my_cpu]._lock.acquire();
 #endif
 }
 
@@ -477,17 +477,17 @@ ReadWriteLock::acquire_read()
  * This function will acquire the lock for reading and return true only if the
  * ReadWriteLock can be acquired right away, without retries.
  */
-  inline bool
+inline bool
 ReadWriteLock::attempt_read()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  click_processor_t my_cpu = click_get_processor();
-  bool result = _l[my_cpu]._lock.attempt();
-  if (!result)
-    click_put_processor();
-  return result;
+    click_processor_t my_cpu = click_get_processor();
+    bool result = _l[my_cpu]._lock.attempt();
+    if (!result)
+	click_put_processor();
+    return result;
 #else
-  return true;
+    return true;
 #endif
 }
 
@@ -497,12 +497,12 @@ ReadWriteLock::attempt_read()
  * ReadWriteLock::acquire_read or ReadWriteLock::attempt_read.  Do not call
  * release_read() on a lock that was acquired for writing.
  */
-  inline void
+inline void
 ReadWriteLock::release_read()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  _l[click_current_processor()]._lock.release();
-  click_put_processor();
+    _l[click_current_processor()]._lock.release();
+    click_put_processor();
 #endif
 }
 
@@ -515,12 +515,12 @@ ReadWriteLock::release_read()
  *
  * @sa ReadWriteLock::acquire_read
  */
-  inline void
+inline void
 ReadWriteLock::acquire_write()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  for (unsigned i = 0; i < num_possible_cpus(); i++)
-    _l[i]._lock.acquire();
+    for (unsigned i = 0; i < num_possible_cpus(); i++)
+	_l[i]._lock.acquire();
 #endif
 }
 
@@ -534,23 +534,23 @@ ReadWriteLock::acquire_write()
  *
  * @sa ReadWriteLock::attempt_read
  */
-  inline bool
+inline bool
 ReadWriteLock::attempt_write()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  bool all = true;
-  unsigned i;
-  for (i = 0; i < num_possible_cpus(); i++)
-    if (!(_l[i]._lock.attempt())) {
-      all = false;
-      break;
-    }
-  if (!all)
-    for (unsigned j = 0; j < i; j++)
-      _l[j]._lock.release();
-  return all;
+    bool all = true;
+    unsigned i;
+    for (i = 0; i < num_possible_cpus(); i++)
+	if (!(_l[i]._lock.attempt())) {
+	    all = false;
+	    break;
+	}
+    if (!all)
+	for (unsigned j = 0; j < i; j++)
+	    _l[j]._lock.release();
+    return all;
 #else
-  return true;
+    return true;
 #endif
 }
 
@@ -562,34 +562,34 @@ ReadWriteLock::attempt_write()
  *
  * @sa ReadWriteLock::release_read
  */
-  inline void
+inline void
 ReadWriteLock::release_write()
 {
 #if CLICK_LINUXMODULE && defined(CONFIG_SMP)
-  for (unsigned i = 0; i < num_possible_cpus(); i++)
-    _l[i]._lock.release();
+    for (unsigned i = 0; i < num_possible_cpus(); i++)
+	_l[i]._lock.release();
 #endif
 }
 
 
 /** @brief Provide a memory barrier. */
-  inline void
+inline void
 click_fence()
 {
 #if CLICK_LINUXMODULE
-  smp_mb();
+    smp_mb();
 #elif HAVE_MULTITHREAD && HAVE___SYNC_SYNCHRONIZE
-  __sync_synchronize();
+    __sync_synchronize();
 #else
-  asm volatile("" : : : "memory");
+    asm volatile("" : : : "memory");
 #endif
 }
 
 /** @brief Provide a memory barrier for the compiler. */
-  inline void
+inline void
 click_compiler_fence()
 {
-  asm volatile("" : : : "memory");
+    asm volatile("" : : : "memory");
 }
 
 CLICK_ENDDECLS

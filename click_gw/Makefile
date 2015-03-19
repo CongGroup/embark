@@ -9,7 +9,7 @@ RTE_SDK := /home/clan/DPDK-1.5.0
 export RTE_TARGET
 export RTE_SDK
 
-CPPFLAGS := -D__STDC_LIMIT_MACROS -DUSE_DPDK -I${RTE_SDK}/${RTE_TARGET}/include -std=gnu++11 -L${RTE_SDK}/${RTE_TARGET}/lib
+CPPFLAGS := -D__STDC_LIMIT_MACROS -DUSE_DPDK -I${RTE_SDK}/${RTE_TARGET}/include -L${RTE_SDK}/${RTE_TARGET}/lib
 export CPPFLAGS
  
 LDFLAGS := -L${RTE_SDK}/${RTE_TARGET}/lib
@@ -29,9 +29,10 @@ dpdk: elements/mbarkfw.cc
 	cp conf/*.click $(BUILD_DIR)/click-dpdk/conf/
 	cp *.rules $(BUILD_DIR)/click-dpdk/conf/
 	cp *.sh $(BUILD_DIR)/click-dpdk/
-	cd $(BUILD_DIR)/click-dpdk; ./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include -Wno-literal-suffix" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
-	make -C $(BUILD_DIR)/click-dpdk elemlist
-	make -C $(BUILD_DIR)/click-dpdk
+	cd $(BUILD_DIR)/click-dpdk; ./configure --disable-linuxmodule --enable-user-multithread --disable-dynamic-linking CPPFLAGS="-Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include" LDFLAGS="-lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib"
+#	./configure --disable-linuxmodule --enable-experimental --enable-user-multithread --disable-dynamic-linking --enable-ip6 --enable-ipsec --enable-local --enable-nanotimestamp --enable-intel-cpu CPPFLAGS="-I${RTE_SDK}/${RTE_TARGET}/include -Wno-literal-suffix" LDFLAGS="-L${RTE_SDK}/${RTE_TARGET}/lib" LIBS="${LIBS}"
+	make -j 16 -C $(BUILD_DIR)/click-dpdk elemlist
+	make -j 16 -C $(BUILD_DIR)/click-dpdk
 
 click: elements/mbarkfw.cc
 	cp -r ../click $(BUILD_DIR)/

@@ -79,7 +79,7 @@ OBJS = string.o straccum.o glue.o \
 	userutils.o md5.o toolutils.o clp.o  
 BUILDOBJS = $(patsubst %.o,%.bo,$(OBJS))
 
-CPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
+CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
 CFLAGS = -g -O2 -W -Wall
 CXXFLAGS = -g -O2
 DEPCFLAGS = -MD -MP
@@ -87,7 +87,7 @@ DEPCFLAGS = -MD -MP
 DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir)
-LDFLAGS = -L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib
+LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS) $(DEPCFLAGS)
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(DEPCFLAGS)

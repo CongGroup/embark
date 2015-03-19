@@ -74,7 +74,7 @@ STD_ELEMENT_OBJS = addressinfo.o alignmentinfo.o \
 	errorelement.o portinfo.o scheduleinfo.o
 OBJS = $(ELEMENT_OBJS) $(ELEMENTSCONF).o nsclick.o
 
-CPPFLAGS = -I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include -DCLICK_NS
+CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_NS
 CFLAGS = -g -O2 -W -Wall -fPIC
 CXXFLAGS = -g -O2 -fPIC
 
@@ -82,7 +82,7 @@ DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir) -I$(top_srcdir) 
 LDFLAGS = 
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
+LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -115,7 +115,7 @@ libnsclick.a: Makefile $(LIBOBJS) $(OBJS)
 	$(RANLIB) libnsclick.a
 
 nsclick-test: libnsclick.a nsclick-test.o
-	$(CXXLD) $(CXXFLAGS) -L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib -o $@ nsclick-test.o libnsclick.a $(LIBS)
+	$(CXXLD) $(CXXFLAGS) -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib -o $@ nsclick-test.o libnsclick.a $(LIBS)
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	cd $(top_builddir) \

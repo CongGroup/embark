@@ -212,7 +212,6 @@ class PollDevice : public Element { public:
   //    void kernel_drops(bool& known, int& max_drops) const;
 
   private:
-    uint8_t _my_parent_thread;
 
 #if POLLDEVICE_LINUX || POLLDEVICE_PCAP
     int _fd;

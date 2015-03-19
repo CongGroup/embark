@@ -1,0 +1,21 @@
+pd2::PollDevice(p786p1, QUEUE 0, BURST 32)->BlindBoxFilter->Queue(100)->sd2::SendDevice(p786p2, QUEUE 0, BURST 32)
+pd3::PollDevice(p786p2, QUEUE 0, BURST 32)->BlindBoxFilter->Queue(100)->sd3::SendDevice(p786p1, QUEUE 0, BURST 32)
+
+//pd0::PollDevice(p785p1, QUEUE 0, BURST 32)->BlindBoxFilter->Queue(100)->sd0::SendDevice(p785p2, QUEUE 0, BURST 32)
+//pd1::PollDevice(p785p2, QUEUE 0, BURST 32)->BlindBoxFilter->Queue(100)->sd1::SendDevice(p785p1, QUEUE 0, BURST 32)
+
+gs::GarbleSpeaker()
+
+StaticThreadSched(gs 4)
+
+//StaticThreadSched(pd0 0)
+//StaticThreadSched(sd0 0)
+
+//StaticThreadSched(pd1 1)
+//StaticThreadSched(sd1 1)
+
+StaticThreadSched(pd2 2)
+StaticThreadSched(sd2 2)
+
+StaticThreadSched(pd3 3)
+StaticThreadSched(sd3 3)

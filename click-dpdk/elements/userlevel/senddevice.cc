@@ -41,8 +41,6 @@
 
 CLICK_DECLS
 
-extern struct rte_mempool * pktmbuf_pool;
-
 SendDevice::SendDevice()
 //: _task(this), _timer(&_task), _q(0), _pulls(0)
   : _task(this), _q(0), _pulls(0), _drops(0)
@@ -249,7 +247,6 @@ SendDevice::run_task(Task *)
   Packet *p = 0;
   int count;;
   unsigned ret;
-
     count = 0;
     do {
 	if (!p) {
@@ -261,6 +258,7 @@ SendDevice::run_task(Task *)
 	//pkts_burst[count] = (struct rte_mbuf *) p->data();
         
 	//now just getting the mbuf addr from _head, mbuf is already in Packet p
+	pkts_burst[count] = p->ptr_mbuf; //RTE_MBUF_FROM_BADDR(p->buffer());
         //if (_pulls < 33)
 	//  click_chatter("pktlen= %d\n", rte_pktmbuf_pkt_len(p->ptr_mbuf));
 
@@ -271,17 +269,15 @@ SendDevice::run_task(Task *)
 	  break;
 	}
 	*/
-  if(!p->_has_rte_mbuf){
-    pkts_burst[count] = rte_pktmbuf_alloc(pktmbuf_pool);
-    memcpy(pkts_burst[count]->pkt.data, p->data(), p->length());
-    pkts_burst[count]->pkt.nb_segs = 1;
-    pkts_burst[count]->pkt.next = NULL;
-    pkts_burst[count]->pkt.pkt_len = (uint16_t)p->length();
-    pkts_burst[count]->pkt.data_len = (uint16_t)p->length();
-  }else{
-	  pkts_burst[count] = p->ptr_mbuf; //RTE_MBUF_FROM_BADDR(p->buffer());
-  }
-  count++;
+    /*
+	pkts_burst[count] = rte_pktmbuf_alloc(pktmbuf_pool);
+	memcpy(pkts_burst[count]->pkt.data, p->data(), p->length());
+	pkts_burst[count]->pkt.nb_segs = 1;
+	pkts_burst[count]->pkt.next = NULL;
+	pkts_burst[count]->pkt.pkt_len = (uint16_t)p->length();
+	pkts_burst[count]->pkt.data_len = (uint16_t)p->length();
+	*/
+	count++;
 	p->kill_lite();
 	p = 0;
 	/*

@@ -9,7 +9,7 @@
 struct _mcslock_node {
     struct _mcslock_node *volatile next; /*next one waiting the lock*/
     volatile char wait;                  /*should wait or not*/
-} __attribute__((__aligned__(64)));// mcslock_node;
+} __attribute__((__aligned__(MCT_CACHELINE_BYTES)));
 
 
 typedef struct {

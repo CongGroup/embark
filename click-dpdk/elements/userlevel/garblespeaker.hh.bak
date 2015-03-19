@@ -1,0 +1,36 @@
+#ifndef CLICK_GarbleSpeaker_HH
+#define CLICK_GarbleSpeaker_HH
+#include <click/element.hh>
+#include <click/task.hh>
+#include <click/notifier.hh>
+#include <iostream>
+#include <click/signaturetable.hh>
+CLICK_DECLS
+class HandlerCall;
+
+class GarbleSpeaker : public Element { 
+  
+  public:
+
+  GarbleSpeaker();
+  ~GarbleSpeaker();
+
+  const char *class_name() const		{ return "GarbleSpeaker"; }
+  void *cast(const char *);
+  const char *port_count() const		{ return PORTS_0_0; }
+  const char *processing() const {  return AGNOSTIC;  }
+
+  int configure(Vector<String> &, ErrorHandler *);
+  int initialize(ErrorHandler *);
+  bool can_live_reconfigure() const		{ return false; }
+  void cleanup(CleanupStage);
+
+  bool run_task(Task *);
+
+  protected:
+    Task _task;
+    GlobalSignatureTable* gt;
+};
+
+CLICK_ENDDECLS
+#endif

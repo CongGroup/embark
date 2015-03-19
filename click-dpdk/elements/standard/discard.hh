@@ -71,11 +71,11 @@ class Discard : public Element { public:
     Task _task;
     NotifierSignal _signal;
 
-//#if HAVE_INT64_TYPES
-//    typedef uint64_t counter_t;
-//#else
+#if HAVE_INT64_TYPES
+    typedef uint64_t counter_t;
+#else
     typedef uint32_t counter_t;
-//#endif
+#endif
     counter_t _count;
 
     unsigned _burst;

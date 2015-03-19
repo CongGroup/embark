@@ -24,7 +24,7 @@ INSTALL_DATA_IF_CHANGED = $(INSTALL_IF_CHANGED) -m 644
 mkinstalldirs = $(conf_auxdir)/mkinstalldirs
 
 EXTRA_PROVIDES =
-PROVISIONS = x86_64 analysis experimental int64 linux pcap umultithread $(EXTRA_PROVIDES)
+PROVISIONS = x86_64 analysis int64 linux pcap umultithread $(EXTRA_PROVIDES)
 
 prefix = /usr/local
 exec_prefix = ${prefix}
@@ -166,7 +166,7 @@ etc/pkg-config.mk: $(srcdir)/etc/pkg-config.mk.in config.status
 $(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/m4/click.m4
 	cd $(srcdir) && $(ACLOCAL) && $(AUTOCONF)
 config.status: $(srcdir)/configure
-	$(SHELL) $(srcdir)/configure  '--disable-linuxmodule' '--enable-experimental' '--enable-user-multithread' '--disable-dynamic-linking' 'CPPFLAGS=-I/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/include' 'LDFLAGS=-L/home/justine/dpdk-1.3/DPDK/x86_64-default-linuxapp-gcc/lib' 'LIBS=-lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer'
+	$(SHELL) $(srcdir)/configure  '--disable-linuxmodule' '--enable-user-multithread' '--disable-dynamic-linking' 'CPPFLAGS=-Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include' 'LDFLAGS=-lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib' 'LIBS=-lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring'
 Makefile: config.status $(srcdir)/Makefile.in
 	cd $(top_builddir) && \
 	  CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status

@@ -31,7 +31,7 @@ gmake=make
 
 verbose=""
 elem2=""
-default_provisions="x86_64 analysis experimental int64 linux pcap umultithread"
+default_provisions="x86_64 analysis int64 linux pcap umultithread"
 driver_provisions=" userlevel"
 
 export LC_COLLATE=C
@@ -1549,12 +1549,12 @@ EOF
   --c|--cf|--cfl|--cfla|--cflag|--cflags|--d|--de|--def|--defs)
      echo   -I/usr/local/include; exit 0;;
   --o|--ot|--oth|--othe|--other|--otherl|--otherli|--otherlib|--otherlibs)
-     echo  -lpcap   -lpthread -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer;
+     echo  -lpcap   -lpthread -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring;
      exit 0;;
   --toolc|--toolcf|--toolcfl|--toolcfla|--toolcflag|--toolcflags)
      echo -DCLICK_TOOL -I/usr/local/include; exit 0;;
   --tooll|--toolli|--toollib|--toollibs)
-     echo -L/usr/local/lib -lclicktool   -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer; exit 0;;
+     echo -L/usr/local/lib -lclicktool   -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring; exit 0;;
   *)
      echo "Usage: click-buildtool TOOLNAME [ARGUMENTS]
 Try 'click-buildtool --help' for more information." 1>&2

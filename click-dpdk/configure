@@ -842,7 +842,7 @@ x_includes=NONE
 x_libraries=NONE
 
 #initialize libraries for dpdk
-LIBS='-lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer'
+LIBS='-lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring'
 
 # Installation directory options.
 # These are left unexpanded so users can "make install exec_prefix=/foo"

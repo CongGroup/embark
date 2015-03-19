@@ -6,7 +6,6 @@
 #include <click/string.hh>
 #include <click/packet.hh>
 #include <click/handler.hh>
-#include <iostream>
 CLICK_DECLS
 class Router;
 class Master;
@@ -600,11 +599,7 @@ Element::Port::port() const
 inline void
 Element::Port::push(Packet* p) const
 {
-    if(!_e){
-      std::cout << "HEY " << _port << std::endl;
-    }
-    assert(_e);
-    assert(p);
+    assert(_e && p);
 #if CLICK_STATS >= 1
     ++_packets;
 #endif

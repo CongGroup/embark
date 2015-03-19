@@ -1,4 +1,4 @@
-#include "contentstrings.hh"
+#include <click/contentstrings.hh>
 
 content_string_t* cs_get_from_snort_string(char* s){
   //First, how many bytes in the final strong? <= strlen(s);

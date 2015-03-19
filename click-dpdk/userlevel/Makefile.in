@@ -19,7 +19,7 @@ CC = @CC@
 CPP = @CPP@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
-DEPCFLAGS = @DEPCFLAGS@
+DEPCFLAGS = -maes -msse4 @DEPCFLAGS@
 AR_CREATE = @AR@ @AR_CREATEFLAGS@
 RANLIB = @RANLIB@
 INSTALL = @INSTALL@
@@ -63,9 +63,9 @@ endif
 GENERIC_OBJS = string.o straccum.o nameinfo.o \
 	bitvector.o vectorv.o templatei.o bighashmap_arena.o hashallocator.o \
 	ipaddress.o ipflowid.o etheraddress.o \
-	packet.o tokenizer.o contentstrings.o \
+	packet.o contentstrings.o tokenizer.o signaturetable.o trieset.o aes.o\
 	error.o timestamp.o glue.o task.o timer.o atomic.o fromfile.o gaprate.o \
-	element.o \
+	element.o pal.o \
 	confparse.o args.o variableenv.o lexer.o elemfilter.o routervisitor.o \
 	routerthread.o router.o master.o timerset.o selectset.o handlercall.o notifier.o \
 	integers.o md5.o crc32.o in_cksum.o iptable.o \
@@ -74,7 +74,8 @@ GENERIC_OBJS = string.o straccum.o nameinfo.o \
 
 EXTRA_DRIVER_OBJS = @EXTRA_DRIVER_OBJS@
 
-LIBOBJS = $(GENERIC_OBJS) $(STD_ELEMENT_OBJS) clp.o exportstub.o
+LIBOBJS = $(wildcard /home/justine/mb-enc/justGarble/obj/*)  $(GENERIC_OBJS) $(STD_ELEMENT_OBJS) clp.o exportstub.o 
+
 STD_ELEMENT_OBJS = addressinfo.o alignmentinfo.o \
 	errorelement.o portinfo.o scheduleinfo.o
 OBJS = $(ELEMENT_OBJS) $(ELEMENTSCONF).o click.o
@@ -84,8 +85,8 @@ CFLAGS = @CFLAGS@
 CXXFLAGS = @CXXFLAGS@
 
 DEFS = @DEFS@
-INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
-	-I$(srcdir) -I$(top_srcdir) @PROPER_INCLUDES@ @PCAP_INCLUDES@
+INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include  \
+	-I$(srcdir) -I$(top_srcdir) -I@PROPER_INCLUDES@ @PCAP_INCLUDES@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
 

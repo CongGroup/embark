@@ -104,10 +104,6 @@ class RouterThread : private TaskLink { public:
     unsigned _tasks_per_iter;
     unsigned _iters_per_os;
 
-#if HAVE_MULTITHREAD && !CLICK_LINUXMODULE
-    click_processor_t _running_processor;
-#endif
-
   private:
 
     volatile int _stop_flag;
@@ -135,7 +131,9 @@ class RouterThread : private TaskLink { public:
 #if CLICK_LINUXMODULE
     struct task_struct *_linux_task;
 #endif
-
+#if HAVE_MULTITHREAD && !CLICK_LINUXMODULE
+    click_processor_t _running_processor;
+#endif
     Spinlock _task_lock;
     atomic_uint32_t _task_blocker;
     atomic_uint32_t _task_blocker_waiting;
