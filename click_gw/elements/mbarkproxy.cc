@@ -187,8 +187,17 @@ MBArkProxy::push(int, Packet *p)
         memcpy(p_data, buffer, totallen + 8);
 
         tcp->th_sum = 0;
-        unsigned csum = click_in_cksum((uint8_t *)tcp, q->transport_length());
-        tcp->th_sum = click_in_cksum_pseudohdr(csum, ip, q->transport_length());
+
+        if (ipv4_)
+        {
+          unsigned csum = click_in_cksum((uint8_t *)tcp, q->transport_length());
+          tcp->th_sum = click_in_cksum_pseudohdr(csum, ip, q->transport_length());
+        }
+        else
+        {
+          tcp->th_sum = htons(in6_fast_cksum(&ip6->ip6_src, &ip6->ip6_dst, ip6->ip6_plen, 
+            ip6->ip6_nxt, tcp->th_sum, (unsigned char *)(tcp), ip6->ip6_plen)); 
+        }
         /*
         if (ipv4_)
         {
