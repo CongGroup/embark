@@ -73,7 +73,6 @@ IP6FlowID::IP6FlowID(const click_ip *iph, bool reverse)
   else
     assign(iph->ip_dst, udph->uh_dport,
            iph->ip_src, udph->uh_sport);
-
 }
 
 String
@@ -83,6 +82,13 @@ IP6FlowID::unparse() const
   sa << '(' << _saddr.unparse() << ", " << ntohs(_sport) << ", "
      << _daddr.unparse() << ", " << ntohs(_dport) << ')';
   return sa.take_string();
+}
+
+StringAccum &
+operator<<(StringAccum &sa, const IP6FlowID &flow_id)
+{
+  sa << flow_id.unparse();
+  return sa;
 }
 
 #if CLICK_USERLEVEL
