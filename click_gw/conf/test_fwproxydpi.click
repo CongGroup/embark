@@ -2,7 +2,7 @@ tbl :: MBarkTable
 
 elementclass MBarkGateway {
     $rule | input 
-    -> ProtocolTranslator46
+//    -> ProtocolTranslator46
     -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, STATEFUL false)
     -> proxy::MBArkProxy(V4 true);
     dpi::MBArkDPI;
@@ -26,4 +26,4 @@ gw0[0]
     -> aes
 
 gw0[1]
-    -> aes
+    -> Discard

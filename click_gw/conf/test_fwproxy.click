@@ -15,7 +15,7 @@ pd0::PollDevice(p513p1, QUEUE 0, BURST 32) -> Strip(14)
     -> gw0::MBarkGateway(conf/test_fw.rules)
 
 aes::AESForward
-    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)q0::SimpleQueue(20000)
+    -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
     -> q0::SimpleQueue(20000)
     -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
 
@@ -23,4 +23,4 @@ gw0[0]
     -> aes
 
 gw0[1]
-    -> aes
+    -> Discard
