@@ -40,6 +40,10 @@ class IP6Address { public:
 	: _addr(x) {
     }
 
+    explicit inline IP6Address(const struct in_addr &x) {
+        *this = x;
+    }
+
     /** @brief Construct an uninitialized IP6Address. */
     inline IP6Address(const uninitialized_t &unused) {
 	(void) unused;
@@ -100,6 +104,7 @@ class IP6Address { public:
     inline IP6Address &operator|=(const click_in6_addr &);
 
     inline IP6Address &operator=(const click_in6_addr &);
+    inline IP6Address &operator=(const struct in_addr &);
 
     void unparse(StringAccum &sa) const;
     String unparse() const;
@@ -271,6 +276,15 @@ inline IP6Address &
 IP6Address::operator=(const click_in6_addr &a)
 {
     _addr = a;
+    return *this;
+}
+
+inline IP6Address &
+IP6Address::operator=(const struct in_addr &a)
+{
+    memset(&_addr, 0, 10);
+    data16()[5] = 0xffff;
+    data32()[3] = a.s_addr;
     return *this;
 }
 

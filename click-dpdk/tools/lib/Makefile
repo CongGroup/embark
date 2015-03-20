@@ -76,12 +76,12 @@ OBJS = string.o straccum.o glue.o \
 	elementt.o eclasst.o routert.o runparse.o variableenv.o \
 	landmarkt.o lexert.o lexertinfo.o driver.o \
 	confparse.o args.o archive.o processingt.o etraits.o elementmap.o \
-	userutils.o md5.o toolutils.o clp.o  
+	userutils.o md5.o toolutils.o clp.o  ip6address.o 
 BUILDOBJS = $(patsubst %.o,%.bo,$(OBJS))
 
-CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
+CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
 CFLAGS = -g -O2 -W -Wall
-CXXFLAGS = -g -O2
+CXXFLAGS = -g -O2 -std=gnu++11
 DEPCFLAGS = -MD -MP
 
 DEFS = -DHAVE_CONFIG_H

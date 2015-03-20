@@ -27,7 +27,7 @@ LIB_CXX_OBJS = string.o straccum.o nameinfo.o \
 	driver.o ino.o \
 	$(EXTRA_DRIVER_OBJS)
 
-EXTRA_DRIVER_OBJS = 
+EXTRA_DRIVER_OBJS = ip6address.o ip6flowid.o ip6table.o 
 
 LIB_C_OBJS = crc32.o in_cksum.o
 
@@ -100,9 +100,9 @@ LINUXCFLAGS = $(shell echo "$(CPPFLAGS) $(CFLAGS) $(LINUXINCLUDE)" \
 	-e "s,-Iinclude ,-I$(linux_builddir)/include ",g \
 	-e "s,-Iinclude2 ,-I$(linux_builddir)/include2 ",g \
 	-e s,-Iinclude/,-I$(linux_srcdir)include/,g )
-CLICKCPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
+CLICKCPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
 CLICKCFLAGS =  -O2
-CLICKCXXFLAGS =  -O2
+CLICKCXXFLAGS =  -O2 -std=gnu++11
 CLICKDEPCFLAGS = -Wp,-MD,$(depfile)
 
 CLICKDEFS = -DHAVE_CONFIG_H
@@ -275,16 +275,16 @@ endif
 OBJS = $(LIB_CXX_OBJS) $(LIB_C_OBJS) $(STD_ELEMENT_OBJS) $(ELEMENT_OBJS) \
 	$(LINUXMODULE_CXX_OBJS) $(LINUXMODULE_C_OBJS) $(ELEMENTSCONF).o
 
-CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
+CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_LINUXMODULE
 CFLAGS =  -O2
-CXXFLAGS =  -O2
+CXXFLAGS =  -O2 -std=gnu++11
 DEPCFLAGS = -MD -MP
 
 DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir) -I$(top_srcdir)
 LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring
+LIBS = 
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -332,7 +332,7 @@ elemlist:
 	@/bin/rm -f elements.conf
 	@$(MAKE) elements.conf
 elements.conf: $(top_builddir)/config.status $(top_builddir)/click-buildtool
-	echo "linuxmodule  analysis app aqm ethernet icmp ip simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r linuxmodule -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
+	echo "linuxmodule  analysis app aqm ethernet icmp ip ip6 ipsec local simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r linuxmodule -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
 $(ELEMENTSCONF).mk: $(ELEMENTSCONF).conf $(top_builddir)/click-buildtool
 	$(CLICK_ELEM2MAKE) -x "$(STD_ELEMENT_OBJS)" < $(ELEMENTSCONF).conf > $(ELEMENTSCONF).mk
 $(ELEMENTSCONF).cc: $(ELEMENTSCONF).conf $(top_builddir)/click-buildtool

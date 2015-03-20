@@ -56,16 +56,16 @@ endif
 
 OBJS = alignment.o alignclass.o click-align.o
 
-CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
+CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_TOOL
 CFLAGS = -g -O2 -W -Wall
-CXXFLAGS = -g -O2
+CXXFLAGS = -g -O2 -std=gnu++11
 DEPCFLAGS = -MD -MP
 
 DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(top_srcdir)/tools/lib -I$(srcdir)
 LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring $(DL_LIBS)
+LIBS =   $(DL_LIBS)
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS) $(DEPCFLAGS)
 CXXLD = $(CXX)

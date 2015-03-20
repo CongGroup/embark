@@ -10,7 +10,9 @@ class IP6FlowID { public:
 
   inline IP6FlowID();
   inline IP6FlowID(const IP6Address &, uint16_t, const IP6Address &, uint16_t);
-  explicit IP6FlowID(Packet *);
+  explicit IP6FlowID(const Packet *, bool reverse = false);
+  explicit IP6FlowID(const click_ip6 *ip6h, bool reverse = false);
+  explicit IP6FlowID(const click_ip *iph, bool reverse = false);
 
   typedef const IP6Address &(IP6FlowID::*unspecified_bool_type)() const;
   inline operator unspecified_bool_type() const;
@@ -24,6 +26,30 @@ class IP6FlowID { public:
   void set_daddr(const IP6Address &a)	{ _daddr = a; }
   void set_sport(uint16_t p)		{ _sport = p; }
   void set_dport(uint16_t p)		{ _dport = p; }
+
+  /** @brief Set this flow to the given value.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order */
+  void assign(const IP6Address &saddr, uint16_t sport, const IP6Address &daddr, uint16_t dport) {
+    _saddr = saddr;
+    _daddr = daddr;
+    _sport = sport;
+    _dport = dport;
+  }
+
+  /** @brief Set this flow to the given values using IPv4-mapped addresses.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order */
+  void assign(IPAddress saddr, uint16_t sport, IPAddress daddr, uint16_t dport) {
+    _saddr = saddr;
+    _daddr = daddr;
+    _sport = sport;
+    _dport = dport;
+  }
 
   inline IP6FlowID reverse() const;
   inline IP6FlowID rev() const CLICK_DEPRECATED;
