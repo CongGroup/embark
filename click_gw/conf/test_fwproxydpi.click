@@ -5,7 +5,10 @@ elementclass MBarkGateway {
     -> ProtocolTranslator46
     -> MBArkFirewall(FILENAME $rule, TABLE tbl)
     -> proxy::MBArkProxy;
-    proxy[0] -> [0]output;
+    dpi::MBArkDPI;
+    proxy[0] -> dpi;
+    dpi[0] -> [0]output;
+    dpi[1] -> [1]output;
     proxy[1] -> [1]output;
 }
 
