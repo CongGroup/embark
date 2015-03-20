@@ -195,8 +195,8 @@ MBArkProxy::push(int, Packet *p)
         }
         else
         {
-          tcp->uh_sum = htons(in6_fast_cksum(&ip6->ip6_src, &ip6->ip6_dst, ip6->ip6_plen, 
-            ip6->ip6_nxt, tcp->uh_sum, (unsigned char *)(tcp), ip6->ip6_plen)); 
+          tcp->th_sum = htons(in6_fast_cksum(&ip6->ip6_src, &ip6->ip6_dst, ip6->ip6_plen, 
+            ip6->ip6_nxt, tcp->th_sum, (unsigned char *)(tcp), ip6->ip6_plen)); 
         }
         /*
         if (ipv4_)

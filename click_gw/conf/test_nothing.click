@@ -1,13 +1,5 @@
-elementclass MBarkGateway {
-    $rule | input 
-    -> ProtocolTranslator46
-    -> MBArkFirewall(FILENAME $rule)
-    -> output
-}
-
-//FromDump(FILENAME /project/cs/netsys/data/pcaps/m57/m57.pcap, STOP true) -> c;
-
 pd0::PollDevice(p513p1, QUEUE 0, BURST 32) -> Strip(14)
+    -> AESForward
     -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
     -> SimpleQueue(20000)
     -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
