@@ -41,8 +41,8 @@ click: elements/mbarkfw.cc
 	cp *.rules $(BUILD_DIR)/click/conf/
 	cp *.sh $(BUILD_DIR)/click/
 	cd $(BUILD_DIR)/click; ./configure --enable-nanotimestamp --enable-analysis --enable-ip6 --enable-ipsec --enable-local --enable-multithread --enable-intel-cpu --enable-experimental
-	make -C $(BUILD_DIR)/click elemlist
-	make -C $(BUILD_DIR)/click 
+	make -j 16 -C $(BUILD_DIR)/click elemlist
+	make -j 16 -C $(BUILD_DIR)/click 
 
 build/main.o: main.cc
 	mkdir -p build

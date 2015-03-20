@@ -3,8 +3,8 @@ tbl :: MBarkTable
 elementclass MBarkGateway {
     $rule | input 
     -> ProtocolTranslator46
-    -> MBArkFirewall(FILENAME $rule, TABLE tbl)
-    -> proxy::MBArkProxy;
+    -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, STATEFUL false)
+    -> proxy::MBArkProxy(V4 true);
     dpi::MBArkDPI;
     proxy[0] -> dpi;
     dpi[0] -> [0]output;

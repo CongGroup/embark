@@ -2,9 +2,9 @@ tbl :: MBarkTable
 
 elementclass MBarkGateway {
     $rule | input 
-    -> ProtocolTranslator46
-    -> MBArkFirewall(FILENAME $rule, TABLE tbl)
-    -> proxy::MBArkProxy;
+//    -> ProtocolTranslator46
+    -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, STATEFUL false)
+    -> proxy::MBArkProxy(V4 true);
     proxy[0] -> [0]output;
     proxy[1] -> [1]output;
 }

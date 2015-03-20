@@ -2,8 +2,8 @@ tbl :: MBarkTable
 
 elementclass MBarkGateway {
     $rule | input 
-    -> ProtocolTranslator46
-    -> MBArkFirewall(FILENAME $rule, TABLE tbl)
+//    -> ProtocolTranslator46
+    -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, STATEFUL false)
     -> output
 }
 

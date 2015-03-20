@@ -16,7 +16,7 @@
 CLICK_DECLS
 
 MBArkFirewall::MBArkFirewall()
-: v4_(false), mbarkt_(nullptr), enable_(true)
+: v4_(false), mbarkt_(nullptr), enable_(true), stateful_(true)
 {
 }
 
@@ -35,6 +35,7 @@ MBArkFirewall::configure(Vector<String> &conf, ErrorHandler *errh)
   .read_m("TABLE", ElementCastArg("MBarkTable"), mbarkt_)
   .read("V4", BoolArg(), v4_)
   .read("ENABLE", BoolArg(), enable_)
+  .read("STATEFUL", BoolArg(), stateful_)
   .complete() < 0)
     return -1;
   return 0;
@@ -175,8 +176,30 @@ MBArkFirewall::encrypt_v4(Packet *p)
     memcpy(&(udp->uh_dport), &cipher_dst_port, sizeof(uint16_t));
   }
 
-  IPFlowID after(q);
-  mbarkt_->insert(before, after);
+  if (stateful_)
+  {
+    IPFlowID after(q);
+    mbarkt_->insert(before, after);
+  }
+  else
+  {
+    EVP_CIPHER_CTX ctx;
+    unsigned char key[16] = {0}; // TODO: something fake
+    unsigned char iv[16] = {0};
+    int outlen = 0, totallen = 0;
+    unsigned char cipher[1024];
+    EVP_EncryptInit(&ctx, EVP_aes_128_cfb(), key, iv);
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_src_addr, sizeof(uint32_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_dst_addr, sizeof(uint32_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_src_port, sizeof(uint16_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_dst_port, sizeof(uint16_t));
+    totallen += outlen;
+    EVP_EncryptFinal(&ctx, cipher + totallen, &outlen);
+    totallen += outlen;
+  }
 
   output(0).push(q);
 }
@@ -207,32 +230,6 @@ MBArkFirewall::encrypt_v6(Packet *p)
   uint16_t *src_port = &(udp->uh_sport);
   uint16_t *dst_port = &(udp->uh_dport);
 
-/*
-  EVP_CIPHER_CTX ctx;
-  unsigned char key[32] = {0}; // TODO: something fake
-  unsigned char iv[16] = {0};
-  int outlen = 0, totallen = 0;
-
-
-  EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), key, iv);
-
-  EVP_EncryptUpdate(&ctx, option->ciphertext, &outlen, (unsigned char *) src_addr, sizeof(uint128_t));
-  totallen += outlen;
-  
-  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) dst_addr, sizeof(uint128_t));
-  totallen += outlen;
-
-  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) src_port, sizeof(uint16_t));
-  totallen += outlen;
-
-  EVP_EncryptUpdate(&ctx, option->ciphertext + totallen, &outlen, (unsigned char *) dst_port, sizeof(uint16_t));
-  totallen += outlen;
-
-  EVP_EncryptFinal(&ctx, option->ciphertext + totallen, &outlen);
-  totallen += outlen;
-*/
-
-  //q->set_network_header((const unsigned char *) ip, sizeof(click_ip6) + sizeof(ext_hdr));
   q->set_network_header((const unsigned char *) ip, sizeof(click_ip6));
   IP6FlowID before(q);
 
@@ -249,9 +246,30 @@ MBArkFirewall::encrypt_v6(Packet *p)
     memcpy(&(udp->uh_dport), &cipher_dst_port, sizeof(uint16_t));
   }
 
-  IP6FlowID after(q);
-
-  mbarkt_->insert(before, after);
+  if (stateful_)
+  {
+    IP6FlowID after(q);
+    mbarkt_->insert(before, after);
+  }
+  else
+  {
+    EVP_CIPHER_CTX ctx;
+    unsigned char key[16] = {0}; // TODO: something fake
+    unsigned char iv[16] = {0};
+    int outlen = 0, totallen = 0;
+    unsigned char cipher[1024];
+    EVP_EncryptInit(&ctx, EVP_aes_128_cfb(), key, iv);
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_src_addr, sizeof(uint128_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_dst_addr, sizeof(uint128_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_src_port, sizeof(uint16_t));
+    totallen += outlen;
+    EVP_EncryptUpdate(&ctx, cipher + totallen, &outlen, (unsigned char *) &cipher_dst_port, sizeof(uint16_t));
+    totallen += outlen;
+    EVP_EncryptFinal(&ctx, cipher + totallen, &outlen);
+    totallen += outlen;
+  }
 
   output(0).push(q);
 }
