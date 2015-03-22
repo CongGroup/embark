@@ -124,15 +124,18 @@ MBArkDPI::push(int, Packet* p)
   //std::cout << "Beep!" << std::endl;
   uint32_t len = p->length();
   struct click_ip* iph = (struct click_ip*) p->data();
+  
+  /*
   if((iph->ip_v != 4) || (ntohs(iph->ip_len) != len)){
     std::cout << "Something is weird with this packet. Did you forget to strip the Ethernet header? Is it fragmented? " << iph->ip_len << " " << len << std::endl;
     p->kill();
     return;
   }
+  */
 
   char* dataptr = ((char*) iph) + sizeof(struct click_ip);
   struct click_tcp* tcph = (click_tcp*) dataptr;
-  if(iph->ip_p == IP_PROTO_TCP && (tcph->th_sport == 80 || tcph->th_dport == 80)){
+  if(iph->ip_p == IP_PROTO_TCP && (ntohs(tcph->th_sport) == 80 || ntohs(tcph->th_dport) == 80)){
     dataptr += sizeof(struct click_tcp);
   }else{
     output(0).push(p);
