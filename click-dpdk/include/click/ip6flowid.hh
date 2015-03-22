@@ -2,15 +2,66 @@
 #ifndef CLICK_IP6FLOWID_HH
 #define CLICK_IP6FLOWID_HH
 #include <click/ip6address.hh>
+#include <click/ipflowid.hh>
 #include <click/hashcode.hh>
 CLICK_DECLS
 class Packet;
 
 class IP6FlowID { public:
 
+  /** @brief Construct an empty flow ID.
+   *
+   * The empty flow ID has zero-valued addresses and ports. */
   inline IP6FlowID();
+
+  /** @brief Construct a flow ID with the given parts.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order */
   inline IP6FlowID(const IP6Address &, uint16_t, const IP6Address &, uint16_t);
-  explicit IP6FlowID(Packet *);
+
+  /** @brief Construct an IPv4-Mapped flow ID with the given parts.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order
+   *
+   * The IPv4 addresses are converted to IPv4-mapped IPv6 addresses
+   * in the flow. */
+  inline IP6FlowID(const IPAddress &, uint16_t, const IPAddress &, uint16_t);
+
+  /** @brief Construct a flow ID from @a p's ip/ip6_header() and udp_header().
+   * @param p input packet
+   * @param reverse if true, use the reverse of @a p's flow ID
+   *
+   * @pre @a p's ip/ip6_header() must point to an IPv4 or IPv6
+   * header respectively, and @a p's transport header should have
+   * source and destination ports in the UDP-like positions; TCP,
+   * UDP, and DCCP fit the bill. If the packet is IPv4 the IPv4
+   * addresses are converted to IPv4-mapped IPv6 addresses in the flow.*/
+  explicit IP6FlowID(const Packet *, bool reverse = false);
+
+  /** @brief Construct a flow ID from @a ip6h and the following TCP/UDP header.
+   * @param iph IP header
+   * @param reverse if true, use the reverse of @a p's flow ID
+   *
+   * This assumes a single IPv6 header with no extension headers.The
+   * transport header should have source and destination ports in
+   * the UDP-like positions; TCP, UDP, and DCCP fit the bill. */
+  explicit IP6FlowID(const click_ip6 *ip6h, bool reverse = false);
+
+  /** @brief Construct an IPv4-Mapped flow ID from @a iph and the
+   * following TCP/UDP header.
+   * @param iph IP header
+   * @param reverse if true, use the reverse of @a p's flow ID
+   *
+   * The IPv4 header's header length, @a iph->ip_hl, is used to find
+   * the following transport header.  This transport header should
+   * have source and destination ports in the UDP-like positions;
+   * TCP, UDP, and DCCP fit the bill. The IPv4 addresses are
+   * converted ip IPv4-mapped IPv6 addresses in the flow.*/
+  explicit IP6FlowID(const click_ip *iph, bool reverse = false);
 
   typedef const IP6Address &(IP6FlowID::*unspecified_bool_type)() const;
   inline operator unspecified_bool_type() const;
@@ -22,11 +73,48 @@ class IP6FlowID { public:
 
   void set_saddr(const IP6Address &a)	{ _saddr = a; }
   void set_daddr(const IP6Address &a)	{ _daddr = a; }
+  void set_saddr(const IPAddress a)	{ _saddr = a; }
+  void set_daddr(const IPAddress a)	{ _daddr = a; }
   void set_sport(uint16_t p)		{ _sport = p; }
   void set_dport(uint16_t p)		{ _dport = p; }
 
+  /** @brief Set this flow to the given value.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order */
+  void assign(const IP6Address &saddr, uint16_t sport, const IP6Address &daddr, uint16_t dport) {
+    _saddr = saddr;
+    _daddr = daddr;
+    _sport = sport;
+    _dport = dport;
+  }
+
+  /** @brief Set this flow to the given values using IPv4-mapped addresses.
+   * @param saddr source address
+   * @param sport source port, in network order
+   * @param daddr destination address
+   * @param dport destination port, in network order */
+  void assign(IPAddress saddr, uint16_t sport, IPAddress daddr, uint16_t dport) {
+    _saddr = saddr;
+    _daddr = daddr;
+    _sport = sport;
+    _dport = dport;
+  }
+
   inline IP6FlowID reverse() const;
   inline IP6FlowID rev() const CLICK_DEPRECATED;
+
+  /** @brief Return IPv4 version of a IPv4-mapped IP6FlowID.
+   *
+   * @return non-empty IPFlowID address iff this flow is using
+   *  IPv4-mapped addresses.  IPFlowID() otherwise */
+  IPFlowID flow_id4() const;
+
+  /** @brief Return this IP6FlowID
+   *
+   * @return this IP6FlowID */
+  IP6FlowID flow_id6() const;
 
   inline hashcode_t hashcode() const;
 
@@ -58,6 +146,13 @@ IP6FlowID::IP6FlowID(const IP6Address &saddr, uint16_t sport,
 }
 
 inline
+IP6FlowID::IP6FlowID(const IPAddress &saddr, uint16_t sport,
+		     const IPAddress &daddr, uint16_t dport)
+  : _saddr(saddr), _daddr(daddr), _sport(sport), _dport(dport)
+{
+}
+
+inline
 IP6FlowID::operator unspecified_bool_type() const
 {
   return _saddr || _daddr ? &IP6FlowID::saddr : 0;
@@ -74,7 +169,6 @@ IP6FlowID::rev() const
 {
   return reverse();
 }
-
 
 #define ROT(v, r) ((v)<<(r) | ((unsigned)(v))>>(32-(r)))
 
@@ -101,11 +195,19 @@ inline hashcode_t IP6FlowID::hashcode() const
 
 #undef ROT
 
+StringAccum &operator<<(StringAccum &sa, const IP6FlowID &flow_id);
+
 inline bool
 operator==(const IP6FlowID &a, const IP6FlowID &b)
 {
   return a.dport() == b.dport() && a.sport() == b.sport()
     && a.daddr() == b.daddr() && a.saddr() == b.saddr();
+}
+
+inline bool
+operator!=(const IP6FlowID &a, const IP6FlowID &b)
+{
+  return !(a == b);
 }
 
 CLICK_ENDDECLS

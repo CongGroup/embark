@@ -51,6 +51,7 @@ private:
   bool v4_;
   MBarkTable *mbarkt_;
   bool enable_;
+  bool stateful_;
 };
 
 CLICK_ENDDECLS

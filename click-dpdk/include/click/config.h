@@ -69,13 +69,13 @@
 /* #undef HAVE_BOUND_PORT_TRANSFER */
 
 /* Define if the C++ compiler understands constexpr. */
-/* #undef HAVE_CXX_CONSTEXPR */
+#define HAVE_CXX_CONSTEXPR 1
 
 /* Define if the C++ compiler understands #pragma interface. */
 #define HAVE_CXX_PRAGMA_INTERFACE 1
 
 /* Define if the C++ compiler understands static_assert. */
-/* #undef HAVE_CXX_STATIC_ASSERT */
+#define HAVE_CXX_STATIC_ASSERT 1
 
 /* Define if the machine is indifferent to alignment. */
 #define HAVE_INDIFFERENT_ALIGNMENT 1
@@ -87,10 +87,10 @@
 #define HAVE_INT64_TYPES 1
 
 /* Define if IPv6 support is enabled. */
-/* #undef HAVE_IP6 */
+#define HAVE_IP6 1
 
 /* Define if IPsec support is enabled. */
-/* #undef HAVE_IPSEC */
+#define HAVE_IPSEC 1
 
 /* Define to 1 if the system has the type `long long'. */
 #define HAVE_LONG_LONG 1

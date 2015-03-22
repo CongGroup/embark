@@ -67,22 +67,22 @@ GENERIC_OBJS = string.o straccum.o nameinfo.o \
 	archive.o userutils.o driver.o \
 	$(EXTRA_DRIVER_OBJS)
 
-EXTRA_DRIVER_OBJS = 
+EXTRA_DRIVER_OBJS = ip6address.o ip6flowid.o ip6table.o 
 
 LIBOBJS = $(GENERIC_OBJS) $(STD_ELEMENT_OBJS) clp.o
 STD_ELEMENT_OBJS = addressinfo.o alignmentinfo.o \
 	errorelement.o portinfo.o scheduleinfo.o
 OBJS = $(ELEMENT_OBJS) $(ELEMENTSCONF).o nsclick.o
 
-CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_NS
+CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_NS
 CFLAGS = -g -O2 -W -Wall -fPIC
-CXXFLAGS = -g -O2 -fPIC
+CXXFLAGS = -g -O2 -std=gnu++11 -fPIC
 
 DEFS = -DHAVE_CONFIG_H
 INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir) -I$(top_srcdir) 
 LDFLAGS = 
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
+LIBS =  `$(top_builddir)/click-buildtool --otherlibs` $(ELEMENT_LIBS)
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -125,7 +125,7 @@ elemlist:
 	@rm -f elements.conf
 	@$(MAKE) elements.conf
 elements.conf: $(top_builddir)/config.status $(top_builddir)/click-buildtool
-	echo "ns userlevel  analysis app aqm ethernet icmp ip simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r ns -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
+	echo "ns userlevel  analysis app aqm ethernet icmp ip ip6 ipsec local simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r ns -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
 $(ELEMENTSCONF).mk: $(ELEMENTSCONF).conf $(top_builddir)/click-buildtool
 	$(top_builddir)/click-buildtool elem2make -x "$(STD_ELEMENT_OBJS)" < $(ELEMENTSCONF).conf > $(ELEMENTSCONF).mk
 $(ELEMENTSCONF).cc: $(ELEMENTSCONF).conf $(top_builddir)/click-buildtool

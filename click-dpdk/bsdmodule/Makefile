@@ -84,26 +84,26 @@ GENERIC_OBJS = string.o straccum.o nameinfo.o \
 BSDMODULE_OBJS = config.o sched.o module.o module_c.o \
 	clickfs.o clickfs_vnops.o clickfs_tree.o clickfs_element.o
 
-EXTRA_DRIVER_OBJS = 
+EXTRA_DRIVER_OBJS = ip6address.o ip6flowid.o ip6table.o 
 
 OBJS = $(GENERIC_OBJS) $(ELEMENT_OBJS) $(BSDMODULE_OBJS) elements.o
 
-#CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_BSDMODULE -DBSD_NETISRSCHED
-CPPFLAGS = -Wno-write-strings -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_BSDMODULE
+#CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_BSDMODULE -DBSD_NETISRSCHED
+CPPFLAGS = -Wno-write-strings -Wno-literal-suffix -D__STDC_LIMIT_MACROS -I/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/include -DCLICK_BSDMODULE
 
 ifeq ($(target_cpu),x86_64)
 CFLAGS =  -O2 -g -fPIC -fno-builtin
-CXXFLAGS =  -O2 -g -fPIC -fno-builtin
+CXXFLAGS =  -O2 -std=gnu++11 -g -fPIC -fno-builtin
 else
 CFLAGS =  -O2 -g -fno-builtin
-CXXFLAGS =  -O2 -g -fno-builtin
+CXXFLAGS =  -O2 -std=gnu++11 -g -fno-builtin
 endif
 
 DEFS = -DHAVE_CONFIG_H -D_KERNEL
 INCLUDES = -nostdinc -I$(top_builddir)/include -I$(top_srcdir)/include \
 	-I$(srcdir) -I$(top_srcdir) -I. -I$(freebsd_includedir)
 LDFLAGS = -lcrypto -lssl -L/home/justine/DPDK-1.5.0/x86_64-default-linuxapp-gcc/lib
-LIBS = -lethdev -lrte_eal -lrte_lpm -lrte_mbuf -lrte_pmd_e1000 -lrte_ring -lrte_cmdline -lrte_hash -lrte_malloc -lrte_mempool -lrte_pmd_ixgbe -lrte_timer -lrte_pmd_ring
+LIBS = 
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -131,7 +131,7 @@ elemlist:
 	@/bin/rm -f elements.conf
 	@$(MAKE) elements.conf
 elements.conf: $(top_builddir)/config.status $(top_builddir)/click-buildtool
-	echo "bsdmodule  analysis app aqm ethernet icmp ip simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r bsdmodule -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
+	echo "bsdmodule  analysis app aqm ethernet icmp ip ip6 ipsec local simple standard tcpudp test threads" | $(top_builddir)/click-buildtool findelem -r bsdmodule -p $(top_srcdir) -X $(srcdir)/elements.exclude $(FINDELEMFLAGS) > elements.conf
 elements.mk: elements.conf $(top_builddir)/click-buildtool
 	$(top_builddir)/click-buildtool elem2make < elements.conf > elements.mk
 elements.cc: elements.conf $(top_builddir)/click-buildtool
