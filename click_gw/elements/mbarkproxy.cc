@@ -133,7 +133,7 @@ MBArkProxy::push(int, Packet *p)
     } 
     else 
     {
-      click_chatter("unknown ipv6 packet.");
+      //click_chatter("unknown ipv6 packet.");
       //tcp = (click_tcp *)(ip6 + 1);
     }
   }
@@ -146,12 +146,12 @@ MBArkProxy::push(int, Packet *p)
     }
     else
     {
-      click_chatter("unknown ipv4 packet.");
+      //click_chatter("unknown ipv4 packet.");
     }
   } 
   else
   {
-    click_chatter("non-ipv6 packet.");
+    click_chatter("non-ip (v4 or v6) packet.");
   }
 
   if (tcp != nullptr && ntohs(tcp->th_dport) == 80) {

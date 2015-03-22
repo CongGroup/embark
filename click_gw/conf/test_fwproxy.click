@@ -24,12 +24,12 @@ c[0]
 q::SimpleQueue(20000)
     -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
 
-gw0[0]    
+gw[0]    
     -> AESForward
     -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
     -> q
 
-gw0[1]
+gw[1]
     -> Discard
 
 c[1]
