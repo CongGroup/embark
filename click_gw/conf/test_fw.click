@@ -1,5 +1,9 @@
 tbl :: MBarkTable
 
+c :: Classifier(
+    12/0800, 
+    -);
+
 elementclass MBarkGateway {
     $rule | input 
 //    -> ProtocolTranslator46
@@ -9,12 +13,24 @@ elementclass MBarkGateway {
 
 //FromDump(FILENAME /project/cs/netsys/data/pcaps/m57/m57.pcap, STOP true) -> c;
 
-pd0::PollDevice(p513p1, QUEUE 0, BURST 32) -> Strip(14)
+pd0::PollDevice(p513p1, QUEUE 0, BURST 32) -> c;
+
+q::SimpleQueue(20000)
+    -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
+
+c[0]
+    -> Strip(14)
     -> gw0::MBarkGateway(conf/test_fw.rules)
     -> AESForward 
     -> EtherEncap(0x86DD, 1:1:1:1:1:1, 2:2:2:2:2:2)
-    -> SimpleQueue(20000)
-    -> sd0::SendDevice(p513p2, QUEUE 0, BURST 32);
+    -> q;
+
+c[1]
+    -> AESForward
+    -> q;
+
+
+
 
 //pd1::PollDevice(p513p1, QUEUE 1, BURST 32) -> Strip(14)
 //    -> gw1::MBarkGateway(conf/test_fw.rules)
