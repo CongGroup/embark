@@ -131,13 +131,10 @@ MBArkDPI::push(int, Packet* p)
   }
 
   char* dataptr = ((char*) iph) + sizeof(struct click_ip);
-  if(iph->ip_p == IP_PROTO_TCP){
+  struct click_tcp* tcph = (click_tcp*) dataptr;
+  if(iph->ip_p == IP_PROTO_TCP && (tcph->th_sport == 80 || tcph->th_dport == 80)){
     dataptr += sizeof(struct click_tcp);
-  }else if(iph->ip_p == IP_PROTO_UDP){
-    dataptr += sizeof(struct click_udp);
   }else{
-    //Neither TCP nor UDP.
-    std::cout << "Hey, what kinda packet is this? " << iph->ip_p << std::endl;
     output(0).push(p);
     return;
   }
@@ -152,12 +149,7 @@ MBArkDPI::push(int, Packet* p)
     unsigned char* seg_buf = (unsigned char*) m->pkt.data;
     int bytesin = 0;
     int max_pkt_len = 1400;
-    if(iph->ip_p == IP_PROTO_TCP){
-      bytesin = sizeof(struct click_ip) + sizeof(struct click_tcp);
-    }else{ //Must be UDP
-
-      bytesin = sizeof(struct click_ip) + sizeof(struct click_tcp);
-    }
+    bytesin = sizeof(struct click_ip) + sizeof(struct click_tcp);
     rte_memcpy(seg_buf, iph, bytesin);
 
     //std::cout << " I love dpdk " << std::endl;
@@ -205,11 +197,11 @@ MBArkDPI::push(int, Packet* p)
     // std::cout << "-- made " << tot << " tokens!" << std::endl;
 
 
-  //Send ant tokenpacket data left
-  m->pkt.data_len = bytesin;
-  m->pkt.pkt_len = m->pkt.data_len;
-  WritablePacket* release = Packet::make(rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), (u_char*) m->buf_addr, m->buf_len, &Packet::dest, true);
-  output(1).push(release);
+    //Send ant tokenpacket data left
+    m->pkt.data_len = bytesin;
+    m->pkt.pkt_len = m->pkt.data_len;
+    WritablePacket* release = Packet::make(rte_pktmbuf_mtod(m, u_char*), rte_pktmbuf_pkt_len(m), (u_char*) m->buf_addr, m->buf_len, &Packet::dest, true);
+    output(1).push(release);
 
   }
   output(0).push(p);
