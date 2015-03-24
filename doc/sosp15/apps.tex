@@ -73,18 +73,20 @@ piece of firewalls is packet classification, which is essentially a problem of f
 give example of what a rule becomes
 
 \section{Application: IDS}\label{sec:ids}
-Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) inspect the packet payload, not just the IP and TCP/UDP headers.
-Appliances which operate on payloads are said to perform ``deep packet inspection'' (DPI); they perform ``stateful DPI'' reconstruct the TCP bytestream at the middlebox and operate over this bytestream, not just each packet individually.
-In the case of a proxy, reconstructing the bytestream allows the proxy to store entire images (which would normally be divided across multiple packets) and cache them to speed up client performance. 
+Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
 For IDSes, reconstructing the TCP bytestream allows the middlebox to detect attack strings which may span two or more packets.
+Many other `stateful DPI' devices reconstruct the TCP bytestream while allowing packets to pass through, such as application firewalls and parental filters.
 Due to this reconstruction cost, devices which perform stateful DPI typically provide much lower throughput than devices which perform
 solely on headers -- for example~\todo{cite some industrial boxes here}.
+Other devices also operate at the bytestream abstraction by terminating the TCP connection, \eg{} HTTP proxies, which must cache entire images (which would normally be divided across multiple packets). 
 
-As we have seen with the previous middleboxes (Firewalls, NAT, Load Balancers), the \sys gateway can support middleboxes which operate on a packet-by-packet basis while similarly, remaining stateless and operating on a packet-by-packet basis itself.
-To support IDSes, however, we must use a modified gateway which supports DPI middleboxes by reconstructing the TCP flow at the middlebox.
+As we have seen with the previous middleboxes (Firewalls, NAT, Load Balancers), the \sys gateway can support middleboxes which operate on a packet-by-packet basis while similarly remaining stateless and operating on a packet-by-packet basis itself.
+To support IDSes, however, we must use a modified gateway which supports bytestream-aware middleboxes by reconstructing the TCP flow at the middlebox.
 As we show in~\S\ref{sec:eval}, the stateful gateway achieves lower throughput than the stateless one.
-Fortunately, not all stateful DPI middleboxes require a stateful gateway. 
-As we shall see, some HTTP proxies -- proxies for non-pipelined HTTP requests -- are stateful DPI devices, but can be fully supported with a stateless \sys gateway (pipelined HTTP proxies, however, do require a stateful gateway).
+Fortunately, not all bytestream-aware middleboxes require a stateful, bytestream-aware gateway. 
+As we shall see, some HTTP proxies -- proxies for non-pipelined HTTP requests -- can be fully supported with a stateless \sys gateway (pipelined HTTP proxies, however, do require a stateful gateway).
+
+\sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which 
 
 \section{Application: Proxy/cache}\label{s:proxy}
 \todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
