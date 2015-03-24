@@ -38,7 +38,7 @@
 %
 %firewall need not change 
 
-\section{Building block: Range match } \label{sec:range}
+\subsection{Range match } \label{sec:range}
 
 
 
@@ -79,7 +79,7 @@ Instead, we designed a new encryption scheme that satisfies all the requirements
 The scheme takes advantage of the network setting; it does not rely on advanced cryptography, so it can be easily understood and validated by a non-cryptography reader. 
 
 
-\subsection{Our RangeMatch scheme} 
+\subsubsection{Our RangeMatch scheme} 
 
 
 
@@ -125,7 +125,7 @@ readjust all the encryptions of these intervals to make space for the new interv
 
 We now explain concretely the API and the implementation of the scheme. 
 
-\subsection{Gateway API and implementation}
+\subsubsection{Gateway API and implementation}
 
 \mypara{Gateway state} The gateway keeps a short amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
@@ -218,7 +218,7 @@ DeleteRange is similar, except that the result contains only $L$.
 The cloud can run ``$\ge$'' and "$\le$" between any encrypted value $\enc(v)$ and an encrypted endpoint $\enc(s)$ and $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
 
 
-\subsection{Security guarantees}
+\subsubsection{Security guarantees}
 
 The scheme achieves our desired security goal: the only information leaked about a value $v$ encrypted is which ranges it matches. 
 In particular, the scheme is not order preserving because it does not leak the order of two encrypted values that match the same range. It is easy to check that the scheme is secure: since the encryption of $v$ is random in $I$ (Eq.~\ref{eq:randominterval}), the scheme only leaks the fact that $v$ is in $I$. $I$ is chosen in such a way that the only information about $v$ it encodes is which intervals $v$ matches and which it does not match.
