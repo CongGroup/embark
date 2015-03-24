@@ -1,7 +1,7 @@
 #include <string.h>
 #include <sys/fcntl.h>
 #include <crypto/prng.hh>
-#include <util/errstream.hh>
+#include "util/errstream.hh"
 
 using namespace std;
 

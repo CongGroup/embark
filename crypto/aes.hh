@@ -5,7 +5,7 @@
 #include <string>
 #include <cstring>
 
-#include <util/errstream.hh>
+#include "util/errstream.hh"
 
 class AES {
  public:

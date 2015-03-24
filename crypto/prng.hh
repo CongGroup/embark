@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <util/errstream.hh>
+//#include <util/errstream.hh>
 #include <NTL/ZZ.h>
 #include <crypto/bn.hh>
 
