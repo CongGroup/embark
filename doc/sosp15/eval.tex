@@ -72,7 +72,7 @@ Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to 
 In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
 Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 800Kpps to 600Kpps; after this point the performance penalty of additional rules tapers off. Adding an aditional 90k rules drops throughput negligibly to 585Kpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an aditional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time from when the gateway begins encrypting the packet to when the gateway completes encrypting the packet; the processing time follows the same logarithmic trend.
 \todo{new latency numbers}
 
