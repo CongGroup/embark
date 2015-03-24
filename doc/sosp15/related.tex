@@ -30,6 +30,10 @@ Compare to CryptDB here carefully.
 
 -- what we build on here and the relationship of OPE with mOPE and others, range queries and others
 
+
+ mOPE unfortunately requires that the gateway and the service provider interact for a number of roundtrips (e.g., xxx in our experiments) which is too slow and requires additional setup for this interaction, and violates requirement~\ref{req:sec} or~\ref{req:injective}, and BCLO has weak security (leaking always the top half bits of the values encrypted and the order of IP addresses across different packets, thus violating requirement~\ref{req:sec}), is too slow, and not format-preserving. 
+
+we do not readjust for encryption - this is expensive, we do not leak data between two encryptions 
 % some points on comparison to mOPE from a technical standpoint
 %The tree is stored at the gateway. The tree contains as nodes the ends of the intervals as opposed to all values encoded-- thus, the tree is much smaller. firewalls have on the order of thousands such rules, so the tree is not large. also store only ranges and not everything encoded, making it smaller and fit into the gateway, etc., they need adjustments when they encrypt too, etc. -- better point to related work for this
 %Difference:

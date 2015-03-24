@@ -34,9 +34,9 @@ from any to any port 80
 \caption{\texttt{pf} configuration example}
 \end{figure}
 
-To work with \sys, we need to rewrite the rules above. Using the \RM scheme, we encode all IP addresses, prefixes, and port numbers inside the rules. Note that \texttt{any} is the alias of \texttt{0.0.0.0/0}. Recall that in Section \ref{sec:range} we want to keep the chance of collision as low as possible, therefore we map the IPv4 addresses into the IPv6 space before encoding those values. For example, to encode the IP prefix \texttt{157.161.48.0/24}, the gateway first extends it to \texttt{::ffff:157.161.48.0/120}.
+To work with \sys, we need to rewrite the rules above. Using the \RM scheme, we encrypt all IP addresses, prefixes, and port numbers inside the rules. Note that \texttt{any} is the alias of \texttt{0.0.0.0/0}. Recall that in Section \ref{sec:range} we want to keep the chance of collision as low as possible, therefore we map the IPv4 addresses into the IPv6 space before encoding those values. For example, to encrypt the IP prefix \texttt{157.161.48.0/24}, the gateway first extends it to \texttt{::ffff:157.161.48.0/120}.
 Now the prefix represents the range from \texttt{::ffff:157.161.48.0} to \texttt{::ffff:157.161.48.255}. The gateway then insert
-both endpoints to the tree, and gets their encoded values. 
+both endpoints to the tree, and gets their encrypted values. 
 
 Suppose those two values are \texttt{fd6a:1faf:577b:bee4:0:0:0:0} and
 \texttt{fd6a:1faf:577b:bee4:0:1:0:1}. Note that we can't represent this range using a single prefix, instead it has to be 

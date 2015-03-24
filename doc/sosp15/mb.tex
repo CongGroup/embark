@@ -125,6 +125,7 @@
 \newcommand{\sig}{\mathsf{sig}}
 \newcommand{\ct}{\mathsf{ct}}
 \newcommand{\sno}{\mathsf{serial\_no}}
+\newcommand{\dirtyrange}{\mathsf{dirtyrange}}
 
 \renewcommand{\mod}{\mathsf{mod}\xspace}
 
@@ -202,6 +203,31 @@
 
 \newcommand{\aes}{\mathsf{AES}}
 \newcommand{\encr}{\mathsf{enc\_r}}
+
+
+% Compact itemize and enumerate.  Note that they use the same counters and                         
+% symbols as the usual itemize and enumerate environments.                                         
+\makeatletter
+\def\compactify{\itemsep=3pt plus3pt \topsep=3pt plus3pt \partopsep=0pt
+\parsep=0pt \leftmargin=1.3em}
+\let\latexusecounter=\usecounter
+\def\CompactItemize{%                                                                              
+  \ifnum \@itemdepth >\thr@@\@toodeep\else
+    \advance\@itemdepth\@ne
+    \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%                                        
+    \expandafter
+    \list
+      \csname\@itemitem\endcsname
+      {\compactify\def\makelabel##1{\hss\llap{##1}}}%                                              
+  \fi}
+\let\endCompactItemize\endlist
+\newenvironment{CompactEnumerate}
+  {\def\usecounter{\compactify\latexusecounter}
+   \begin{enumerate}}
+  {\end{enumerate}\let\usecounter=\latexusecounter}
+\makeatother
+
+
 
 \begin{document}
 

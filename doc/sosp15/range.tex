@@ -9,7 +9,7 @@
 %Constructing an encryption scheme that allows checking if an encrypted value is in an encrypted range, has been a challenge in the applied cryptography community. The reason is that ..
 %
 %\begin{itemize}
-%\item preserve the order between encoded values
+%\item preserve the order between Encryptd values
 %\item candidate: OPE
 %\item candidate: mOPE
 %\item So none of the existing schemes are satisfactory. A new scheme \RM.
@@ -40,104 +40,97 @@
 
 \section{Building block: Range match } \label{sec:range}
 
-\clan{TODO: Reorganize this section, so that it does not have much to do with network processing. Talk about principles primarily in this section, then go into details in firewall section.}
 
 
-Matching an encrypted value from a packet against an encrypted range is a basic operation for many middleboxes (e.g., firewall). 
-For example, it is needed to implement a firewall. 
-
-\mypara{An example} Consider the following firewall rule:
-
-\smallskip
-\noindent {\tt block in log quick on \$ext\_if from 10.0.0.0/8  to any
-}
 
 
-\noindent It blocks any traffic from an IP address whose first 8 bits are $10$. This corresponds to an IP address interval of 
-[10.0.0.0, 10.255.255.255].
-For instance, an incoming packet with IP address 10.1.0.0 will be blocked, whereas a packet with source IP 11.0.0.0 will not be blocked.
 
-
-The core functionality desired is to be able to encode a set of ranges $[s_1, e_1], \dots, [s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone (the service provider) having these encodings can determine in which range $v$ lies, if it lies in any interval at all, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. Hence, we call this scheme {\em range match} scheme. 
-
-In the rest of this section, for concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ are source IP addresses, although our scheme can be used for destination IP addresses, ports, etc. Also, since the gateway does the encoding, and the cloud performs the comparisons in our system, we use the same parties when describing our encoding protocol -- although one can envision using it outside of our setting. \todo{does this not contradict itself with tailoring}
-
-
-\mypara{Requirements on an encoding scheme}
 %
-In order for this encryption scheme to fit our systems problem and to do so in a practical way, it must have the following efficiency and security properties. It should:
-\begin{enumerate}
-\item  {\em be fast}: the performance of the encryption scheme severely affects the throughput of the network,
-\item {\em support existing fast packet matching algorithms}: a series of fast matching algorithms are typically used to achieve good performance, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of the middlebox to compute ``>'' between $v$ and the margins of the intervals, 
+The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
+
+In this section, for concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although the scheme can be used for encrypting ports too), the encryptor as the gateway, the party evaluating ``>'' the service provider (SP) because this is how \sys uses the scheme. 
+
+\mypara{Requirements on an encryption scheme}
+%
+In order for this encryption scheme to fit \sys efficiently and securely, it must:
+
+\begin{CompactEnumerate}[leftmargin=*]
+
+\item  {\em be fast}: the throughput of encryption should be not much lower than network throughput. In particular, the scheme should preserve the ability to use {\em existing fast packet matching algorithms}, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of SP  to compute ``>'' between $v$ and the endpoints of an interval,
 hence the encryption scheme should preserve this property. 
-\item {\em have as strong security as possible}: The encryption scheme should not leak $v$, $e_1$, $s_1$, $\dots$, $e_n$, $s_n$ to the service provider.
-The scheme allows the service provider to compute ``>'' between v and $e_i$ and $s_i$, but ideally it should learn nothing more than this information. In particular, for two values $v_1$ and $v_2$, the service provider should not learn how they compare to the each other (whether $v_1 > v_2$ or not) because it does not need this functionality for range matching. Hence, this scheme is not order preserving, because the service provider does not learn the order of $v_i$-s, and should be more secure than order-preserving schemes.   \label{req:sec}
-\item {\em be injective and deterministic}: For integration purposes with NAT, we need to make sure that two different values do not get mapped to the same encryption and the same value gets mapped consistently to the same encryption. \label{req:injective}
-\item {\em be format-preserving}: This property is important for performance and ease of adoption. Ideally,  we would like to support firewall hardware {\em unchanged}. Not supporting existing hardware could be slow and requiring deployment of new hardware is challenging for adoption. To use the same hardware, the  encryption should have the same format as the unencrypted value. Namely, it should not be larger or have a different structure than the slot in the packet corresponding to the unencrypted value. 
- \end{enumerate}
+
+
+
+
+\item {\em provide strong security}: The encryption scheme should not leak $v$, $e_1$, $s_1$, $\dots$, $e_n$, $s_n$ to SP.
+Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). \label{req:sec}
+
+
+\item {\em be deterministic}: To integrate with the NAT, we need to make sure that each value gets assigned consistently  the same encryption.  \label{req:injective}
+
+\item {\em be format-preserving}: The encryption should have the same format as the data. Concretely, an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure, which would be a hurdle to adoption. 
+ \end{CompactEnumerate}
+
+
+Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both significantly less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they are \todo{XXX} times slower (as demonstrated in \S\ref{sec:eval}), making them not practical in our setting. 
+
+
+Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
+The scheme takes advantage of the network setting; it does not rely on advanced cryptography, so it can be easily understood and validated by a non-cryptography reader. 
+
+
+\subsection{Our RangeMatch scheme} 
+
+
+
+%We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
+
+To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else about the intervals.
+
+For now, consider that the gateway  maintains a mapping of each interval endpoint  to its encryption, called the {\em interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encrypted with 0.0.0.0 and 255.255.255.255. 
+
+
+When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in (we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval. Then, to encrypt $v$, it chooses a random value in this interval.
+For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. This is great for security because the encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, SP does not learn their order. Thus, this satisfies the security requirement above, and makes our scheme more secure than order-preserving encryption schemes.
+
+We need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Consider an example in which $v$ fits in no interval at all. Let $v$ be $127.0.0.0$ and the intervals be 18.0.0.0/8 and 172.16.0.0/16 with encryptions [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. The encryption of $v$ should not be chosen at random between  102.0.0.0 and 153.0.0.0 because SP learns that $v$ is between the two intervals. Recall that we want SP  to learn only whether $v$ matches an interval or not, but nothing else. Hence, $v$ should be mapped to a random value anywhere in the intervals [0, 51.0.0.0), (102.0.0.0, 153.0.0.0) and (204.0.0.0, 255.255.255.255]. 
+
+To achieve the desired security, the idea is to find the interval $I$ inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0,0,0,0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
+\begin{equation}
+ I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). \label{eq:randominterval}
+ \end{equation}
+
  
- \todo{above, the security should be more emphasized and more clear what we seek and get-- range match is what we need not more}
- 
- 
-\todo{agree on parties names in our model}
-\todo{is this format-preserving property a more global one?}
-\todo{agree if you talk about encoding or encryption scheme -- I prefer encoding and say it is not an encryption scheme}
-
-Unfortunately, there is no encryption scheme that supports all these requirements. The closest scheme to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. mOPE unfortunately requires that the gateway and the service provider interact for a number of roundtrips (e.g., xxx in our experiments) which is too slow and requires additional setup for this interaction, and violates requirement~\ref{req:sec} or~\ref{req:injective}, and BCLO has weak security (leaking always the top half bits of the values encrypted and the order of IP addresses across different packets, thus violating requirement~\ref{req:sec}), is too slow, and not format-preserving. 
-
-Instead, we designed a new encoding scheme that satisfies all requirements above called {\em range match} scheme. 
-The design of the scheme is driven by the systems setting, it is rather a systems technique than an encryption scheme because it leverages the systems setting and uses no cryptographic mathematics or advanced cryptography.  We use cryptography only in order to prove formally the security guarantees of our encoding scheme. Since it is designed for our system setting, its API does not fit into the syntax of an encryption scheme, and so we call it an encoding scheme. 
-In addition to being more secure and more fit to this setting than the order-preserving schemes above, our scheme is XXX faster.
-
-\qu{what is more in our favor - to present it as a new encryption scheme that can be understood by a systems audience, or as a new encoding scheme that is mostly a systems technique as above?}
 
 
-\subsection{Our Range Match scheme} 
+To satisfy requirement~\ref{req:injective}, we need to generate the random encryptions using a deterministic function. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the inteval $I$. 
+Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
+\[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
+  Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
+
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that  two IP addresses get assigned to the same encryption is negligibly low for IPv6 and very low for IPv4.~\todo{do we need to tell them it works for ipv6 only?} The reason is that  each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules).
 
 
-Recall that we want to design an encoding algorithm using which we can encode intervals  $[\Enc(s_1), \Enc(e_1)]$, $\dots$, $[\Enc(s_n), \Enc(e_n)]$ to be stored at the service provider and then we can encode  $\Enc(v)$, the service provider can determine in which interval $v$ lies, if it lies in any interval at all. 
 
-We explain the scheme based on encoding IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encoding other fields too, as explained in Sec.~\ref{xx}.
-
-The first idea is to encode each endpoint of an interval into a random value while preserving order. For example, we can encode the interval 127.0.0.0/8 and 172.16.0.0/16 into [32.0.0.0, 64.0.0.0] and [96.0.0.0, 128.0.0.0]. This preserves the order of the endpoints of the interval but does not leak the actual intervals. 
-The gateway communicates these encoded values to the cloud, and maintains a mapping of interval endpoint  to its encodings, called {\emph interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encoded with 0.0.0.0 and 255.255.255.255. 
-Note that the number of intervals are small, on the order of xxx, so this results in little storage at the gateway. Moreover, in our algorithm, the gateway will not maintain any state per packet transmitted.
-
-Now when the gateway receives a packet and needs to encrypt an IP address $v$, the gateway first determines what are the two endpoints $v$ falls between -- which could be  endpoints from different intervals. It uses the interval map to determine the encodings of these endpoints. Then, to encode $v$, it can choose a fixed value in this interval, say the middle of the interval. 
-For example, if $v$ is 127.0.0.1, a possible encoding is 48.0.0.0, which is the middle of the encoded interval. Given two different packets where we encrypt source IPs, $v_1$ and $v_2$, this strategy maps them to the same encoding; this is great for security because the cloud does not learn the order of $v_1$ and $v_2$ information theoretically -- in fact, the only information it learns is that they are both in the same interval (recall that the endpoints of the interval are also encoded). Thus, this satisfies the security requirement~\ref{req:sec} above, and makes our scheme more secure than order-preserving encryption schemes (which leak order across all IP addresses encoded).
-
-However, the injective requirement~\ref{req:injective} is violated: two IP addresses are assigned the same value. 
-To fix this, the idea is for the gateway to assign to $v$ a random value in the corresponding encoded interval, and the next time it encodes $v$, it should assign the same value. 
-Still, we need to fix two issues: make sure that the gateway knows to map $v$ to the same encoding the next time it encode its, and that  the probability of mapping two different values to the same encoding if negligibly low.
-One idea is to store a table at the gateway that recalls the values $v$ encoded  so far and the encodings to which were mapped, to prevent duplicates. However, this would require significant state at the gateway. Instead, the idea is to use a pseudorandom function $\prf$ seeded in $k$. This function has the property that it maps a value $v$ to a random value in a deterministic way.  Let $[\low, \high]$ be the interval of {\em encodings} that correspond to $v$. 
-Then, the encoding of $v$ is computed as:
-\[ \enc(v) = \low + \prf_k(v)\ \mod\ (\high - \low), \] 
-which is  a random value in the interval $[\low, \high]$. This function is deterministic.
-For example, 127.0.0.1 could be encoded into 62.211.52.17. 
-To have a very low chance of collisions, we ensure that each interval of encodings is as large as possible: hence, we distribute the evenly the intervals to be encoded over the whole IP space from 0.0.0.0 to 255.255.255.255 -- without a priori knowledge on what values $v$ will be encoded, the uniform distribution is the best strategy. We show in \S\ref{sec:eval} XXX that the chance of collisions becomes very small considering a generous upper bound on the number of intervals in firewall rules today.
-
-
-The last issue to address is what happens when firewall rules get updated, and say, a new interval gets inserted. 
-Since we tried to spread out the encodings of the intervals evenly in the IP space, there is no room for a new interval. We can 
-readjust all the encodings of these intervals to make space for the new interval. However, this would require the firewall hardware to reconfigure fully which is slow. Ideally, we would only reconfigure the firewall hardware incrementally, for the new interval. For this, we build on the idea from mOPE~\cite{popa:mope} and store the intervals at the gateway in a balanced scapegoat tree as in Fig.~\ref{fig:tree} -- our use of the tree is different from mOPE~\cite{popa:mope} as discussed in \S XXX. \qu{even bother to discuss differences when we have clearly better performance?} The scapegoat tree gives us the property that when a new interval is inserted, a small number of interval encodings are changed, logarithmic amortized worst case. Each node in the tree is now encoded similarly to before: the root gets the middle of the IP range,  the left node gets the middle of the IP space to the left of the middle, and so on, as in Fig.~\ref{fig:tree}.  Note that, since the tree is balanced, it maintains our desire of having intervals of encodings roughly even in size (the smallest and largest are guaranteed to be within a factor of XXX of each other).
+The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
+Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
+readjust all the encryptions of these intervals to make space for the new interval. However, this would require the firewall hardware to reconfigure fully which is slow. Ideally, we would only reconfigure the firewall hardware incrementally, for the new interval. For this, we build on the idea from mOPE~\cite{popa:mope} and store the intervals at the gateway in a balanced scapegoat tree as in Fig.~\ref{fig:tree}. This tree is a search tree that has the property that when inserting or deleting a node, the number of other nodes that change encryption is small, namely, $O(\log n)$ amortized worst case where $n$ is the number of nodes. Each node in the tree is now encrypted similarly to before: the root gets the middle of the IP range,  the left node gets the middle of the IP space to the left of the middle, and so on, as in Fig.~\ref{fig:tree}.  Note that, since the tree is balanced, it maintains our desire of having the encryptions of endpoints roughly uniformly distributed.
 
 \begin{figure}
   \includegraphics[width=3.45in]{fig/tree}
-  \caption{\label{fig:tree} Range match tree. The values of nodes in the tree are the unencrypted IP addresses, and the blue values on the horizontal axis are their encodings. }
+  \caption{\label{fig:tree} Range match tree. The values of nodes in the tree are the unencrypted IP addresses, and the blue values on the horizontal axis are their encryptions. }
 \end{figure}
 
 
 
-\qu{what happens to collisions w.r.t. port numbers?}
-\todo{need to introduce the key k somewhere}
-
 We now explain concretely the API and the implementation of the scheme. 
 
-\subsection{Gateway API}
+\subsection{Gateway API and implementation}
 
-The gateway can use the following functions. 
+\mypara{Gateway state} The gateway keeps a short amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
-EncodeRanges encodes the initial ranges. Note that some ranges could consist of
+
+The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of
 one point only, namely $s = e$. 
 
 % TO CUT TO REDUCE: put all these algorithms into one box
@@ -145,17 +138,17 @@ one point only, namely $s = e$.
 \begin{framed}
 \begin{algorithmic}[1]
 
-\Procedure{EncodeRanges}{[$s_1$, $e_1$], $\dots$, [$s_n$, $e_n$]}
+\Procedure{EncryptRanges}{[$s_1$, $e_1$], $\dots$, [$s_n$, $e_n$]}
   \State Build scapegoat tree on the values 
               $\{s_1, \dots, s_n\}$ 
               $\cup$ $\{e_1, \dots, e_n\}$ 
               $\cup$ $\{-\infty, \infty\}$.
-  \State Assign an encoding $\enc(x)$ to each node $x$ in the tree:
+  \State Assign an encryption $\enc(x)$ to each node $x$ in the tree:
   \begin{itemize}
   \item the root gets the middle of the IP range, $e$, 
-  \item the left node to the root gets the middle of the range left of $e$ ($e/2$),
+  \item the node to the left of the root gets the middle of the interval to the left of $e$: ($e/2$),
   \item the right node gets the middle of the range
-  to the right of $e$ ($3e/2$), and so on.
+  to the right of $e$: ($3e/2$), and so on.
   \end{itemize}
 
   \State \Return{[$\enc(s_1)$, $\enc(e_1)$], $\dots$, [$\enc(s_n)$, $\enc(e_n)$]}
@@ -164,72 +157,71 @@ one point only, namely $s = e$.
 \end{algorithmic}
 \end{framed}
 
-EncodeValue encodes the values to be matched against ranges.
+
+
+EncryptValue encrypts the values to be matched against ranges.
 
 \begin{framed}
 \begin{algorithmic}[1]
 
-\Procedure{EncodeValue}{$v$}
-  \State Search the tree for $v$ to identify the tightest enclosing interval [$p_1$, $p_2$]. 
-  \State Let $\low$ and $\high$ be the encodings of $p_1$ and $p_2$. 
-  \State Compute $\enc(v) = \low + \prf_k(v)\ \mod\ (\high - \low)$
-   \State \Return{$\enc(v)$}
+\Procedure{EncryptValue}{$v$}
+  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
+  \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
+  \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
+  \State \Return $(\enc(v), \aes_k(v))$. 
 \EndProcedure
 
 \end{algorithmic}
 \end{framed}
 
-Note that the search for $p_1$ and $p_2$ is fast, logarithmic time, due to the fact that the 
-scapegoat tree is a balanced search tree. 
+Here is how to compute $I$ efficiently. When searching for $v$ in the tree, the gateway
+can identify the tightest enclosing interval [$p_1$, $p_2$] in logarithmic time. 
+ If $[p_1, p_2]$ are endpoints of the
+same interval, then I = [$p_1$, $p_2$]. Otherwise, move towards the left in the tree until you identify the first endpoint
+$\ell_1$
+that belongs to an interval $[\ell_1, \ell_2]$ enclosing $v$. Then, using the tree, scan $[\ell_1, \ell_2]$ and eliminate
+any intervals not containing $v$. The gateway can precompute and store this interval for every two consecutive nodes in the tree.
 
-We now present AddRange and DeleteRange which update the state at the firewall with new rules. 
+EncryptValue returns an AES encryption of $v$ too, because $\enc(v)$ is not decryptable. 
+
+We now describe the procedure for AddRange and DeleteRange which add or delete an interval. 
+These will modify the state at the gateway. Besides the interval added or deleted, a small number
+of other intervals may be moved. For these, the algorithm returns the old and new encryption of the interval. 
+
 
 \begin{framed}
 \begin{algorithmic}[1]
 
 \Procedure{AddRange}{$[s, e]$}
-  \State Insert $s$ and $e$ in the scapegoat tree. If $s=e$, insert the value only once.
+  \State Insert $s$ and $e$ into the scapegoat tree. If $s=e$, insert the value only once.
   %	
   \State Initialize $L$ to be the empty list.
   \If{tree needs to be rebalanced}
   	\State Record which nodes change position in the tree during rebalancing, together with 
-	their old and new encodings. Namely, record	\[L = \{ \en_1 \leftarrow \en^*_1, \dots, \en_m \rightarrow \en^*_m\},\] where $m$ is the number of nodes who changed position in the tree, and $\en_i$ and $\en^*_i$ are the old and new encoding of the $i$-th node that changed position. 
+	their old and new encryptions. Namely, record	\[L = \{ \en_1 \leftarrow \en^*_1, \dots, \en_m \rightarrow \en^*_m\},\] where $m$ is the number of nodes who changed position in the tree, and $\en_i$ and $\en^*_i$ are the old and new encryption of the $i$-th node that changed position. 
   \EndIf
-  \State Compute  $\enc(s)$ and $\enc(e)$, the encodings of $s$ and $e$, as in EncodeRanges.
+  \State Compute  $\enc(s)$ and $\enc(e)$, the encryptions of $s$ and $e$, as in EncryptRanges.
    \State \Return{$[\enc(s), \enc(e)], L$}
 \EndProcedure
 
 \end{algorithmic}
 \end{framed}
 
+%  \State Determing the smallest and the largest encryption in the values $[\enc(s), \enc(e)]$ and $L$, and call this $\dirtyrange$.
 
 Since we are using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
 
-DeleteRange is similar, except that the only result is the list $L$ of changes. 
+DeleteRange is similar, except that the result contains only $L$. 
 
 \subsubsection{Cloud API}
 
-The cloud can run ``$\ge$'' and "$\le$" between any encoded value $\enc(v)$ and encoded enpoint $\enc(s)$ and $\enc(e)$, and obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$ is meaningless, and returns a random value.
+The cloud can run ``$\ge$'' and "$\le$" between any encrypted value $\enc(v)$ and an encrypted endpoint $\enc(s)$ and $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
 
 
- 
-\todo{somewhere explain its security with an example -- significantly more secure than enc schemes used in CryptDB, etc}
+\subsection{Security guarantees}
 
-
- 
-
-
-
-
-
-
-% make differences from mope more clear 
-
-\todo{must emphasize provable guarantees and point to a tech report or something with proofs}
-\todo{I think you need to express the security of the scheme again somewhere}
-
-
-\todo{consistency of encoding vs encryption}
+The scheme achieves our desired security goal: the only information leaked about a value $v$ encrypted is which ranges it matches. 
+In particular, the scheme is not order preserving because it does not leak the order of two encrypted values that match the same range. It is easy to check that the scheme is secure: since the encryption of $v$ is random in $I$ (Eq.~\ref{eq:randominterval}), the scheme only leaks the fact that $v$ is in $I$. $I$ is chosen in such a way that the only information about $v$ it encodes is which intervals $v$ matches and which it does not match.
 
 
 
