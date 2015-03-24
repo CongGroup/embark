@@ -29,7 +29,6 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
 %    
 % 
      
-     \qu{service provider or cloud? change in title, text and figures}
      
      
   
@@ -56,7 +55,7 @@ Intrusion Detect (IDS)  & range, keyword & \S\ref{sec:IDS}\\
 Data Exfiltration  & keyword & \S\ref{sec:IDS} \\
 VPN Gateway &  none & \S\ref{sec:vpn} \\ 
 \end{tabular}
-\caption{Middlebox applications supported by \sys and the type of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
+\caption{Middleboxes supported by \sys and the type of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
 \end{table}
 
 
@@ -84,23 +83,22 @@ The first challenge is that performing generic computation on encrypted data is 
 
 Fortunately, recently, a recent paper, CryptDB~\cite{popa:cryptdb}, put forth a new vision for building practical such systems, and we are inspired by this vision too. Instead of using a generic encryption scheme, the idea is to identify core operations that underlie the functionality of the system and to support each with a specialized and fast encryption scheme. Unfortunately, neither the core operations nor the encryption schemes in CryptDB fit in our network setting so we need to start from zero.
 
-We study the relevant middlebox applications, and we managed to identify two core operations that underlie all these middleboxes: {\em keyword match} and {\em range match}. Keyword match (KW match) refers to  identifying if a keyword appears in a byte stream at some offset. There are two types of keyword match: regular and cross-boundary. Since we are dealing with network packets, a keyword may appear across two different packets (e.g., ``alice'' appears at the boundary of the packets ``I see ali'' and ``ce at the zoo''.). For example, keyword match is useful for data exfiltration when a watermark is searched for in the traffic, for IDS when malicious strings are searched for in the traffic and for web proxy for matching file identifiers that could be potentially in a cache. 
-Range match enables determining if a value $x$ is in an interval ($x_1$ and $x_2$). An example middlebox that uses range match is the firewall.   For example, the firewall has to determine if a source IP address from a packet falls in a certain range of IP addresses and apply a certain action to the packet.  Note that range match supports a basic version of KW match, complete equality check, when the range consists of only one value.
+We studied the relevant middleboxes, and we managed to identify two core operations that underlie all these middleboxes: {\em keyword match} and {\em range match}. Keyword match refers to  identifying if a keyword appears in a byte stream at some offset.   For example, keyword match is useful for the http proxy \todo{http proxy or web proxy}: the service provider can identify if a filename cached at the proxy appears in a http GET request in the packet flow. % data exfiltration when a watermark is searched for in the traffic, for IDS when malicious strings are searched for in the traffic and for web proxy for matching file identifiers that could be potentially in a cache. 
+Range match enables determining if a value $x$ is in an interval [$x_1$, $x_2$]. An example middlebox that uses range match is the firewall.   For example, the firewall has to determine if a source IP address from a packet falls in a certain range of IP addresses and, if so, apply a certain action to the packet.  Note that range match supports a basic version of keyword match, namely complete equality check, when the range consists of only one value.
 %
 Table~\ref{tab:apps-ops} summarizes the middleboxes we support and the operations they rely on. 
 
-A second challenge is that, unfortunately, there is no suitable encryption scheme for these two schemes: either this primitive does not exist, or it is too slow or too insecure for our setting. Performing a regular keyword match can be implemented using searchable encryption~\cite{song, blindbox, X}, which has been studied extensively in the security literature.
-However, there is no practical encryption scheme that enables the cross-boundary match. 
-For this, we designed a new encryption scheme that is practical and provides the same security guarantee as the regular match -- as if the match is not happening across packet boundaries. 
 
-Regarding range match, the closest encryption scheme is order preserving encryption (OPE)~\cite{mope, BCLO}. However, OPE schemes are too slow for our setting and also leak the order of the values encrypted. We designed a new scheme, called {\em RangeMatch} which is fast (XXX faster than state of the art OPE schemes) and more secure because it does not reveal the order of values encrypted. Interestingly, this scheme is actually a systems technique more than an encryption scheme: it leverages no cryptography, but crucially  exploits the specific systems setup using a carefully-chosen encoding and data structure.
-
-The last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
+% TO CUT/REMOVE: just say that they are too insecure and slow and don't explain about order
+A second challenge is that there is no suitable encryption scheme for the range match scheme:
+ the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch} which is targeted at and takes advantage of the network setting. RangeMatch  is fast (\todo{XXX} faster than the OPE schemes) and more secure because it does not reveal the order of the values encrypted. 
+ 
+A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
 To address this challenge, we make the following contributions:
 \begin{itemize}
 \item we provide a  protocol for each of the applications in Table~\ref{tab:apps-ops} by employing our two match  primitives,
 \item we design each of these protocols and we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, add layers of headers to packets, and sometimes add a second network flow.
-\item  we keep {\em unchanged  the middleboxes that require specialized hardware}, such as the firewall, and enable them to run unchanged on encrypted traffic. Modifying this hardware burdens deployment and could affect performance. 
+\item  for most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} which can run identically on the encrypted traffic. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables \sys's performance on the fast path to be fast. 
 \end{itemize}
 
 
