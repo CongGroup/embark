@@ -47,8 +47,7 @@
 
 %
 The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
-
-In this section, for concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although the scheme can be used for encrypting ports too), the encryptor as the gateway, the party evaluating ``>'' the service provider (SP) because this is how \sys uses the scheme. 
+For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although the scheme can be used for encrypting ports too).
 
 \mypara{Requirements on an encryption scheme}
 %
