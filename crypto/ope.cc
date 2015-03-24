@@ -4,7 +4,7 @@
 #include <crypto/aes.hh>
 #include <crypto/sha.hh>
 #include <crypto/hmac.hh>
-#include <util/zz.hh>
+#include "util/zz.hh"
 
 using namespace std;
 using namespace NTL;

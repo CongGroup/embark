@@ -5,7 +5,7 @@
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
 
-#include <util/errstream.hh>
+#include "util/errstream.hh"
 
 class _bignum_ctx {
  public:

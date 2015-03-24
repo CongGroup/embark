@@ -17,7 +17,7 @@
 #include <openssl/rsa.h>
 #include <crypto/prng.hh>
 
-#include <util/onions.hh>
+#include "util/onions.hh"
 
 std::string getLayerKey(const AES_KEY * const mKey,
                         std::string uniqueFieldName, SECLEVEL l);

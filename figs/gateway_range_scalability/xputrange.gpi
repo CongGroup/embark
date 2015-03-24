@@ -1,7 +1,8 @@
 set terminal postscript enhanced color "Times" 20
 set output "xputrange.eps"
 set boxwidth 1.0 absolute
-set key horiz at 105000,450000
+set key right center
+#set key horiz at 105000,450000
 #set key bottom right
 set size ratio 0.4
 #set log y
@@ -18,7 +19,7 @@ set grid
 set xtics border in scale 1,0.5 nomirror rotate by -30  offset character -1,0.25,0
 #set xtics border in scale 1,0.5 nomirror  offset character 2,0,0
 
-set y2range [2.2:3]
+#set y2range [2.2:3]
 
 
 f(x) = a*x**b;
@@ -29,7 +30,8 @@ set ylabel "Throughput (pps)"
 set y2label "Processing Time (us)"
 set y2tics
 
-plot 'data.xput.plot' with linespoints lw 4 lt 1 lc rgb "red" t "Throughput", 'data.latency.plot' with points lw 4 lt 1 lc rgb "black" t "Processing Time" axes x1y2, f(x) with lines lt 1 lc rgb 'gray' lw 3 notitle axes x1y2 
+plot 'data.xput.plot' with linespoints lw 4 lt 1 lc rgb "red" t "Throughput", 'data.latency.plot' with linespoints lw 4 lt 2 lc rgb "black" t "Processing Time" axes x1y2
+#, f(x) with lines lt 1 lc rgb 'gray' lw 3 notitle axes x1y2 
 #plot 'new.tok' using ($5/1000)/1000 lt 1 lc rgb "red" t "Images/Binary", '' using ($4/1000)/1000 lt 1 lc rgb 'yellow' t 'Text/Code', '' using (( $6)/1000)/1000 lt 1 lc rgb 'navy' t 'Delimited Tokens', '' using (($4 + $5 + $6)/($4 + $5)) with linespoints lt 1 lc rgb 'forest-green' lw 4 axes x1y2 t 'Delimited Overhead'
 #, '' using ((5 * $7)/1000/1000) lt 1 lc rgb 'orange' t 'Delimited Tokens', '' using 0:(($4 + $5 *5+ $3 + $7 * 5)/1000/1000):6 with labels offset 0,0.5 center notitle
 

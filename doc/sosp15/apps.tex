@@ -72,288 +72,39 @@ piece of firewalls is packet classification, which is essentially a problem of f
 
 give example of what a rule becomes
 
-
-
-\section{Application: IDS and Exfiltration}\label{sec:IDS}
-
-\todo{tie into the story of keyword match}
-
-A lot of middleboxes run intrusion detection systems (IDS) and exfiltration services on the payload of network packets.
-For example, middleboxes run network intrusion detection or IDS (e.g., using  Snort~\cite{Snort} 
-or Bro~\cite{Bro}) to detect if packets from a compromised sender contain an attack and they 
-perform data loss/ exfiltration prevention such as searching for watermarks in 
-documents~\cite{CMU_exfiltration_report} to detect if an insider outsources confidential information.
-
-In most of these systems, the middlebox has a set of {\em rules}, which are descriptions of attacks, and which 
-the middlebox tries to match against the traffic. The rules can contain {\em rule strings} which should be matched
-exactly against the traffic, offset information describing offsets in the packet where to search the rule string, and
-sometimes even regular expressions.
-
-To protect traffic privacy from the cloud, the payload of packets in \sys must be encrypted. 
-However, how can the middlebox now perform the detection on the encrypted traffic? 
-We know that nontrivial computation on encrypted data is very slow. ~\cite{CITE}
-
-A recent system, BlindBox~\cite{blindbox},  enables detection at the middlebox on the encrypted traffic
-in a practical way. 
-Unfortunately, BlindBox was designed for a different network setting than our setting 
-and does not fit our setting  as follows.
-
-
-BlindBox was designed for the common network setting when the endpoints are users who generate
-traffic that is encrypted and then sent through a middlebox. This means that the encryption algorithm
-has access to the contiguous byte sequence of the traffic. In contrast, in \sys, the encryption 
-happens at the gateway 
-which only receives packets from the user endpoints. 
-These packets can correspond to multiple flows and can be out of order, 
-making it challenging to encrypt each packet in such a way that the middlebox can  {\em detect 
-a rule string that spans multiple packets}, that is, a rule string where a part is at the end of a packet and the other part is at the beginning of the next packet.  Reconstructing the flow by putting the packets from each flow together and in order  is a very expensive 
-operation. Performing such reconstruction at the gateway is 
-very expensive, and would obviate a big part of the benefits of the Aplomb model. 
-
-
-\sys addresses this issue through a new technique called {\em cross-packet detection}. Using this technique,
-\sys can encrypt the packets in a special way that enables the middlebox to detect a rule string that spans multiple
-packets. The gateway does not have to do flow reconstruction and can perform the encryption 
-independently on a per packet basis. Only the middlebox
-needs to perform flow reconstruction, which is the norm in IDS. 
-
-
-Another difference of BlindBox's setting is the threat model. In BlindBox, user
-endpoints perform the encryption and since a potential attacker is also a user, 
-the endpoints are not trusted. As a result, in BlindBox the middlebox cannot
-give the rules to the endpoints either because this will enable an attacker to eschew the
-rules and because these rules are proprietary. In order to enable detection of the rules
-over the encrypted data, they need to be encrypted with the same key as the 
-key of the connection between the two endpoints. This situation requires BlindBox to perform
-a sophisticated computation at the start of each connection, which makes the connection
-startup time be slow. 
-
-
-In our model, the gateway is performing the encryption, which is trusted. Even if the
-user endpoint is malicious, the middlebox can share the rules with the gateway, and the
-endpoint has no way of obtaining those rules. In \sys, we exploited this property to create a
-much faster setup phase than in BlindBox. \todo{give some comparative numbers}
-
-
-
-
-We now describe the common parts our system has to BlindBox and the new techniques we introduce. 
-
-
-
-
-
-\subsection{Basic protocol}\label{sec:BB}
-
-We now describe the part of our protocol that is common with BlindBox. 
-Since this part is from BlindBox, we present it briefly, and refer the reader for details  to BlindBox~\cite{blindbox}.
-
-The middlebox (MB) has a set of rules. The rules contain rule strings or regular expressions. 
-For example, consider the  simplified rule number 2003296 from the Snort Emerging Threats ruleset:
-%
-\begingroup     \fontsize{9pt}{10pt}\selectfont
-\begin{tabbing}
-\green{alert} tcp \$EXTERNAL\_NET \$HTTP\_PORTS  [...] ( \\ 
-%
-% \= \kill
-%\> -> \$HOME\_NET 1025:5000 ( \\
-%
-te \= content \= \kill
-\> \green{content}:\ ``Server|3a| nginx/0.'';  \\
-\> \green{content}:\ ``Content-Type|3a| text/html''; \\
-\> \green{content}:\ ``|3a|80|3b|255.255.255.255''; )
-\end{tabbing}
-\endgroup
-
-Each content must be matched exactly against the traffic. ``|'' denotes binary data. 
-
-\paragraph{Connection setup.} 
-Two endpoints setup a connection with SSL key $k$. 
-In order for MB to match a rule string (denoted content above) $r$ on the encrypted traffic, it needs to have them encrypted 
-under the same key $k$ with AES: $\aes_k(r)$. 
-As explained, in BlindBox's setup, MB cannot give $r$ to the users and the endpoints cannot give $k$ to MB 
-(or else, they don't have any privacy). As a result, BlindBox employs a sophisticated algorithm for encrypting
-these rules based on Yao garbled circuits~\cite{}, which is slow. We eliminate this slowdown in \S\ref{sec:IDS}.
-
-
-\paragraph{Encrypt traffic at endpoint.}
-The stream of data at each endpoint gets encrypted with SSL as before 
-and separately with BlindBox. 
-For the BlindBox encryption, the stream gets tokenized and then encrypted. 
-The tokenization produces a set of keywords from the traffic stream, e.g.,
-at every offset in the stream, a keyword of size $m=8$ is produced.
-For simplicity of presentation, assume that each rule string is also $m$ bytes long, although
-~\cite{blindbox} explains how to detect rules that are longer.
- Each token $t$ then gets encrypted using
-a new and strong encryption scheme $\salt, H(\salt, \aes_k(t))$, where 
-$\salt$ is a random value and $H$ is a hash. 
-
-\paragraph{Match at middlebox.} 
-Given an encrypted rule $\encr = \aes_k(r)$ and an encrypted token $t$ from the traffic
-$\salt, c = H(\salt, \aes_k(t))$, the middlebox detects a match if 
-\[H(\salt, \encr) \stackrel{?}{=} c.\] 
-BlindBox has a fast detection algorithm that employs this matching on many rules and
-packets and we use it too.
-
-
-\paragraph{Security and functionality.}
-BlindBox provides two types of security guarantees, SEC I and SEC II,  and we inherit these too. 
-SEC I is stronger than SEC II, but SEC II can support more general functionality while 
-still providing meaningful privacy guarantees.
-Table~\ref{tab:BB_sec_func} in \S\ref{sec:eval} summarizes this tradeoff. 
-
-SEC I: The first security guarantee is that the middlebox does not learn anything about the data
-content except for which offsets match a malicious string, namely, a content in a rule. 
-If a part of the packet does not match a rule, the middlebox does not learn the content 
-of that part of the packet. The middlebox also learns the number of tokens, but not what
-the tokens are. In some sense, learning that a malicious string matched the packet is 
-a minimal amount of information that MB needs to learn to take certain actions efficiently.
- For this security guarantee, BlindBox can support fully exfiltration 
-detection and about half of the rules of common IDS. 
-
-SEC II: The second security guarantee is a bit weaker, but still meaningful. This allows BlindBox
-to support regular expressions in a practical way, and thus support 100\% of IDS rules. 
-The privacy model is called prabable cause privacy which says that the middlebox
-learns an entire packet if the packet is suspicious (namely it contains a  malicious string from a rule). 
-If a packet does not contain any such suspicious string, the middlebox does not learn the content of the packet as 
-in SEC I. 
-
-
-
-\subsection{\sys's IDS}\label{sec:IDS}
-
-We now describe \sys's IDS. This consists of the protocol above together with two new techniques 
-for enabling detection of rule strings that span multiple packets and speeding up the connection
-setup time. 
-
-
-\subsubsection{Cross-packet encrypted detection}
-
-Since the gateway receives packets as opposed to byte streams as in BlindBox, the gateway
-must be able to encrypt the packets in such a way that enables detecting a rule string that
-spans multiple packets. The gateway must not reconstruct the flow by piecing together packets in order
-and only work with one packet at a time.
-
-For example, if the stream has two packets with the payload
-``this is inse'' and ``cure string''. MB might have a rule with the rule string ``insecure'': 
-``drop packet \{content: insecure\}''.  
-
-If the gateway produces tokens per packet, there will be a ``inse'' token in the first packet
-and ``cure'' token in the second packet, none of which match "insecure". 
-
- Let $m$ be the token length.
- 
- \paragraph{Strawman} The first idea is to have the gateway tokenize the end and beginning of each 
- packet in shorter tokens than $m$ for all possible ways that a string of $m$ bytes could have been split in.
- Also, MB will also have encrypted rules that correspond to all possible breakdowns
- of a rule of size $m$. 
- For example, for the packet ``this is inse'', the gateway produces additional tokens for the end of the packet
- "is inse", "s inse", $\dots$, "se", "e" and for the packet ``cure string'' the beginning tokens ``cure st", ``cure s", $\dots$,  ``cu", ``c".
- Besides having an encryption of ``insecure", MB also gets encryptions of the pairs (``i", ``nsecure"), (``in", ``secure"), 
- $\dots$ (``insecur", ``e").
- MB will detect the attack because it has the rule (``inse'', ``cure"), it reconstructs the flow, and will see that a packet contains at the end ``inse'' and the next packet
- contains ``cure" which match the rule. 
- 
- While this strawman achieves correct functionality, it has a set of serious security issues:
- \begin{enumerate}
- \item some rules are now less than $m$ bytes long (e.g., some are one letter long) and the attacker learns further information by seeing where they match. A short rule string can match a packet even if the corresponding full $m$-bytes rule string it is part of does not match in the packet. For example, if a packet ends in ``in'' and the next packet starts with ``telligent", MB will know that the first packet ended in ``in" because it has a rule string for ``in". MB should not learn this information unless the byte stream contains the string ``insecure". 
-
- \item MB can combine {\em non-consecutive} packets together and see if the form ``insecure'' on their border.
- \end{enumerate}
- 
- Ideally, we would like to preserve the security guarantee that MB only learns if an $m$-bytes rule string matches at an offset, but nothing else. To achieve this and address the challenges above, we provide a new way to encrypt the strings on borders of packets. 
- 
- The goal is for the gateway to somehow tie together the last $i$ bytes from the end of a packet to the first $m-i$ bytes from the beginning of the next packet. This is difficult because the gateway cannot order packets. We have a few insights to make this goal possible. First, recall that each packet has a serial number at a fixed offset in the packet, which is easy to read for the gateway. The second packet has the serial number of the first packet plus one. Hence, we will tie together the two packets through the serial number. Second, the encrypted rule should not contain the two parts of the rule encrypted separately (or separably) so that an attacker cannot detect each string individually. To achieve this, we encrypt the rule into $g^{\aes_k(\mathsf{left}), \aes_k(\mathsf{right})}$, for a random $g$. Finally, we use a set of other cryptographic insights which we do not explain here because the focus is on the system. A reader uninterested in the crypto can directly skip to the protocol description \S\ref{sec:cross_prot}. 
- 
- \subsection{Crypto scheme}
- 
- \todo{sequence number}
- \todo{say somewhere that we do not have full formalism, see some paper}
- All operations are in a group $\bbG$ of prime order $p$, even if we don't say so.  
- 
- The scheme is as follows:
- \begin{itemize}
- \item $\keygen$: generate a random key $k$ for AES and a random value $g$. The final key is $(k, g)$. 
- \item $\kwenc((k,g),  r_1, r_2)$: receives as input a split of a rule into a part $r_1$, at the end of a packet, and $r_2$ at the beginning of the next packet. Outputs the encryption of the rule \[ \encr = g^{\aes_k(r_1, \text{``left"}) \cdot \aes_k(r_2, \text{``right"})}.\] 
- \item $\encleft((k, g), s, \sno)$: receives as input the beginning $s$ of a packet with sequence number $\sno$. It chooses a random $\salt$ and outputs \[ \salt, \ct_L = H(\salt, g^{\aes_k(s) \cdot \aes_k(\sno)^{-1}}).\]
- \item $\encright((k, g), s, \sno):$ receives as input the end of a packet $s$ with sequence number $\sno$ and outputs $\ct_R = \aes_k(s) \cdot \aes_k(\sno+1)$. 
- \item $\match(\encr, (\salt, \ct_L), \ct_R)$: check whether \[H(\salt, \encr^{\ct_R}) \stackrel{?}{=} \ct_L.\]
- \end{itemize}
- 
- It is easy to check that if a rule consists of strings $(r_1, r_2)$ and we have $r_1$ at the end (right) of a packet and $r_2$ at the beginning (left) of the next packet, a match will be flagged. 
- The reason is that the right encryption is done with a serial number of $\sno +1$ to match the serial number of the left encryption of the subsequent packet. 
- 
-The security of the scheme relies on the standard Diffie-Hellman assumption. We prove formally that this scheme achieves the same security as the regular matching scheme (\S\ref{simple_match}) in XXX, as if the rule was not split over two packets. The scheme is implemented over elliptic curves allowing for faster exponentiation and shorter ciphertext sizes. 
-
- 
-\subsection{Protocol using the scheme} \label{sec:cross_prot}
- 
- -- in comparison to BlindBox, new encryption scheme
- 
- 
- -- call it N times
- 
- 
-\paragraph{Optimization.} The protocol above, requires $N$ exponentiations per rule per packet boundary. 
-Hence, there are $N R$ exponentiations per packet boundary which is a significant slowdown, considering that $R$ can be thousands. 
-While $N$ exponentiations are a most overhead, $N R$ is a significant overhead, where $R$ is the number of rules. To reduce 
-
-
-
- \begin{framed}
-\begin{algorithmic}[1]
-
-\Procedure{MarginEncrypt}{$p$, a packet's payload}
-	\State \Comment Encrypt the left margin: 
-	\For{i = 1, m-1}
-		\State \todo{finish}
-	\EndFor
-\EndProcedure
-\end{algorithmic}
-\end{framed}
-
- 
- The middlebox reconstructs the flow and pieces together consecutive packets. For each packet, it performs detection 
-as in the basic protocol above. Moreover, MB has to check rules across packet margins. For this, it invokes  the 
-{\em MarginMatch} procedure below for every pair of consecutive packets. 
-
-\begin{framed}
-\begin{algorithmic}[1]
-\Procedure{MarginMatch}{$p_L$ and $p_R$, the payloads of two consecutive packets}
-	\State \todo{finish}
-\EndProcedure
-\end{algorithmic}
-\end{framed}
-
-no need for salt any more, the salt is in fact hte serial no
-
- 
- 
-  to account 
- for all the possible ways that an $m$ byte word could have been split at the boundary between the two packets.
- Each of these new tokens are encrypted using our protocol so far.
- MB 
- 
- and ``cure string''.
- 
- security
-
- 
- \subsubsection{Connection setup}
- 
- It turns out that \sys's setting allows us to greatly simplify and speed up the connection setup time. In \sys, a trusted gateway performs the encryption as opposed to untrusted user machines. Since the gateway is trusted, it can see the rules $r$, unlike in BlindBox. Hence, 
-to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, which has $k$, and can compute $\aes_k(r)$. This is much faster than using Yao garbled circuits as in BlindBox, using which the gateway would have to produce a garbled circuit for AES, send it to the middlebox, MB runs a special protocol to obtain some encoding of the rules $r$, and finally MB evaluates the garbled circuit on the encoding of $r$ and obtains $\aes_k(r)$. oblivious transfer~\cite{} to obtain the rule, resulting in XXX speedup and XXX less bandwidth usage. 
-
-
-
-
-
-\section{Application: Proxy/cache}\label{sec:proxy}
-
-
-- emphasize networking aspect, more than crypto
-- delegate html pipelining to a longer discussion, and treatment of corner cases, figures
-
+\section{Application: IDS}\label{sec:ids}
+Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
+For IDSes, reconstructing the TCP bytestream allows the middlebox to detect attack strings which may span two or more packets.
+Many other `stateful DPI' devices reconstruct the TCP bytestream while allowing packets to pass through, such as application firewalls and parental filters.
+Due to this reconstruction cost, devices which perform stateful DPI typically provide much lower throughput than devices which perform
+solely on headers -- for example~\todo{cite some industrial boxes here}.
+Other devices also operate at the bytestream abstraction by terminating the TCP connection, \eg{} HTTP proxies, which must cache entire images (which would normally be divided across multiple packets). 
+
+As we have seen with the previous middleboxes (Firewalls, NAT, Load Balancers), the \sys gateway can support middleboxes which operate on a packet-by-packet basis while similarly remaining stateless and operating on a packet-by-packet basis itself.
+To support IDSes, however, we must use a modified gateway which supports bytestream-aware middleboxes by reconstructing the TCP flow at the middlebox.
+As we show in~\S\ref{sec:eval}, the stateful gateway achieves lower throughput than the stateless one.
+Fortunately, not all bytestream-aware middleboxes require a stateful, bytestream-aware gateway. 
+As we shall see, some HTTP proxies -- proxies for non-pipelined HTTP requests -- can be fully supported with a stateless \sys gateway (pipelined HTTP proxies, however, do require a stateful gateway).
+
+\sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which 
+
+\section{Application: Proxy/cache}\label{s:proxy}
+\todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
+They also {\it terminate} connections rather than allowing packets to ``pass through''.
+When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
+The proxy then opens a second connection in the background to the original web server, as if it were the client. 
+Multiple clients may attempt to access the same web page through the proxy, in which case, the proxy maintains multiple client-facing connections, but one or few persistent server-facing connections.
+When a client sends a request for new content, the proxy can either forward the request to the web server, or, the proxy may serve the content from its {\it cache} -- images and content that other clients have already requested which the proxy then stored locally. 
+Caching improves client-perceived performance because content is served from the proxy, which is closer to the client than the web server.
+
+In order to understand what content the client is requesting (index.html from google.com, photo.jpg from flickr.com, \etc{}), the proxy must parse the HTTP header, which, unlike IP/TCP/UDP headers is variable-length (\eg{}, URLs may be any number of characters long, while port numbers are always 16 bytes long) and variable-offset (\eg{}, the IP source always appears 12 bytes from the beginning of the packet, where the HTTP method may appear anywhere within an HTTP payload).
+
+\sys implements web proxying using the keyword match encryption algorithm. 
+However, rather than encrypting fixed values at fixed locations, the \sys gateway parses the HTTP header to determine what data to encrypt.
+Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
+We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
+
+First case: unpipelined. HTTP header is **always** the first few bytes in the first packet sent by the client -- so easy to know where to start parsing.
 \begin{itemize}
 \item architecture overview
 \item HTTP request -- absolute url and Host + relative url
@@ -370,13 +121,12 @@ to encrypt a rule string $r$ at the middlebox, MB can give $r$ to the gateway, w
 
 - may want to say that it has an index for seaching fast the url which it can thanks to the det scheme
 
-- also relies on the cross boundaries matching but we do not present here 
 
 we are focusing on the transparent proxy
 - discuss the kind of proxies we are focusing on
 
-proxies have two benefits: latency savings which aplomb does not give you 
-and bandwidth savings, which aplomb gives you
+proxies have two benefits: latency savings which aplomb gives you 
+and bandwidth savings, which aplomb does nogive you
  
 L7 Proxy / Cache
 
@@ -389,6 +139,7 @@ discuss both cases: cache miss and hit
 
 how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
 http and tags what is content and what is ID
+oops justine forgot to mention this above
 
 the web proxy needs to send http response 
 
@@ -399,6 +150,13 @@ and matches GET and a few others -- avoid parsing http this way
 discuss how the proxy can reconstruct the response?
 can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
 --- check the http header details
+
+With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+
+
+\section{Application: Intrusion Detection}
+Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
+IDS/IPS are canonical examples of DPI devices.
 
 
 \section{Other middleboxes}\label{sec:vpn} \label{sec:other_apps} \label{sec:not_supp}\label{sec:loadb}

@@ -44,7 +44,7 @@ Using current bandwidth pricing~\cite{comcast-costs, megapath-costs, verizon-cos
 We first evaluate Header-only \sys, with its stateless gateway. 
 Header-only \sys supports all middleboxes which operate only on IP and TCP headers (\eg{}, firewalls, NATs, and L4 Load Balancers) , as well as proxies for non-pipelined HTTP connections (as discussed in \S\ref{sec:proxy}).
 The primary cost at the gateway comes from implementing the range encryption algorithm we developed in~\ref{sec:rangematch}. 
-Unlike existing order preserving algorithms~\cite{mope,BCLO} which require on the order of milliseconds for every encryption operation, range encryption can keep up with packet processing workloads, requiring only \todo{FOO}$\mu$s per packet to encrypt.
+Unlike existing order preserving algorithms~\cite{mope,BCLO} which require on the order of milliseconds for every encryption operation, range encryption can keep up with packet processing workloads, requiring only 3$\mu$s per packet to encrypt (three orders of magnitude faster than previous approaches).
 We discuss the range match scheme and the gateway in the following subsection, after which we present the performance of individual middleboxes when modified for \sys.
 
 \subsubsection{Header-Only Gateway}
@@ -72,7 +72,7 @@ Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to 
 In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
 Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 800Kpps to 600Kpps; after this point the performance penalty of additional rules tapers off. Adding an aditional 90k rules drops throughput negligibly to 585Kpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an aditional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time from when the gateway begins encrypting the packet to when the gateway completes encrypting the packet; the processing time follows the same logarithmic trend.
 \todo{new latency numbers}
 
@@ -85,14 +85,14 @@ We compare against mOPE~\cite{mope} and BCLO~\cite{BCLO} below:
 \begin{table}[h]
 \centering
 \begin{tabular}{c|c|c|c}
-Operation&BRCO~\cite{BCLO}&mOPE~\cite{mope}&\sys\\
+Operation&BCLO~\cite{BCLO}&mOPE~\cite{mope}&\sys\\
 \hline
 \hline
-Encrypt, 10K rules&&265ms&\\
+Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1,95$\mu$s\\
 \hline
-Encrypt, 100K rules&&320ms&\\
+Encrypt, 100K rules&9333$\mu$s&8300$\mu$s&3$\mu$s\\
 \hline
-Decrypt&&&\\
+Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
 \end{tabular}
 \end{table}
