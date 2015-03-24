@@ -1,0 +1,29 @@
+set terminal postscript enhanced color "Times" 12
+set output "gateway_xput.eps"
+set boxwidth 1.0 absolute
+set key horiz at 5, -0.5
+#set nokey
+set bmargin 6
+set lmargin 7
+set tmargin 6
+set rmargin 10
+set size ratio 1
+#set log y
+set grid y
+#set key at 5,-7 Right
+#set key top outside
+#set key inside lmargin 0
+#set key width .2
+
+set style line 4 lc rgb "#003f7f" lt -1
+set style line 3 lc rgb "#005fbf" lt -1
+set style line 2 lc rgb "#56aaff" lt -1
+set style line 1 lc rgb "#aad4ff" lt -1
+set xtics border in scale 1,0.5 nomirror   offset character 0,0,0
+set ylabel "Throughput (Gbps)"
+set style data histogram
+set style histogram cluster gap 1
+set style fill solid border rgb "black"
+set auto x
+#plot 'data.plot' using ($2):xtic(1) lt 1 lc rgb "red" t "Whole Page: BB+TLS" , '' using ($4) lt 1 lc rgb 'orange' t 'Whole Page: TLS', '' using ($3) lt 1 lc rgb 'navy' t 'Text/Code: BB+TLS', '' using ($5) lt 1 lc rgb 'forest-green' t 'Text/Code: TLS'
+plot 'data.plot' using ($3):xtic(1) lt 1 lc rgb "red" t "64 byte packets", '' using ($5) lt 1 lc rgb "skyblue"  t "Mixed packet sizes",  '' using ($7)  lt 1 lc rgb "slategray" t "1500 byte packets", '' using ($9) lt 1 lc rgb "orange" t "Empirical Trace (m57)" 
