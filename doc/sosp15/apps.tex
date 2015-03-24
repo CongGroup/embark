@@ -72,13 +72,22 @@ piece of firewalls is packet classification, which is essentially a problem of f
 
 give example of what a rule becomes
 
-\section{Application: Proxy/cache}\label{sec:proxy}
-\todo{Sorry if I'm overstepping, do go ahead and rewrite as you see fit.}
-Unlike the previously presented middleboxes, devices which proxy/cache HTTP connections inspect the packet payload, not just the IP and TCP/UDP headers.
-Appliances which operate on payloads are said to perform ``deep packet inspection'' and typically provide much lower throughput than devices which perform
+\section{Application: IDS}\label{sec:ids}
+Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) inspect the packet payload, not just the IP and TCP/UDP headers.
+Appliances which operate on payloads are said to perform ``deep packet inspection'' (DPI); they perform ``stateful DPI'' reconstruct the TCP bytestream at the middlebox and operate over this bytestream, not just each packet individually.
+In the case of a proxy, reconstructing the bytestream allows the proxy to store entire images (which would normally be divided across multiple packets) and cache them to speed up client performance. 
+For IDSes, reconstructing the TCP bytestream allows the middlebox to detect attack strings which may span two or more packets.
+Due to this reconstruction cost, devices which perform stateful DPI typically provide much lower throughput than devices which perform
 solely on headers -- for example~\todo{cite some industrial boxes here}.
 
+As we have seen with the previous middleboxes (Firewalls, NAT, Load Balancers), the \sys gateway can support middleboxes which operate on a packet-by-packet basis while similarly, remaining stateless and operating on a packet-by-packet basis itself.
+To support IDSes, however, we must use a modified gateway which supports DPI middleboxes by reconstructing the TCP flow at the middlebox.
+As we show in~\S\ref{sec:eval}, the stateful gateway achieves lower throughput than the stateless one.
+Fortunately, not all stateful DPI middleboxes require a stateful gateway. 
+As we shall see, some HTTP proxies -- proxies for non-pipelined HTTP requests -- are stateful DPI devices, but can be fully supported with a stateless \sys gateway (pipelined HTTP proxies, however, do require a stateful gateway).
 
+\section{Application: Proxy/cache}\label{s:proxy}
+\todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
 They also {\it terminate} connections rather than allowing packets to ``pass through''.
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
 The proxy then opens a second connection in the background to the original web server, as if it were the client. 
@@ -93,6 +102,7 @@ However, rather than encrypting fixed values at fixed locations, the \sys gatewa
 Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
 We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
 
+First case: unpipelined. HTTP header is **always** the first few bytes in the first packet sent by the client -- so easy to know where to start parsing.
 \begin{itemize}
 \item architecture overview
 \item HTTP request -- absolute url and Host + relative url
@@ -127,6 +137,7 @@ discuss both cases: cache miss and hit
 
 how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
 http and tags what is content and what is ID
+oops justine forgot to mention this above
 
 the web proxy needs to send http response 
 
@@ -138,7 +149,13 @@ discuss how the proxy can reconstruct the response?
 can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
 --- check the http header details
 
+With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+
+
 \section{Application: Intrusion Detection}
+Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
+IDS/IPS are canonical examples of DPI devices.
+
 
 \section{Other middleboxes}\label{sec:vpn} \label{sec:other_apps} \label{sec:not_supp}\label{sec:loadb}
 \qu{should we call them applications or middleboxes in the sections above?}
