@@ -1,0 +1,190 @@
+%!TEX root = mb.tex
+
+\todo{should have all header MBs into one section to save some space?}
+\todo{would really make things better to have the borderbox send ipdates to all, you mention it here not much in overview, 
+not useful for DPI anyways}
+\todo{have a figure here}
+
+\section{Header-only middleboxes}
+
+
+\subsection{The Borderbox}
+
+\todo{not finished}
+Recall the layout from \S\ref{s:overview}. 
+The borderbox is the entry and departure point of traffic into/from service provider (SP). Besides its regular tasks in the Aplomb model~\cite{aplomb}, 
+the borderbox has two simple tasks for \sys. These tasks are meant to help with the RangeMatch protocol.
+
+\mypara{Recall AES encryptions} Whenever the gateway encrypts an IP address or a port $v$ using RangeMatch's EncryptValue in \S\ref{s:rangealg}, it 
+produces $\enc(v)$ and $\IV, \aes_k(\IV, v)$.
+ $\enc(v)$ will fit in a packet's header instead of $v$, whereas $\IV, \aes_k(\IV, v)$ will be sent along with the packet. The borderbox
+ removes $\IV, \aes_k(\IV, v)$ from the packet and maintains a mapping between $\enc(v)$  and this AES encryption. 
+When a packet comes in the reverse direction, from SP to the gateway, the borderbox reattaches the AES encryption so that the
+gateway can decrypt the IP address (recall that $\enc(v)$ is not decryptable). 
+
+ \mypara{Propagate interval changes.}
+ As we will see, some middleboxes will store encrypted ranges based on RangeMatch. From time to time, a new range gets added or delete (e.g., when adding 
+ a firewall rule). 
+ 
+ 
+ The gateway runs AddRange from \S\ref{s:rangealg}. This produces a new encrypted range [$\enc(s), \enc(e)$] 
+along with a list $L$ of other encrypted ranges that get updated. The gateway sends [$\enc(s), \enc(e)$] 
+ and the list $L$ to the borderbox which broadcasts it to all the middleboxes.
+This information is relevant to other middleboxes too: since the encryption of a value $v$ depends on the tree of ranges, an IP address $v$, which used to be encrypted into $e$ before the ranges were changed is now encrypted into $e'$; this can break logic at other middleboxes which stored $e'$. We discuss how the NAT uses this information in \S\ref{sec:nat}.
+
+Using the prefix changes, the firewall 
+ reconfigures the new set of rules. Due to the guarantees of our RangeMatch protocol, this list contains a 
+small number (logarithmic) of intervals that changed, so the overhead for the reconfiguration should be modest.
+
+
+
+\subsection{Middlebox: Firewall}\label{sec:firewall}
+
+\todo{there was some text somewhere about a tool we use to switch to ipv6}
+
+We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers. Stateless firewalls commonly examine the combination of the packet's source and destination address, its protocol, and for TCP/ UDP traffic, its source and destination port number. Stateful firewalls additionally keep track of protocol states for each flow and retain packets until they have enough information to make decision. 
+Our RangeMatch scheme supports both types of firewalls. We now explain the design of the firewall based on this scheme.
+
+\mypara{Setup} Initially, the gateway (G) encrypts the rules to be used by the firewall, by encrypting all IP addresses and ports in the rules, as follows.
+
+
+First, it prepares the IP and port intervals. Recall that RangeMatch requires the IP addresses to be IPv6 to guarantee the injectivity of encryption (see \S\ref{sec:range}); hence, we extend an IPv4 prefix  such as 157.161.48.0/24 to an IPv6 one  ::ffff:157.161.48.0/120. 
+% Now the prefix represents the range from ::ffff:157.161.48.0 to ::ffff:157.161.48.255.
+ This problem does not show up for ports because they only need to be distinct within the same IP address.
+The gateway then expands every prefix into an interval, and every exact match $x$ into [$x$, $x$]. 
+
+Next, the gateway encrypts these intervals using EncryptRanges (\S\ref{sec:range}) by running one instance of RangeMatch for IP addresses and one instance for ports.
+It then convets each encrypted IP range into a set of prefixes and duplicates the rule for each prefix in this set. 
+
+Consider an example rule from  \mf{pf}, the 
+default firewall under BSD:
+ \mf{ block out log quick on \$ext\_if from} \\ \mf{157.161.48.0/24 to any.}
+Let the encryption of 157.161.48.0/24 be the interval [80.0.0.0, 160.0.0.0] (for brevity, we use IPv4y). 
+This interval is equivalent to the prefixes: 80.0.0.0/4, 96.0.0.0/3, 144.0.0.0/4, and 160.0.0.0/32. 
+Hence, the gateway replaces the original rule with four rules, one for each encrypted prefix. 
+The worst-case number of prefixes for IPv6 is $O$($\min$($\log$ number of rules, $128$)) = $O$($\log$ number of rules), 
+which is small. 
+
+
+% Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
+% in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
+% can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
+% <action, protocol, src ip, src port, dst ip, dst port>. Without loss of generality, we take \mf{pf}, the 
+% default firewall under BSD, as an example to illustrate how \sys works with firewalls. Figure \ref{fig:fwrule1} 
+% shows an example of \mf{pf} rules. 
+
+
+
+
+
+The gateway sends the new rules to the service provider (SP) which installs them into the firewall {\em the same way it would install 
+them if they were not encrypted}. 
+
+\mypara{Processing traffic}
+When a packet arrives at the gateway, the gateway encrypts its source/destination IP addresses and ports using the EncryptValue algorithm
+and fits these into the packet header because RangeMatch is format preserving.
+For example, for an IP address $v$, EncryptValue produces $\enc(v)$ and $\IV, \aes_k(\IV, v)$.
+ $\enc(v)$ preserves the format of an IP address and hence 
+it will fit in the packet header in the place of the unencrypted IP address.
+
+
+ 
+ Regarding $\IV, \aes_k(\IV, v)$, the gateway sends it along with the packet. SP's borderbox (see \S\ref{sec:overview})
+\todo{anything missing here?}
+
+After the packet passes the borderbox, it goes to the firewall. The firewall can execute on the encrypted header {\em
+the same way as on the unencrypted header} because RangeMatch maintains the order relation between values in rules and in 
+packet headers. 
+In particular, it can use any of the existing fast matching algorithms unchanged. 
+Moreover, it can still use  any specialized hardware without changes. This property is important, since many high-speed firewalls are implemented in hardware, which is difficult and expensive to redesign.
+
+
+\mypara{Updating rules} 
+Let us discuss the case of adding a new firewall rule; deleting a rule is similar.
+The gateway runs AddRange from \S\ref{s:rangealg}. This produces a new encrypted range [$\enc(s), \enc(e)$] 
+along with a list $L$ of other encrypted ranges that get updated. The gateway sends [$\enc(s), \enc(e)$] 
+ and the list $L$ to the borderbox which broadcasts it to all the middleboxes.
+This information is relevant to other middleboxes too: since the encryption of a value $v$ depends on the tree of ranges, an IP address $v$, which used to be encrypted into $e$ before the ranges were changed is now encrypted into $e'$; this can break logic at other middleboxes which stored $e'$. We discuss how the NAT uses this information in \S\ref{sec:nat}.
+
+Using the prefix changes, the firewall 
+ reconfigures the new set of rules. Due to the guarantees of our RangeMatch protocol, this list contains a 
+small number (logarithmic) of intervals that changed, so the overhead for the reconfiguration should be modest.
+
+
+
+
+\subsection{Middlebox: NAT}\label{sec:nat}
+\todo{tie all apps in with the two basic operations}
+
+give example of what a rule becomes
+
+discuss what NAT with those changes 
+
+
+\subsection{Middlebox: Proxy/cache}\label{s:proxy}
+\todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
+They also {\it terminate} connections rather than allowing packets to ``pass through''.
+When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
+The proxy then opens a second connection in the background to the original web server, as if it were the client. :w
+
+Multiple clients may attempt to access the same web page through the proxy, in which case, the proxy maintains multiple client-facing connections, but one or few persistent server-facing connections.
+When a client sends a request for new content, the proxy can either forward the request to the web server, or, the proxy may serve the content from its {\it cache} -- images and content that other clients have already requested which the proxy then stored locally. 
+Caching improves client-perceived performance because content is served from the proxy, which is closer to the client than the web server.
+
+In order to understand what content the client is requesting (index.html from google.com, photo.jpg from flickr.com, \etc{}), the proxy must parse the HTTP header, which, unlike IP/TCP/UDP headers is variable-length (\eg{}, URLs may be any number of characters long, while port numbers are always 16 bytes long) and variable-offset (\eg{}, the IP source always appears 12 bytes from the beginning of the packet, where the HTTP method may appear anywhere within an HTTP payload).
+
+\sys implements web proxying using the keyword match encryption algorithm. 
+However, rather than encrypting fixed values at fixed locations, the \sys gateway parses the HTTP header to determine what data to encrypt.
+Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
+We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
+
+First case: unpipelined. HTTP header is **always** the first few bytes in the first packet sent by the client -- so easy to know where to start parsing.
+\begin{itemize}
+\item architecture overview
+\item HTTP request -- absolute url and Host + relative url
+\item tokenization special case \\
+    \begin{itemize}
+    \item in order to fetch the url from the header
+    \item tokenize HTTP methods: GET, POST, ...
+    \item tokenize attribute names: "Host:"
+    \item tokenize versions: "HTTP/1.1", ...
+    \end{itemize}
+\item walk through the whole process
+\item do not support pipelining yet
+\end{itemize}
+
+- may want to say that it has an index for seaching fast the url which it can thanks to the det scheme
+
+
+we are focusing on the transparent proxy
+- discuss the kind of proxies we are focusing on
+
+proxies have two benefits: latency savings which aplomb gives you 
+and bandwidth savings, which aplomb does nogive you
+ 
+L7 Proxy / Cache
+
+explain how the proxy finds if there is  a match --looks at header bytes
+extra field attached to the packet -- gateway understands http and points out file id, 
+
+discuss both cases: cache miss and hit
+
+- two indep tcp connections 
+
+how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
+http and tags what is content and what is ID
+oops justine forgot to mention this above
+
+the web proxy needs to send http response 
+
+proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
+and matches GET and a few others -- avoid parsing http this way
+
+
+discuss how the proxy can reconstruct the response?
+can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
+--- check the http header details
+
+With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+
+

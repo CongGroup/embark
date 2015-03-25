@@ -10,6 +10,8 @@
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
+\todo{in the header MB section, tell them to recall the example which provides a way to see them all together}
+\todo{need to say somewhere that we are running Ipv6 internally -- we do not need it outside right?}
 
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{Aplomb/NFV architecture}
@@ -63,8 +65,22 @@ these functions correctly and \sys preserves the functionality of these middlebo
 these threat models are irrelevant to the protocols in \sys, and we will not discuss them again. 
 
 
+\subsection{Goals at gateway}
+
+\todo{say that we accomplish them}
+\todo{use this in tex?}
+% Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
+% in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
+% can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
+% <action, protocol, src ip, src port, dst ip, dst port>. Without loss of generality, we take \texttt{pf}, the 
+% default firewall under BSD, as an example to illustrate how \sys works with firewalls. Figure \ref{fig:fwrule1} 
+% shows an example of \texttt{pf} rules. 
+
 
 \subsection{\sys overview}
+
+\todo{explain that the borderbox helps with updates in encryptions and with decryption of schemes that cannot be decyrpted}
+\todo{perhaps indicate the borderbox in the figure}
 
 
 To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 

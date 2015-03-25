@@ -132,6 +132,7 @@
 \newcommand{\low}{\mathsf{low}\xspace}
 \newcommand{\high}{\mathsf{high}\xspace}
 \newcommand{\prf}{\mathsf{prf}\xspace}
+\newcommand{\IV}{\mathsf{IV}}
 
 \newcommand{\twosnortcom}{67\%}
 \newcommand{\twosnortemerge}{42\%}
@@ -154,6 +155,8 @@
 % \end{construction}
 %}
 
+
+\newcommand{\mf}[1]{ {\fontfamily{cmtt}\selectfont#1}}
 
 
 \newcommand{\ALGORITHM}[4]{%  name, llabel, intro, \items    
@@ -361,7 +364,10 @@
 
 \input{range}
 
-\input{apps}
+\input{headerMB}
+\input{payloadMB}
+
+\input{otherapps}
 
 \input{integration}
 
