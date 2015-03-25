@@ -91,69 +91,52 @@ The NAT identifies all  encrypted IP addresses/ports  it has mapped that are aff
 Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
 
 \subsection{Middlebox: Proxy/cache}\label{s:proxy}
-\todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
-They also {\it terminate} connections rather than allowing packets to ``pass through''.
-When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
-The proxy then opens a second connection in the background to the original web server, as if it were the client. :w
 
-Multiple clients may attempt to access the same web page through the proxy, in which case, the proxy maintains multiple client-facing connections, but one or few persistent server-facing connections.
-When a client sends a request for new content, the proxy can either forward the request to the web server, or, the proxy may serve the content from its {\it cache} -- images and content that other clients have already requested which the proxy then stored locally. 
-Caching improves client-perceived performance because content is served from the proxy, which is closer to the client than the web server.
+The proxy  caches HTTP static content (e.g., images) in order to improve client-side performance. 
+When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if the proxy were the web server. The proxy then opens a second connection in the background to the original web server, as if it were the client. 
+When a client sends a request for new content, if the content is in the proxy's cache, the proxy will serve it from there. Otherwise, the proxy will forward this request to the web server and cache the new content. 
+\sys supports the proxy as follows. 
 
-In order to understand what content the client is requesting (index.html from google.com, photo.jpg from flickr.com, \etc{}), the proxy must parse the HTTP header, which, unlike IP/TCP/UDP headers is variable-length (\eg{}, URLs may be any number of characters long, while port numbers are always 16 bytes long) and variable-offset (\eg{}, the IP source always appears 12 bytes from the beginning of the packet, where the HTTP method may appear anywhere within an HTTP payload).
+\mypara{Encryption at the gateway} The gateway parses the HTTP header in a packet's payload to identify the file path $F$ in a ``GET'' request. 
+This is easy to do because the header appears at the start of the payload. For this task, the gateway does negligible work, resulting in less than 1\% throughput loss over the RangeMatch encryption. 
+Next, the gateway encrypts $F$ using the KeywordMatch scheme. In this case, it can use the deterministic version (discussed in~\S\ref{s:kwmatch}) with no reduction in security because the proxy caches a set of {\em unique} file paths. Hence, using this scheme, the gateway encrypts $F$ into $\aes_k(F)$ and places it into the extension field as in Fig.~\ref{fig:packet}. 
+Even though it examines the packet's payload, the gateway does not need per-connection state and can parse the HTTP header fast, so it still fits in the header-only middleboxes. 
 
-\sys implements web proxying using the keyword match encryption algorithm. 
-However, rather than encrypting fixed values at fixed locations, the \sys gateway parses the HTTP header to determine what data to encrypt.
-Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
-We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
+\mypara{Processing at the proxy} The proxy has a map of encrypted file path to encrypted file content. When the proxy receives a packet, the proxy extracts $\aes_k(F)$ from the extension field and looks it up in the cache {\em as if it were not encrypted}. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two cases: there is a hit or a miss. For hit, the proxy assembles a packet header for reverse traffic and attaches to it the encrypted file content from the cache. Even without being able to encrypt IP addresses or ports, the proxy can create the header by reversing the encrypted information in the original header.
+For miss, the proxy forwards the request to the web server. When receiving the response, the proxy caches it for file path $\aes_k(F)$ to serve future requests.
 
-First case: unpipelined. HTTP header is **always** the first few bytes in the first packet sent by the client -- so easy to know where to start parsing.
-\begin{itemize}
-\item architecture overview
-\item HTTP request -- absolute url and Host + relative url
-\item tokenization special case \\
-    \begin{itemize}
-    \item in order to fetch the url from the header
-    \item tokenize HTTP methods: GET, POST, ...
-    \item tokenize attribute names: "Host:"
-    \item tokenize versions: "HTTP/1.1", ...
-    \end{itemize}
-\item walk through the whole process
-\item do not support pipelining yet
-\end{itemize}
-
-- may want to say that it has an index for seaching fast the url which it can thanks to the det scheme
+We can extend our proxy support to HTTP pipelining. %some connections bundle together in the same stream a bunch of HTTP requests. 
+In this case,  an HTTP header may no longer appear at the beginning of a packet and it can appear in the middle of the packet or across packet boundaries. We do not give the details of our solution here, but at a high level, one can use the IDS approach in \S\ref{sec:ids} to enable the web proxy to search for keywords on the payload  (effectively parsing the HTTP header over encrypted data) and identify the encrypted file path. In this case though, \sys can no longer support the web proxy in the header-only mode; it becomes a bytestream-aware application. 
 
 
-we are focusing on the transparent proxy
-- discuss the kind of proxies we are focusing on
-
-proxies have two benefits: latency savings which aplomb gives you 
-and bandwidth savings, which aplomb does nogive you
- 
-L7 Proxy / Cache
-
-explain how the proxy finds if there is  a match --looks at header bytes
-extra field attached to the packet -- gateway understands http and points out file id, 
-
-discuss both cases: cache miss and hit
-
-- two indep tcp connections 
-
-how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
-http and tags what is content and what is ID
-oops justine forgot to mention this above
-
-the web proxy needs to send http response 
-
-proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
-and matches GET and a few others -- avoid parsing http this way
+%SOME POTENTIALLY USEFUL INFO
+%
+%we are focusing on the transparent proxy
+%- discuss the kind of proxies we are focusing on
+%
+%proxies have two benefits: latency savings which aplomb gives you 
+%and bandwidth savings, which aplomb does nogive you
+% 
+%L7 Proxy / Cache
+%
+%With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+%
 
 
-discuss how the proxy can reconstruct the response?
-can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
---- check the http header details
 
-With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+
+
+
+
+
+
+%When a client initiates a connection to a web server, the proxy {\it terminates} the connection instead of allowing packets to ``pass through''.
+%
+%
+%However, rather than encrypting fixed values at fixed locations, the \sys gateway parses the HTTP header to determine what data to encrypt.
+%Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
+%We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
+
+
 
 

@@ -127,6 +127,8 @@ traffic.
   Some middleboxes are `header-only' middleboxes: they operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
 Examples  include IP Firewalls and Network Address Translators (NATs).
 
+\todo{not sure it is clear that bytestream-aware are more expensive; also what is the work of the gateway for the bytestream ones?}
+
   Other middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer which with copies of each payload it has forwarded.
   It uses these payloads to to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
