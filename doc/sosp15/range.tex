@@ -65,7 +65,7 @@ hence the encryption scheme should preserve this property.
 Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). \label{req:sec}
 
 
-\item {\em be deterministic}: To integrate with the NAT, we need to make sure that each value gets assigned consistently  the same encryption.  \label{req:injective}
+\item {\em be deterministic}: To integrate with NAT and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely.  \label{req:injective}
 
 \item {\em be format-preserving}: The encryption should have the same format as the data. Concretely, an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure, which would be a hurdle to adoption. 
  \end{CompactEnumerate}
@@ -124,7 +124,7 @@ readjust all the encryptions of these intervals to make space for the new interv
 
 We now explain concretely the API and the implementation of the scheme. 
 
-\subsubsection{Gateway API and implementation}
+\subsubsection{Gateway API and implementation}\label{s:rangealg}
 
 \mypara{Gateway state} The gateway keeps a short amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
@@ -168,7 +168,7 @@ EncryptValue encrypts the values to be matched against ranges.
   \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
   \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
   \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
-  \State \Return $(\enc(v), \aes_k(v))$. 
+  \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
 \EndProcedure
 
 \end{algorithmic}
