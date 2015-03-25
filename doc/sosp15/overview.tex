@@ -14,7 +14,7 @@ In this section, we present \sys's architecture, the threat model and applicatio
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{Aplomb/NFV architecture}
 
-We recall the system setup in Aplomb and NFV setup  in Fig.~\ref{fig:sys-overview}.
+We recall the system setup in APLOMB  in Fig.~\ref{fig:sys-overview}.
 We do not delve into the details, motivation, and gains of this setup, and refer the reader to~\cite{aplomb} for details. 
 There are three parties: enterprise(s), the cloud running the middlebox, and an external site providing
 some service. 
@@ -35,7 +35,7 @@ There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup
 
 
 
-\todo{this table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
+\todo{this  HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction.table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
 on, and what it encrypts, whether H or DPI, put section near the name; also in intro make the dpi vs header distinction already} 
 
 
@@ -76,8 +76,28 @@ will produce encrypted traffic which it sends back to the gateway. The gateway d
 Throughout this process, MB handles only the encrypted traffic and never gets the decryption key. This ensures
 that an attacker that steals all data from the cloud, will only see encrypted traffic and hence protects the privacy of the 
 traffic. 
-
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
+Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
+
+\sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
+  We classify middleboxes in to two broad categories based on the type of data they access: {\em header-only} middleboxes and {\em bytestream-aware} middleboxes.
+  Some middleboxes are `header-only' middleboxes: they operate over packet headers (\eg{}, IP or TCP headers) on a packet-by-packet basis.
+Examples of header-only middleboxes include IP Firewalls and Network Address Translators (NATs).
+
+  Other middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
+  For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer which with copies of each payload it has forwarded.
+  It uses these payloads to to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
+  Web proxies are also bytestream-aware; rather than keeping a copy of packets the proxy forwards, the proxy performs {\it session termination}. 
+  When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
+  The proxy also maintains second connection in the background to the original web server, as if it were the client. 
+  Session termination allows the proxy to cache entire images (which usually span multiple packets) and respond to client requests with cached data as if it were the server.
+  In Table~\ref{tab:apps-ops}, we list each middlebox, the cryptographic tools used to encrypt it, and whether it is a bytestream-aware (BA) or header-only (HO) middlebox.
+
+  As we will see, to support header-only middleboxes, the \sys gateway can also operate in a header-only fashion, encrypting each header field (\eg{}, IP address, port number) independently.
+  However, to support bytestream-aware appliances, the \sys gateway also needs to be be bytestream aware, in order to encrypt the concatenation packet payloads.
+  The one exception to this rule -- that header-only middleboxes can be served by a header-only gateway, while bytestream-aware middleboxes require a bytestream-aware gateway -- is web proxying.
+  Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
+  As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
 
 {\bf Miscellaneous TODOs:}
