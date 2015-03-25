@@ -73,7 +73,7 @@ piece of firewalls is packet classification, which is essentially a problem of f
 give example of what a rule becomes
 
 \section{Application: IDS}\label{sec:ids}
-Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
+Unlike the previously presented middleboxes, all of which are devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
 For IDSes, reconstructing the TCP bytestream allows the middlebox to detect attack strings which may span two or more packets.
 Many other `stateful DPI' devices reconstruct the TCP bytestream while allowing packets to pass through, such as application firewalls and parental filters.
 Due to this reconstruction cost, devices which perform stateful DPI typically provide much lower throughput than devices which perform
