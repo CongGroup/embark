@@ -161,9 +161,8 @@ Table~\ref{tbl:appsxput}...\todo{FILL IN}
 
 \subsection{\sys with Bytestream Reconstruction}
 In \S\ref{sec:something}, we discussed how the \sys gateway must be stateful to support bytestream-aware applications in order to encrypt end-to-end payloads properly for intrusion detection, and in order to parse the HTTP header for proxying pipelined HTTP connections. 
-In Figure~\ref{fig:dpigateway}, we compare the stateful, bytestream-aware gateway throughput to the stateless gateway throughput. 
 The overhead introduced by the bytestream-aware gateway is twofold: (1) the cost of statefull connection-keeping, and (2) the increased encryption cost, as cryptographic operations are performed over the payload (as much as 1500 bytes) rather than the headers (<30 bytes).
-We observe that~\todo{JS.}
+We tested the stateful proxy using an empirical workload of web page requests from the Alexa~\cite{alexa} top sites; on a single core the stateful gateway could forward at most 240Mbps -- about one-sixth the throughput of the stateless gateway over an empirical trace. 
 
 We now evaluate the performance of our two bytestream-aware middleboxes: a proxy for pipelined connections, and an IDS.
 
