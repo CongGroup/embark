@@ -7,7 +7,7 @@ c :: Classifier(
 elementclass MBarkGateway {
     $rule | input 
 //    -> ProtocolTranslator46
-    -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, STATEFUL false)
+    -> MBArkFirewall(FILENAME $rule, TABLE tbl, V4 true, ENABLE false, STATEFUL false)
     -> proxy::MBArkProxy(V4 true);
     dpi::MBArkDPI;
     proxy[0] -> dpi;
@@ -36,4 +36,5 @@ gw0[1]
     -> Discard
 
 c[1]
+    -> AESForward
     -> q0

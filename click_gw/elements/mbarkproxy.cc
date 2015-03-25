@@ -163,8 +163,9 @@ MBArkProxy::push(int, Packet *p)
 
       if (parse_http_req(p_data, data_len, url)) {
         int url_len = url.length();
-        click_chatter("url: %s", url.c_str());
-        unsigned char *buffer[2048];
+        //click_chatter("url: %s", url.c_str());
+
+        unsigned char buffer[2048];
         uint32_t *cipherlen = (uint32_t *) buffer;
         uint32_t *remlen = (uint32_t *) (cipherlen + 1);
         unsigned char *cipher = (unsigned char *) (remlen + 1);
@@ -180,10 +181,11 @@ MBArkProxy::push(int, Packet *p)
         EVP_EncryptFinal(&ctx, cipher + totallen, &outlen);
         totallen += outlen;
 
+        //click_chatter("total_len: %d", totallen); 
+
         *cipherlen = totallen;
         *remlen = data_len - totallen - 8;
         assert(totallen + 8 <= data_len);
-
         memcpy(p_data, buffer, totallen + 8);
 
         tcp->th_sum = 0;
