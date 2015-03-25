@@ -6,12 +6,14 @@
 \section{Overview}\label{sec:overview}
 
 
-\todo{say that we use service provider to mean cloud or smth else}
+
+
+
+
+
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
-\todo{in the header MB section, tell them to recall the example which provides a way to see them all together}
-\todo{need to say somewhere that we are running Ipv6 internally -- we do not need it outside right?}
 
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{System architecture}
@@ -39,50 +41,52 @@ There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup
 
 
 
-\todo{this  HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction.table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
-on, and what it encrypts, whether H or DPI, put section near the name; also in intro make the dpi vs header distinction already} 
-
 
 \subsection{Threat model}
 
-The goal of \sys is to protect the privacy of the traffic against an attacker at the cloud 
+The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
 (cloud employee, or hacker gaining access to cloud machines). 
-We consider a strong cloud attacker, one that has gained access to {\em all the data on the cloud}.
-This includes any traffic and communication the cloud receives from the 
+We consider a strong  attacker, one that has gained access to {\em all the data at SP}.
+This includes any traffic and communication SP receives from the 
 gateway, any old logged information, cloud state, and so on. Nevertheless, we assume that 
-the cloud provides good service and runs middlebox functionality correctly.  We are only concerned with 
-the traffic's confidentiality.
+SP provides good service and runs middlebox functionality correctly.  We are concerned with 
+protecting  the traffic's confidentiality.
 
-We assume that the gateways are trusted. They do not leak information.
+We assume that the gateways are trusted, and that they do not leak information.
 
 
 Some middlebox functionalities (such as intrusion detection or exfiltration detection) have a threat model
 of their own regarding the client and the server. For example, intrusion detection assumes that 
-the client or the server could misbehave and try to mount an attack, but at most one of them misbehaves~\cite{Bro}  
+the client or the server could misbehave and mount an intrusion attack, but at most one of them misbehaves~\cite{Bro}  
 (indeed, if both misbehave, they can send attack traffic to each other encrypted with a shared symmetric key and fundamentally
 no one can detect such an attack).  We preserve all these threat models unchanged. These applications rely
-on the good behavior of the middlebox to detect attacks in these threat models. Since we assume the middlebox executes
-these functions correctly and \sys preserves the functionality of these middleboxes, 
+on the middlebox to detect attacks in these threat models. Since we assume the middlebox executes
+its functions correctly and \sys preserves the functionality of these middleboxes, 
 these threat models are irrelevant to the protocols in \sys, and we will not discuss them again. 
 
 
 \subsection{Goals at gateway}
 
-\todo{don't change on upgrades of software}
-\todo{say that we accomplish them}
-\todo{no state per connection}
-\todo{not much work, although much is config and version maintenance }
-\todo{use this in tex?}
-\todo{could have ssl encryption too}
-\todo{gateway does encryption and ipv6 -- }
-\todo{why ipv6 because it is needed}
+The goals of NFV and Aplomb are to delegate the burden of managing and configuring
+middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware. 
+and provide elasticity and fault tolerance; hence \sys should maintain these goals.
+%
+These translate into a set of requirements for the gateway:
+\begin{CompactItemize}
+\item Generic functionality: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
+\item Should perform lightweight operations.
+\item Should not maintain per connection state. The gateway can maintain a small amount of global state, as long as the state does not depend on each connection and does not grow with the packets sent.  \todo{is this contradicted by IDS state at gateway?}
+\end{CompactItemize}
+
+
+\sys achieves these goals, as follows. 
+
 % Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
 % in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
 % can be associated with an access control list (ACL). Each ACL has a number of rules, possibly in the form 
 % <action, protocol, src ip, src port, dst ip, dst port>. Without loss of generality, we take \texttt{pf}, the 
 % default firewall under BSD, as an example to illustrate how \sys works with firewalls. Figure \ref{fig:fwrule1} 
 % shows an example of \texttt{pf} rules. 
-\todo{gateway has no work on the fast path, just maintenance}
 
 \subsection{\sys overview}
 
@@ -112,16 +116,16 @@ The middlebox in the cloud processes {\em encrypted traffic} using \sys's protoc
 After the processing, the middlebox
 will produce encrypted traffic which it sends back to the gateway. The gateway decrypts the traffic using the key $k$.
 
-Throughout this process, MB handles only the encrypted traffic and never gets the decryption key. This ensures
-that an attacker that steals all data from the cloud, will only see encrypted traffic and hence protects the privacy of the 
+Throughout this process, middleboxes at SP handle only encrypted traffic and never get the decryption key. This ensures
+that an attacker that steals all data from SP, will only see encrypted traffic and hence protects the privacy of the 
 traffic. 
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
-Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
+%Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
 
 \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
-  We classify middleboxes in to two broad categories based on the type of data they access: {\em header-only} middleboxes and {\em bytestream-aware} middleboxes.
-  Some middleboxes are `header-only' middleboxes: they operate over packet headers (\eg{}, IP or TCP headers) on a packet-by-packet basis.
-Examples of header-only middleboxes include IP Firewalls and Network Address Translators (NATs).
+  We classify middleboxes in  two broad categories based on the type of data they access: {\em header-only} middleboxes and {\em bytestream-aware} middleboxes.
+  Some middleboxes are `header-only' middleboxes: they operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
+Examples  include IP Firewalls and Network Address Translators (NATs).
 
   Other middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer which with copies of each payload it has forwarded.
@@ -138,41 +142,12 @@ Examples of header-only middleboxes include IP Firewalls and Network Address Tra
   Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
   As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
-\todo{make clear not outsourcing because of performance}
 
-{\bf Miscellaneous TODOs:}
+To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three middleboxes in the cloud. The traffic on the path gateway-SP-gateway is IPv6, a requirement of our RangeMatch scheme. If the traffic into the gateway is IPv4, the gateway converts it to IPv6, using \todo{Example}. The first step in Fig.~\ref{fig:packetflow} is that the gateway encrypts the packet. As shown in Fig.~\ref{fig:packet}, the header information such as IP addresses and ports gets encrypted with RangeMatch and placed into the header and the extension field of the encrypted packet. The payload gets encrypted using the KeywordMatch scheme, and some auxiliary encrypted information is also placed in the extension field. Back to Fig.~\ref{fig:packetflow}, the packet passes through the firewall which tries to match the encrypted information from the header against  encrypted rules, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the packet payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to an external IP address. Back at the gateway, the gateway decrypts the packet. 
 
-- the key is called k
-
-- some of the paragraphs above are redundant with intro perhaps
-
--maybe the overall packet structure here or should this bein systems implementation? 
-
-- need to discuss what happens to SSL connections here; what if the client initiates one? the gateway can no longer
-encrypt things
-
--- handling two gateways with non-determinism
-
--- goals on the gateway, gateway only needs to know which apps are running, note that in our design
-it does not depend on the version, etc. 
-
--- have a way to show that what the gateway does is generic 
-   
--- somewhere we need to discuss goals regarding the gateway
-
--- why we choose certain operations
-
-which app for which operation
+Independent of \sys, the gateway (G) can use SSL on the links client-G,  G-server, G-SP and SP-G. 
 
 
-- need to discuss somewhere the above goals from the gateway
-%A LOT OF SYSTEMS BUILDING
 
-- security guarantees:
 
-- why we choose certain operations
-
-- Need to summarize somewhere "overall" security
-
-- Somewhere we need to say that range match info leaks for header and keyword match for content. In some sense, these are minimal. 
 

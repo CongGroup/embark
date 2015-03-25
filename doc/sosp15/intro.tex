@@ -57,6 +57,9 @@ VPN Gateway &  none & \S\ref{sec:vpn} \\
 \end{tabular}
 \caption{Middleboxes supported by \sys and the type of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
 \todo{why have two load balancers?}
+\todo{table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
+on, and what it encrypts,  put section near the name} 
+
 \end{table}
 
 % 2nd fig/1st fig = 1.12 ratio
@@ -75,7 +78,6 @@ VPN Gateway &  none & \S\ref{sec:vpn} \\
 \caption{System architecture. Aplomb and NFV system setup with \sys encryption  at the gateway. The arrows indicate traffic from the client to the server; the response traffic follows the reverse direction. \label{fig:sys-overview}}
 \end{figure*}
 
-\todo{maybe figure should show more than one middlebox?}
 
     \subsection{Challenges, techniques, and contributions}
     
@@ -97,8 +99,8 @@ A second challenge is that there is no suitable encryption scheme for the range 
 A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
 To address this challenge, we make the following contributions:
 \begin{itemize}
-\item we provide a  protocol for each of the applications in Table~\ref{tab:apps-ops} by employing our two match  primitives,
-\item we design each of these protocols and we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, add layers of headers to packets, and sometimes add a second network flow.
+\item we design a  protocol for each type of middlebox in Table~\ref{tab:apps-ops} by employing our two match  primitives,
+\item  we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, use packet extension field, and sometimes add a second network flow.
 \item  for most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} which can run identically on the encrypted traffic. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables \sys's performance on the fast path to be fast. 
 \end{itemize}
 
