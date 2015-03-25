@@ -1,14 +1,14 @@
 %!TEX root = mb.tex
-\section{Applications}
+
+
+
+\section{Middlebox: Firewall}\label{sec:firewall}
 
 \todo{tie all apps in with the two basic operations}
 
-In this section we present how to apply the building blocks to real-world applications.
+We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers. Stateless firewalls commonly examine the combination of the packet's source and destination address, its protocol, and for TCP/UDP traffic, its source and destination port number. Stateful firewalls additionally keep track of protocol states for each flow and retain packets until they have enough information to make decision. 
 
-\section{Application: Firewall}\label{sec:firewall}
-We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers. Stateless firewalls commonly examine the combination of the packet's source and destination address, its protocol, and for TCP/UDP traffic, its source and destination port number. Stateful firewalls additionally keep track of protocol states for each flow and retain packets until they has enough information to make decision. 
-
-In sum, the \RM scheme supports both types of firewalls. The gateway encrypts the rules from the cloud beforehand, and send them back to the cloud. The cloud installs those rules to the firewall. After the initialization is finished, the gateway can encrypt the traffic and forward to the cloud, and the firewall in the cloud can process the traffic normally without modification. When the traffic gets back to the gateway, it gets decrypted.
+In sum, our RangeMatch scheme supports both types of firewalls. The gateway encrypts the rules from the cloud beforehand, and sends them back to the cloud. The cloud installs those rules to the firewall. After the initialization is finished, the gateway can encrypt the traffic and forward to the cloud, and the firewall in the cloud can process the traffic normally without modification. When the traffic gets back to the gateway, it gets decrypted.
 
 \subsection{Firewall rules}
 Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
@@ -68,12 +68,12 @@ destination IP, destination port fields using the Range Match scheme in Section 
 A key feature of our scheme is that we don't require to change the firewall implementations. As we discussed in Section \ref{sec:range}, the central 
 piece of firewalls is packet classification, which is essentially a problem of finding a hyper-rectangle that contains a point from a given set of hyper-rectangles. Our \RM scheme keeps the order among the coordinates of hyper-rectangles, and the order between the coordinates of hyper-rectangles and points. In other words, their topological relations are preserved. Therefore existing firewalls can still work with \sys without modification. This property is important, since many high-speed firewalls are implemented in hardware, which is difficult and expensive to redesign.
 
-\section{Application: NAT}\label{sec:nat}
+\section{Middlebox: NAT}\label{sec:nat}
 
 give example of what a rule becomes
 
-\section{Application: IDS}\label{sec:ids}
-Unlike the previously presented middleboxes, all of which are devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
+\section{Middlebox: IDS}\label{sec:ids}
+Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
 For IDSes, reconstructing the TCP bytestream allows the middlebox to detect attack strings which may span two or more packets.
 Many other `stateful DPI' devices reconstruct the TCP bytestream while allowing packets to pass through, such as application firewalls and parental filters.
 Due to this reconstruction cost, devices which perform stateful DPI typically provide much lower throughput than devices which perform
@@ -88,7 +88,7 @@ As we shall see, some HTTP proxies -- proxies for non-pipelined HTTP requests --
 
 \sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which 
 
-\section{Application: Proxy/cache}\label{s:proxy}
+\section{Middlebox: Proxy/cache}\label{s:proxy}
 \todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
 They also {\it terminate} connections rather than allowing packets to ``pass through''.
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
@@ -154,7 +154,7 @@ can proxy reconstruct the ip header and the http header  and the tcp header with
 With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
 
 
-\section{Application: Intrusion Detection}
+\section{Middlebox: Intrusion Detection}
 Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
 IDS/IPS are canonical examples of DPI devices.
 

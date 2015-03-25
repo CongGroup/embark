@@ -16,14 +16,15 @@ In this section, we present \sys's architecture, the threat model and applicatio
 
 We recall the system setup in APLOMB  in Fig.~\ref{fig:sys-overview}.
 We do not delve into the details, motivation, and gains of this setup, and refer the reader to~\cite{aplomb} for details. 
-There are three parties: enterprise(s), the cloud running the middlebox, and an external site providing
-some service. 
-The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
+There are three parties: enterprise(s), the service provider (SP), and an external site providing
+some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
+The service provider has a borderbox (we use this term instead of gateway to avoid
+confusion) and a set of middleboxes. Traffic arriving at SP first reaches the borderbox and traffic leaving SP, leaves through the borderbox.  
 
 There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enteprise communicates with an external site. The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout~\cite{aplomb} because  each enterprise has its own gateway.
 
 
-\todo{say that service provider consists of frontend and a set of middleboxes }
+\todo{we require a modification in this case, has to go back to gateway}
 
 %The traffic from a client inside the enteprise passes through the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
 %After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
@@ -99,6 +100,7 @@ Examples of header-only middleboxes include IP Firewalls and Network Address Tra
   Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
   As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
+\todo{make clear not outsourcing because of performance}
 
 {\bf Miscellaneous TODOs:}
 
