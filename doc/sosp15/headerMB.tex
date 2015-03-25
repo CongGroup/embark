@@ -8,7 +8,7 @@ not useful for DPI anyways}
 \section{Header-only middleboxes}
 
 
-\subsection{The Borderbox}
+\subsection{Header encryption}
 
 \todo{not finished}
 Recall the layout from \S\ref{s:overview}. 
@@ -22,7 +22,7 @@ produces $\enc(v)$ and $\IV, \aes_k(\IV, v)$.
 When a packet comes in the reverse direction, from SP to the gateway, the borderbox reattaches the AES encryption so that the
 gateway can decrypt the IP address (recall that $\enc(v)$ is not decryptable). 
 
- \mypara{Propagate interval changes.}
+ \mypara{Propagate interval changes}
  As we will see, some middleboxes will store encrypted ranges based on RangeMatch. From time to time, a new range gets added or delete (e.g., when adding 
  a firewall rule). 
  
