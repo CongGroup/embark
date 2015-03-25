@@ -1,20 +1,20 @@
 %!TEX root = mb.tex
 
-\section{Other middleboxes}\label{sec:vpn} \label{sec:other_apps} \label{sec:not_supp}\label{sec:loadb}
-\qu{should we call them applications or middleboxes in the sections above?}
+\section{Other middleboxes and limitations}\label{sec:vpn} \label{sec:other_apps} \label{sec:not_supp}\label{sec:loadb}
+
+In this section, we discuss other middleboxes we support, which are straightforward extensions of the ones presented so far. 
+
+\bpara{Load balancer} \todo{write me, anything about L4 and L7?}
+
+\bpara{VPN} The VPN remains the same. It does not perform any computation on encrypted traffic. 
+
+\bpara{IP forwarding} This middlebox is implemented similarly to a NAT and firewall. 
+
+\bpara{Application firewall} This middlebox is a simple version of an IDS combined with a firewall. 
 
 
-L4 load balancer
-L7 load balancer
+\todo{-- make the tables of applications consistent with each other and make sure we support all }
 
--- VPN naturally remains the same. 
-
--- make the tables of applications consistent with each other and make sure we support all 
-
--- what is difference between L4 and L7 load balancer -- do we need both?
-
--- IP forwarding app, what is that?
-
--- how about the application firewall?
-
+\bpara{WAN optimizers} A lot of WAN optimizers do compression. \todo{how does this fit into aplomb?}
 -- discuss wan optimizers and compression, that aplomb does not really support them in the basic model (requiring this special model that is not quite aplomb) -- also the conflicts it would show up for us
+This middlebox is at odds with the IDS because if the data gets compressed, the IDS detection does not work any more; if the data gets encrypted for the IDS, compression is not longer possible. 
