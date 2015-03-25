@@ -96,12 +96,12 @@ On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount 
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
 Existing order-preserving approaches require multiple round trip times -- and hence many milliseconds -- for each encryption operation.
 Our range encoding approach encrypts each value in microseconds.
-We compare against mOPE~\cite{mope} and BCLO~\cite{BCLO} below:
+We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
 \begin{table}[h]
 \centering
 \begin{tabular}{c|c|c|c}
-Operation&BCLO~\cite{BCLO}&mOPE~\cite{mope}&\sys\\
+Operation&BCLO~\cite{boldyreva:ope}&mOPE~\cite{popa:mope}&\sys\\
 \hline
 \hline
 Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1,95$\mu$s\\
