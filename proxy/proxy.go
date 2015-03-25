@@ -5,35 +5,40 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"os"
+	"os/signal"
+	"runtime"
+	"runtime/pprof"
+	"sync"
 )
 
-type callbackChannel struct {
-	insert   bool
-	url      string
-	data     []byte
-	callback chan []byte
+type Cache struct {
+	lock sync.RWMutex
+	data map[string][]byte
 }
 
-func cacheManager(msg chan callbackChannel) {
-	cache := make(map[string][]byte)
-	for {
-		m := <-msg
-		if m.insert == true {
-			cache[m.url] = m.data
-		} else {
-			m.callback <- cache[m.url]
-		}
-	}
+func (c *Cache) Get(key string) ([]byte, bool) {
+	//	c.lock.RLock()
+	//	defer c.lock.RUnlock()
+	d, ok := c.data[key]
+	return d, ok
+}
+
+func (c *Cache) Put(key string, d []byte) {
+	//	c.lock.Lock()
+	//	defer c.lock.Unlock()
+	c.data[key] = d
 }
 
 func startProxy() {
-	msg_chan := make(chan callbackChannel)
-	go cacheManager(msg_chan)
+	cache := new(Cache)
+	cache.data = make(map[string][]byte)
 
 	addr, err := net.ResolveTCPAddr("tcp", ":3128")
 	checkError(err)
@@ -48,33 +53,34 @@ func startProxy() {
 	// fmt.Println("Listening to [udp] :3128!")
 
 	for {
-		conn, err := listener.Accept()
+		conn, err := listener.AcceptTCP()
 		checkError(err)
-		go handleClient(conn, msg_chan)
+		go handleClient(conn, cache)
 	}
 }
 
-func handleClient(conn net.Conn, msg_chan chan callbackChannel) {
-	fmt.Println("incoming tcp connection")
+func handleClient(conn *net.TCPConn, cache *Cache) {
+	// fmt.Println("incoming tcp connection")
+	err := conn.SetNoDelay(false)
+	checkError(err)
 	defer conn.Close()
-	// closed := make(chan bool)
-	// go detectClosed(conn, closed)
 	for {
-		fmt.Println("handleClient to Read.")
+		//fmt.Println("handleClient to Read.")
 		buf := make([]byte, 8)
 		_, err := conn.Read(buf)
 		if err != nil {
 			fmt.Println("handleClient connection closed.")
 			return
 		}
-		fmt.Println("handleClient Read.")
+		//fmt.Println("handleClient Read.")
 
 		var length, total_len int32
 		length_buf := buf[:4]
 		total_len_buf := buf[4:]
 		binary.Read(bytes.NewBuffer(length_buf), binary.LittleEndian, &length)
 		binary.Read(bytes.NewBuffer(total_len_buf), binary.LittleEndian, &total_len)
-		fmt.Println(length)
+		//fmt.Println(length)
+		//fmt.Println(total_len)
 
 		crypt_buf := make([]byte, length)
 		_, err = conn.Read(crypt_buf)
@@ -87,8 +93,8 @@ func handleClient(conn net.Conn, msg_chan chan callbackChannel) {
 		decrypter.XORKeyStream(decrypted, crypt_buf)
 		url := string(decrypted)
 
-		fmt.Println("handleClient cipher Read.")
-		fmt.Println(url)
+		//fmt.Println("handleClient cipher Read.")
+		// fmt.Println(url)
 
 		buf = make([]byte, total_len)
 		_, err = conn.Read(buf)
@@ -96,26 +102,33 @@ func handleClient(conn net.Conn, msg_chan chan callbackChannel) {
 			conn.Close()
 			return
 		}
-		fmt.Println("handleClient garbage Read.")
+		//fmt.Println("handleClient garbage Read.")
 
-		callback_chan := make(chan []byte)
-		m := callbackChannel{insert: false, url: url, data: nil, callback: callback_chan}
-		msg_chan <- m
-		data := <-callback_chan
-
-		if data == nil {
-			fmt.Println("handleClient cache miss")
-			resp, err := http.Get("http://" + string(decrypted))
+		data, found := cache.Get(url)
+		if !found {
+			// fmt.Println("handleClient cache miss")
+			tr := &http.Transport{
+				DisableCompression: true,
+			}
+			client := &http.Client{Transport: tr}
+			request, err := http.NewRequest("GET", "http://"+url, nil)
 			checkError(err)
-			dump, err := httputil.DumpResponse(resp, true)
+			request.Header.Add("Accept-Encoding", "gzip")
+			response, err := client.Do(request)
 			checkError(err)
-			m = callbackChannel{insert: true, url: url, data: dump, callback: nil}
-			msg_chan <- m
+			dump, err := httputil.DumpResponse(response, true)
+			checkError(err)
+			//fmt.Println(string(dump))
 			data = dump
+			cache.Put(url, data)
+		} else {
+			// fmt.Println("handleClient cache hit")
 		}
 
 		conn.Write(data)
-		fmt.Println("handleClient HTTP resp Write.")
+		// fmt.Println("handleClient HTTP resp Write.")
+
+		break
 	}
 }
 
@@ -131,6 +144,30 @@ func checkError(err error) int {
 	return 1
 }
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 func main() {
+	runtime.GOMAXPROCS(128)
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+
+		// Catch CTRL+C and stop the profiling
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		go func() {
+			for sig := range c {
+				log.Printf("captured %v, stopping profiler and exiting..", sig)
+				pprof.StopCPUProfile()
+				os.Exit(1)
+			}
+		}()
+	}
+	//runtime.GOMAXPROCS(16)
 	startProxy()
 }
