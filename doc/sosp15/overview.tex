@@ -82,6 +82,7 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 % default firewall under BSD, as an example to illustrate how \sys works with firewalls. Figure \ref{fig:fwrule1} 
 % shows an example of \texttt{pf} rules. 
 \todo{no more need for the borderbox}
+\todo{gateway has no work on the fast path, just maintenance}
 
 \subsection{\sys overview}
 
@@ -89,7 +90,7 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 \begin{figure}[t!]
 \centering
   \includegraphics[width=2.0in]{fig/packet.pdf}
-\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. \label{fig:sys-overview}}
+\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. \label{fig:packet}}
 \end{figure}
 
 
@@ -101,7 +102,7 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 \begin{figure*}[t!]
 \centering
   \includegraphics[width=6.7in]{fig/packetpath.pdf}
-\caption{Example of packet flow through a few middleboxes. Red indicates encrypted data. \label{fig:sys-overview}}
+\caption{Example of packet flow through a few middleboxes. Red indicates encrypted data. \label{fig:packetflow}}
 \end{figure*}
 
 

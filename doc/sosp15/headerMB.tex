@@ -81,14 +81,14 @@ The list of range changes $L$ and  [$\enc(s), \enc(e)$]
 
 
 \subsection{Middlebox: NAT}\label{sec:nat}
-\todo{tie all apps in with the two basic operations}
 
+The fast path of the NAT in \sys{} is unchanged from the regular NAT. The NAT maps IP addresses/ports that are encrypted to external IP addresses/ports 
+as if they were not encrypted, as in Fig.~\ref{fig:packetflow}. 
 
-the operation is rare and onyl a few ranges affected 
-give example of what a rule becomes
+The difference is  when the firewall sends a list of range changes $L$ and maybe a new interval  [$\enc(s), \enc(e)$] .
+The NAT identifies all  encrypted IP addresses/ports  it has mapped that are affected: it computes an interval that covers all intervals in $L$ and $\enc(s), \enc(e)$ and checks which values fit in it. It then sends these values to the gateway, who reencrypts them using EncryptValue (\S\ref{s:rangealg}) so the NAT updates them. 
 
-discuss what NAT with those changes 
-
+Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
 
 \subsection{Middlebox: Proxy/cache}\label{s:proxy}
 \todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
