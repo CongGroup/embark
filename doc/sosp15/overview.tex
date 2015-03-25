@@ -89,12 +89,21 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 \begin{figure}[t!]
 \centering
   \includegraphics[width=2.0in]{fig/packet.pdf}
-\caption{Packet encryption at the gateway \label{fig:sys-overview}}
+\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. \label{fig:sys-overview}}
 \end{figure}
 
 
 \todo{explain that the borderbox helps with updates in encryptions and with decryption of schemes that cannot be decyrpted}
 \todo{perhaps indicate the borderbox in the figure}
+
+
+
+\begin{figure*}[t!]
+\centering
+  \includegraphics[width=6.7in]{fig/packetpath.pdf}
+\caption{Example of packet flow through a few middleboxes. Red indicates encrypted data. \label{fig:sys-overview}}
+\end{figure*}
+
 
 
 To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
