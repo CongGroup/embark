@@ -5,7 +5,10 @@
 not useful for DPI anyways}
 \todo{have a figure here}
 
-\section{Middlebox: Firewall}\label{sec:firewall}
+\section{Header-only middleboxes}
+
+
+\subsection{Middlebox: Firewall}\label{sec:firewall}
 
 \todo{there was some text somewhere about a tool we use to switch to ipv6}
 
@@ -80,9 +83,78 @@ small number (logarithmic) of intervals that changed, so the overhead for the re
 
 
 
-\section{Middlebox: NAT}\label{sec:nat}
+\subsection{Middlebox: NAT}\label{sec:nat}
 \todo{tie all apps in with the two basic operations}
 
 give example of what a rule becomes
 
 discuss what NAT with those changes 
+
+
+\section{Middlebox: Proxy/cache}\label{s:proxy}
+\todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
+They also {\it terminate} connections rather than allowing packets to ``pass through''.
+When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
+The proxy then opens a second connection in the background to the original web server, as if it were the client. :w
+
+Multiple clients may attempt to access the same web page through the proxy, in which case, the proxy maintains multiple client-facing connections, but one or few persistent server-facing connections.
+When a client sends a request for new content, the proxy can either forward the request to the web server, or, the proxy may serve the content from its {\it cache} -- images and content that other clients have already requested which the proxy then stored locally. 
+Caching improves client-perceived performance because content is served from the proxy, which is closer to the client than the web server.
+
+In order to understand what content the client is requesting (index.html from google.com, photo.jpg from flickr.com, \etc{}), the proxy must parse the HTTP header, which, unlike IP/TCP/UDP headers is variable-length (\eg{}, URLs may be any number of characters long, while port numbers are always 16 bytes long) and variable-offset (\eg{}, the IP source always appears 12 bytes from the beginning of the packet, where the HTTP method may appear anywhere within an HTTP payload).
+
+\sys implements web proxying using the keyword match encryption algorithm. 
+However, rather than encrypting fixed values at fixed locations, the \sys gateway parses the HTTP header to determine what data to encrypt.
+Nevertheless, as we show in \S\ref{sec:eval}, this parsing has a negligible overhead on gateway throughput -- less than 1\% when added in addition to the existing encryption required for Firewalling and NAT.
+We implement two versions of gateway encryption: one which uses the stateless gateway and can encode HTTP requests which are not pipelined, and one which uses the stateful gateway, which supports pipelined HTTP requests as well (we discuss the difference as follows).
+
+First case: unpipelined. HTTP header is **always** the first few bytes in the first packet sent by the client -- so easy to know where to start parsing.
+\begin{itemize}
+\item architecture overview
+\item HTTP request -- absolute url and Host + relative url
+\item tokenization special case \\
+    \begin{itemize}
+    \item in order to fetch the url from the header
+    \item tokenize HTTP methods: GET, POST, ...
+    \item tokenize attribute names: "Host:"
+    \item tokenize versions: "HTTP/1.1", ...
+    \end{itemize}
+\item walk through the whole process
+\item do not support pipelining yet
+\end{itemize}
+
+- may want to say that it has an index for seaching fast the url which it can thanks to the det scheme
+
+
+we are focusing on the transparent proxy
+- discuss the kind of proxies we are focusing on
+
+proxies have two benefits: latency savings which aplomb gives you 
+and bandwidth savings, which aplomb does nogive you
+ 
+L7 Proxy / Cache
+
+explain how the proxy finds if there is  a match --looks at header bytes
+extra field attached to the packet -- gateway understands http and points out file id, 
+
+discuss both cases: cache miss and hit
+
+- two indep tcp connections 
+
+how to populate the cache: content providers pushing the content to CDNs, or the gateway understands
+http and tags what is content and what is ID
+oops justine forgot to mention this above
+
+the web proxy needs to send http response 
+
+proxy only looks at the top N bits corresponding to a large header and matches the file id with the entire path
+and matches GET and a few others -- avoid parsing http this way
+
+
+discuss how the proxy can reconstruct the response?
+can proxy reconstruct the ip header and the http header  and the tcp header without being able to encrypt
+--- check the http header details
+
+With pipelined requests, we don't have the header is always the first part of the packet. Instead, we need to {\it reconstruct the payload} to tell where to parse. This is where we need to use the other gatway. Otherwise, the functionality is exactly the same above -- only now we operate on the reconstructed payload rather than the first few bytes of the first packet.
+
+
