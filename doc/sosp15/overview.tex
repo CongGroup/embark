@@ -14,18 +14,20 @@ In this section, we present \sys's architecture, the threat model and applicatio
 \todo{need to say somewhere that we are running Ipv6 internally -- we do not need it outside right?}
 
 % TO CUT REMOVE: just mentino the figures and no need to explain 
-\subsection{Aplomb/NFV architecture}
+\subsection{System architecture}
 
-We recall the system setup in APLOMB  in Fig.~\ref{fig:sys-overview}.
-We do not delve into the details, motivation, and gains of this setup, and refer the reader to~\cite{aplomb} for details. 
-There are three parties: enterprise(s), the service provider (SP), and an external site providing
+\sys's system setup is in Fig.~\ref{fig:sys-overview}. This is the same setup as in Aplomb~\cite{aplomb}, 
+except for a small difference which we will describe. 
+We do not delve into the details, motivation, and gains of Aplomb's setup, and refer the reader to~\cite{aplomb} for details. 
+In this setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
 The service provider runs a set of middleboxes. 
 
 There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enteprise communicates with an external site. The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout~\cite{aplomb} because  each enterprise has its own gateway.
 
+\sys uses the same setup as Aplomb, except for one modification in the first setup (Fig.~\ref{fig:model1}): in Aplomb, the traffic from SP can go directly to the external site and does not have to go back through the gateway. In \sys, this is unavoidable because the traffic from SP is encrypted and cannot be understood by an external site, unless they have a gateway as in the second setup. However, the setup which is most bandwidth heavy is the second setup, enterprise to enterprise communication where \sys does not change Aplomb's setup.
 
-\todo{we require a modification in this case, has to go back to gateway}
+
 
 %The traffic from a client inside the enteprise passes through the gateway on the way out of the enterprise. The gateway redirects this traffic to the middlebox in the cloud.
 %After performing various middlebox processing, MB returns the traffic to the gateway. The gateway finally sends the traffic to the external site. 
