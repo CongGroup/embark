@@ -8,6 +8,36 @@ not useful for DPI anyways}
 \section{Header-only middleboxes}
 
 
+\subsection{The Borderbox}
+
+\todo{not finished}
+Recall the layout from \S\ref{s:overview}. 
+The borderbox is the entry and departure point of traffic into/from service provider (SP). Besides its regular tasks in the Aplomb model~\cite{aplomb}, 
+the borderbox has two simple tasks for \sys. These tasks are meant to help with the RangeMatch protocol.
+
+\mypara{Recall AES encryptions} Whenever the gateway encrypts an IP address or a port $v$ using RangeMatch's EncryptValue in \S\ref{s:rangealg}, it 
+produces $\enc(v)$ and $\IV, \aes_k(\IV, v)$.
+ $\enc(v)$ will fit in a packet's header instead of $v$, whereas $\IV, \aes_k(\IV, v)$ will be sent along with the packet. The borderbox
+ removes $\IV, \aes_k(\IV, v)$ from the packet and maintains a mapping between $\enc(v)$  and this AES encryption. 
+When a packet comes in the reverse direction, from SP to the gateway, the borderbox reattaches the AES encryption so that the
+gateway can decrypt the IP address (recall that $\enc(v)$ is not decryptable). 
+
+ \mypara{Propagate interval changes.}
+ As we will see, some middleboxes will store encrypted ranges based on RangeMatch. From time to time, a new range gets added or delete (e.g., when adding 
+ a firewall rule). 
+ 
+ 
+ The gateway runs AddRange from \S\ref{s:rangealg}. This produces a new encrypted range [$\enc(s), \enc(e)$] 
+along with a list $L$ of other encrypted ranges that get updated. The gateway sends [$\enc(s), \enc(e)$] 
+ and the list $L$ to the borderbox which broadcasts it to all the middleboxes.
+This information is relevant to other middleboxes too: since the encryption of a value $v$ depends on the tree of ranges, an IP address $v$, which used to be encrypted into $e$ before the ranges were changed is now encrypted into $e'$; this can break logic at other middleboxes which stored $e'$. We discuss how the NAT uses this information in \S\ref{sec:nat}.
+
+Using the prefix changes, the firewall 
+ reconfigures the new set of rules. Due to the guarantees of our RangeMatch protocol, this list contains a 
+small number (logarithmic) of intervals that changed, so the overhead for the reconfiguration should be modest.
+
+
+
 \subsection{Middlebox: Firewall}\label{sec:firewall}
 
 \todo{there was some text somewhere about a tool we use to switch to ipv6}
@@ -57,10 +87,10 @@ For example, for an IP address $v$, EncryptValue produces $\enc(v)$ and $\IV, \a
  $\enc(v)$ preserves the format of an IP address and hence 
 it will fit in the packet header in the place of the unencrypted IP address.
 
-Regarding $\IV, \aes_k(\IV, v)$, the gateway sends it along with the packet. SP's borderbox (see \S\ref{sec:overview})
-removes this encryption from the packet and maintains a mapping between $\enc(v)$  and this AES encryption. 
-When a packet comes in the reverse direction, from SP to the gateway, the borderbox reattaches the AES encryption so that the
-gateway can decrypt the IP address.
+
+ 
+ Regarding $\IV, \aes_k(\IV, v)$, the gateway sends it along with the packet. SP's borderbox (see \S\ref{sec:overview})
+\todo{anything missing here?}
 
 After the packet passes the borderbox, it goes to the firewall. The firewall can execute on the encrypted header {\em
 the same way as on the unencrypted header} because RangeMatch maintains the order relation between values in rules and in 
@@ -91,7 +121,7 @@ give example of what a rule becomes
 discuss what NAT with those changes 
 
 
-\section{Middlebox: Proxy/cache}\label{s:proxy}
+\subsection{Middlebox: Proxy/cache}\label{s:proxy}
 \todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
 They also {\it terminate} connections rather than allowing packets to ``pass through''.
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
