@@ -125,7 +125,7 @@ In \S\ref{sec:eval}, we find for some rulsets regular expression expansion almos
 \todo{Cut out any of this, it's leftover text from something I tried that didn't work but didn't want to delete in cas it winds up being helpful}
 They also {\it terminate} connections rather than allowing packets to ``pass through''.
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
-The proxy then opens a second connection in the background to the original web server, as if it were the client. :w
+The proxy then opens a second connection in the background to the original web server, as if it were the client. 
 
 Multiple clients may attempt to access the same web page through the proxy, in which case, the proxy maintains multiple client-facing connections, but one or few persistent server-facing connections.
 When a client sends a request for new content, the proxy can either forward the request to the web server, or, the proxy may serve the content from its {\it cache} -- images and content that other clients have already requested which the proxy then stored locally. 
