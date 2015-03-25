@@ -20,6 +20,20 @@ Our prototype middleboxes/cloud environment are run on EC2 large instances.
 \subsection{End-to-End Performance}
 We first inspect end-to-end client performance when traffic is redirected through \sys.
 
+\begin{figure}
+  \hspace{-15pt}
+  \begin{tabular}{cccc}
+  \includegraphics[height=1in]{fig/cdflabel}
+  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_loadtimes}
+  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_delta_absolute}
+  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_delta_relative}
+  \\
+  &(a)&(b)&(c)\\
+  \end{tabular}
+  \vspace{-10pt}
+  \caption[]{\label{fig:e2eloads} Page load times through \sys compared to direct download.}
+  \vspace{-10pt}
+\end{figure}
 {\it What overheads does \sys impose on web download times?}
 \todo{CL}
 
@@ -57,6 +71,7 @@ We discuss the range match scheme and the gateway in the following subsection, a
   \includegraphics[width=2.75in]{fig/key}
   \vspace{-10pt}
   \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the statless gateway.}
+  \vspace{-10pt}
 \end{figure}
 
 \noindent{\it How does encryption impact throughput at the outsourcing gateway?}
@@ -66,6 +81,7 @@ Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to 
   \includegraphics[width=3.25in]{fig/xputrange}
   \vspace{-10pt}
   \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
+  \vspace{-10pt}
 \end{figure}
 
 \noindent{\it How do throughput and latency at the gateway scale with the number of rules for range encryption?} 
@@ -120,6 +136,7 @@ Web Proxy & &\\
 %Exfiltration/parental filtering & & &  \\
 \end{tabular}
 \caption{Middlebox applications supported by Header-Only \sys; throughput measured with an emprical traffic workload. \label{tbl:appsxput}}
+\vspace{-10pt}
 \end{table}
 
 \noindent{\it Is throughput reduced at the middleboxes due to Header-Only \sys?}

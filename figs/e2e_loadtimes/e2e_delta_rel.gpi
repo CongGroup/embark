@@ -1,0 +1,37 @@
+set terminal postscript enhanced color "Times" 45
+set output "e2e_delta_relative.eps"
+set boxwidth 1.0 relative
+#set key horiz at 105000,450000
+#set key bottom right
+set size ratio 0.8
+set key bottom left
+#set log y
+set grid 
+#set key top right Right
+#set key top outside
+#set key inside lmargin 0
+#set key width .25
+
+  set style line 4 lc rgb "#003f7f" lt -1
+  set style line 3 lc rgb "#005fbf" lt -1
+  set style line 2 lc rgb "#56aaff" lt -1
+  set style line 1 lc rgb "#aad4ff" lt -1
+set xtics border in scale 1,0.5 nomirror rotate by -30  offset character -1,0.25,0
+#set xtics border in scale 1,0:.5 nomirror  offset character 2,0,0
+
+set y2range [2.2:3]
+
+
+#f(x) = a*x**b;
+#fit f(x) 'data.latency.plot' via a,b
+
+
+set ylabel "CDF (Pages)"
+set xlabel "MBArk Load Time / Baseline"
+
+plot 'delta.relative.cdf' using ($1/100 + 1):2 with lines lw 16 lc rgb 'forest-green' notitle # t 'Direct', 'data.mbark.cdf' using ($1/1000):2 with lines lw 8 lc rgb 'red' t 'MBArk'
+
+
+
+
+
