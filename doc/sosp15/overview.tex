@@ -96,7 +96,7 @@ These translate into two  requirements for the gateway, which should be:
 
 \begin{figure}[t!]
 \centering
-  \includegraphics[width=2.0in]{fig/packet.pdf}
+  \includegraphics[width=3.0in]{fig/packet.pdf}
 \caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. \label{fig:packet}}
 \todo{second stream?}
 \end{figure}
@@ -125,8 +125,11 @@ that an attacker that steals all data from SP, will only see encrypted traffic a
 traffic. 
 
 \todo{maybe this can be explained better:}
+\mypara{Packet encryption}
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
+\todo{this depends on HO so maybe after types}
+
 
 \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
   We classify middleboxes in  two broad categories based on the type of data they access: {\em header-only} middleboxes and {\em bytestream-aware} middleboxes.

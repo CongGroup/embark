@@ -45,18 +45,18 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
 \begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{2.5cm}}
 & {\bf Middlebox}  & {\bf Type } & {\bf Example fields}  \\
 \hline \hline
-\capp &  IP Firewall \S\ref{sec:firewall} & HO &  IP address, port   \\
-\capp &  Application Firewall  \S\ref{sec:firewall} & BA & IP address, payload  \\
-\capp & NAT  \S\ref{sec:nat} & HO & IP address, port   \\
-\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  IP address, port \\
+\capp &  IP Firewall \S\ref{sec:firewall} & HO &  IP address   \\
+\capp &  Application Firewall  \S\ref{sec:firewall} & BA & IP address  \\
+\capp & NAT  \S\ref{sec:nat} & HO & IP address  \\
+\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  IP address \\
 \capp & Load Balancer L4 \S\ref{sec:loadb} & HO & IP address  \\
 \capp & Load Balancer L7 \S\ref{sec:loadb} & BA & URL in payload  \\
 \capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & URL in payload \\
 \capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & payload \\
 \capp & Data Exfiltration  \S\ref{sec:ids} & BA & payload \\
-\capp & VPN Gateway \S\ref{sec:vpn} &  HO &  none \\ 
+\capp & VPN Gateway \S\ref{sec:vpn} &  HO &  IP address \\ 
 \end{tabular}
-\caption{Middleboxes supported by \sys, shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one or two examples of encrypted fields they operate on (not comprehensive). \label{tab:apps-ops} }
+\caption{Middleboxes supported by \sys, shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one  example of an encrypted field  each operates on. \label{tab:apps-ops} }
 \end{table}
 
 % 2nd fig/1st fig = 1.12 ratio
