@@ -64,7 +64,6 @@ Traffic that is returning from the Internet and traffic that is about to be sent
 This figure assumes the enterprise is already using IPv6, if it is not, the pipeline would also include a `4to6' element.
 In \S\ref{sec:overview}, we described how \sys encodes packet content using the AES, Keyword Match, and Range Match encryption algorithms. 
 The encrypted values are placed either directly back in to a data packet, or transmitted over a {\it metadata channel}.
-
 Below, we detail the three elements we implemented to encrypt the packet data:
 
 \noindent {\it Encode Headers:} Encrypts the IP, TCP, and UDP headers, replacing all IP and Port numbers in the packet with values calculated using the {\it RangeMatch} encryption algorithm. Appends the AES-encrypted values to the IP options field of the data packet.
