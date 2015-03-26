@@ -78,11 +78,11 @@ Hence, the gateway sends a message to all the middleboxes saying that there was 
 
 Consider any middlebox MB (which could be the firewall too). Whenever MB saves an encrypted IP address $\enc(v)$ as part of its state, MB has to save $\aes_k(v)$ as well.  Recall that each packet with $\enc(v)$ has $\aes_k(v)$ in its options header.
 
-Now consider that  MB is informed that a range change occured.  If MB's state  contains an encrypted IP address $\enc(v)$, this encryption has to be updated.  As a result,  MB sends $\enc(v)$ along with $\aes_k(v)$ to the gateway. The gateway decrypts $\aes_k(v)$ to obtain $v$, reencrypts $v$ with EncryptValue and sends it back to MB. 
+Now consider that  MB is informed that a range change occurred.  If MB's state  contains an encrypted IP address $\enc(v)$, this encryption has to be updated.  As a result,  MB sends $\enc(v)$ along with $\aes_k(v)$ to the gateway. The gateway decrypts $\aes_k(v)$ to obtain $v$, re-encrypts $v$ with EncryptValue and sends it back to MB. 
 The same protocol happens for updates to ranges of ports. 
 
 
-As an optimization, MB does not need to send all the encryptions  it holds. It can determine which encryptions need to be updated based on the range change that occured, but we do not present these details here. 
+As an optimization, MB does not need to send all the encryptions  it holds. It can determine which encryptions need to be updated based on the range change that occurred, but we do not present these details here. 
 
 Such adjustment of encryptions is inconvenient but it is  necessary for an encryption scheme like RangeMatch; without it, an impossibility result applies, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic in the total number of ranges. 
  \S\ref{sec:impl} describes how these updates are performed efficiently with minimal disruption of the traffic. 
@@ -115,7 +115,7 @@ This process proceeds the same as on unencrypted data because encrypted values l
 
 A difference is that the NAT must listen for announcements of range changes as discussed in \S\ref{sec:firewall}.
 For example, consider that the gateway announces a change of ranges for IP addresses.
-The NAT realizes that ab12:342:: might have become stale and sends it to the gateway along with the AES encryption. The gateway decrypts AES, obtains the original IP address, reencrypts it with EncryptValue, informs the NAT of the new encryption 2e41:863:: and the NAT replaces  ab12:342:: with 2e41:863::.
+The NAT realizes that ab12:342:: might have become stale and sends it to the gateway along with the AES encryption. The gateway decrypts AES, obtains the original IP address, re-encrypts it with EncryptValue, informs the NAT of the new encryption 2e41:863:: and the NAT replaces  ab12:342:: with 2e41:863::.
 
 
 \subsection{Middlebox: Proxy/cache}\label{s:proxy}
