@@ -42,26 +42,21 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
     
 \begin{table}[t!]
 \centering  
-\begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{3cm}}
-& {\bf Middlebox}  & {\bf Type } & {\bf Operations used}  \\
+\begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{2.5cm}}
+& {\bf Middlebox}  & {\bf Type } & {\bf Example field}  \\
 \hline \hline
-\capp &  IP Firewall \S\ref{sec:firewall} & HO &  range    \\
-\capp &  Application Firewall  \S\ref{sec:firewall} & BA & range, keyword  \\
-\capp & NAT  \S\ref{sec:nat} & HO & range   \\
-\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  range \\
-\capp & Load Balancer L4 \S\ref{sec:loadb} & HO & range  \\
-\capp & Load Balancer L7 \S\ref{sec:loadb} & BA & range  \\
-\capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & keyword \\
-\capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & range, keyword  \\
-\capp & Data Exfiltration  \S\ref{sec:ids} & BA & keyword  \\
-\capp & VPN Gateway \S\ref{sec:vpn} &  HO & none  \\ 
+\capp &  IP Firewall \S\ref{sec:firewall} & HO &  IP address, port   \\
+\capp &  Application Firewall  \S\ref{sec:firewall} & BA & IP address, payload  \\
+\capp & NAT  \S\ref{sec:nat} & HO & IP address, port   \\
+\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  IP address, port \\
+\capp & Load Balancer L4 \S\ref{sec:loadb} & HO & IP address  \\
+\capp & Load Balancer L7 \S\ref{sec:loadb} & BA & URL in payload  \\
+\capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & URL in payload \\
+\capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & payload \\
+\capp & Data Exfiltration  \S\ref{sec:ids} & BA & payload \\
+\capp & VPN Gateway \S\ref{sec:vpn} &  HO &  none \\ 
 \end{tabular}
-\caption{Middleboxes supported by \sys \todo{Section too} and their type, HO (header only) or BA (bytestream aware) type \todo{finish} of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
-\todo{why have two load balancers?}
-\todo{table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
-on, and what it encrypts,  put section near the name} 
-\todo{make clear that these are the apps that make sense to run in aplomb}
-\todo{add a number to the apps}
+\caption{Middleboxes supported by \sys, shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one or two examples of encrypted fields they operate on (not comprehensive). \label{tab:apps-ops} }
 \end{table}
 
 % 2nd fig/1st fig = 1.12 ratio
