@@ -96,6 +96,7 @@ These translate into a set of requirements for the gateway:
 \centering
   \includegraphics[width=2.0in]{fig/packet.pdf}
 \caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. \label{fig:packet}}
+\todo{second stream?}
 \end{figure}
 
 
@@ -145,12 +146,12 @@ Examples  include IP Firewalls and Network Address Translators (NATs).
   Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
   As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
+\todo{need to clarify the two modes and what gets encrypted in each}
 
 To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three middleboxes in the cloud. The traffic on the path gateway-SP-gateway is IPv6, a requirement of our RangeMatch scheme. If the traffic into the gateway is IPv4, the gateway converts it to IPv6, using \todo{Example}. The first step in Fig.~\ref{fig:packetflow} is that the gateway encrypts the packet. As shown in Fig.~\ref{fig:packet}, the header information such as IP addresses and ports gets encrypted with RangeMatch and placed into the header and the extension field of the encrypted packet. The payload gets encrypted using the KeywordMatch scheme, and some auxiliary encrypted information is also placed in the extension field. Back to Fig.~\ref{fig:packetflow}, the packet passes through the firewall which tries to match the encrypted information from the header against  encrypted rules, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the packet payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to an external IP address. Back at the gateway, the gateway decrypts the packet. 
 
-Independent of \sys, the gateway (G) can use SSL on the links client-G,  G-server, G-SP and SP-G. 
+On top of \sys, G can use SSL  to secure the communication to SP.  It can use SSL also on the links client-G and G-server.
 
-
-
+\todo{need to say somewhere that if we don't use IDs, then payload still encrypted but with normal stuff}
 
 

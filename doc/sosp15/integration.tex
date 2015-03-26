@@ -1,22 +1,2 @@
 
 
-\section{Security}
-
-\section{Discussion}
-
-No one will put a firewall behind a NAT
-
-since we are giving primitives, one might be able to add later applications that can also be supported with the same primitives, although one has to add encryption at the gateway for the specific fields 
-
-What do we do about these issues?
-
-Checksum Many middleboxes change packet contents, and thus packet check-
-sums. However, it is not clear that if we can compute correct checksums based
-
-on encrypted packet contents.
-
-IP Fragmentation Middleboxes working above L3 may need to reassemble
-
-IP fragments, our encryption scheme need to be carefully designed to avoid any
-
-issues.
