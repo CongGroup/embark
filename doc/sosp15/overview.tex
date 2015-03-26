@@ -18,6 +18,7 @@ In this section, we present \sys's architecture, the threat model and applicatio
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{System architecture}
 
+APLOMB is a system which redirects an enterprise's traffic to the cloud for middlebox processing~\cite{aplomb}.
 We now present APLOMB~\cite{aplomb}'s system setup in Fig.~\ref{fig:sys-overview}. \sys uses the same system setup, and adds confidentiality protection to it.
 We do not delve into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 In this setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
@@ -49,7 +50,7 @@ The goal of \sys is to protect the privacy of the traffic against an attacker at
 (cloud employee, or hacker gaining access to cloud machines). 
 We consider a strong  attacker, one that has gained access to {\em all the data at SP}.
 This includes any traffic and communication SP receives from the 
-gateway, any old logged information, cloud state, and so on. Nevertheless, we assume that 
+gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
 SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
 see the traffic in the process of doing so.  
 
@@ -76,7 +77,7 @@ and provide elasticity and fault tolerance; hence \sys should maintain these goa
 These translate into two  requirements for the gateway, which should be: 
 \begin{CompactItemize}
 \item Implementation agnostic: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software running at the middlebox. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
-\item Should perform lightweight operations and be parallelizable. 
+\item Should perform lightweight operations and be parallelizable.  If our design were not to meet this goals, it would defeat the purpose of outsourcing in the first place: were the gateway just as complex and costly as the middleboxes themselves, there would be no cost or manageability benefits.
 
 %\item Should not maintain per connection state. The gateway can maintain a small amount of global state, as long as the state does not depend on each connection and does not grow with the packets sent.  \todo{is this contradicted by IDS state at gateway?}
 \end{CompactItemize}
@@ -132,10 +133,11 @@ traffic.
 Many middleboxes are `header-only': they operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
 Examples  include IP Firewalls and Network Address Translators (NATs). 
 
-Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
+Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep copies of the data transmitted for each connection.
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer  with copies of each payload it has forwarded.
   It uses these payloads to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
-   
+Because of this reconstruction cost, and the complexity of the computation over the reconstructed data, most bytstream aware middleboxes achieve lower throughput than header-only middleboxes.
+
  Web proxies are a special case: even though this middlebox reconstructs the bytestream, the only computation on encrypted data is on the HTTP header, so we classify them as a HO middlebox. 
  
  
@@ -162,12 +164,13 @@ Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP by
 
 \mypara{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
-First, all the communication that happens between the gateway and the service provider is over IPv6. This is a requirement of our RangeMatch scheme whose security needs a certain size for encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
+First, all the communication that happens between the gateway and the service provider is over IPv6. This is a requirement of our RangeMatch scheme whose security requires a more than 32 bits to encode encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
 
 Fig.~\ref{fig:packet} shows how the gateway encrypts each packet.
 All IP addresses and ports in the header get encrypted with RangeMatch. Some encrypted values fit in the header in the place of the unencrypted values, and 
-some other values are placed in the IPv6 options header. The middleboxes have to be \sys-aware and know that the options header will contain \sys fields.  
-Next, the gateway encrypts the payload  with a standard cipher such as AES. 
+some other values are placed in the IPv6 options header. 
+Some network appliances are commonly configured to drop packets with IP options; these middleboxes must be configured under \sys to permit packets with \sys options to pass through.
+After encrypting the header, the gateway encrypts the payload  with a standard cipher such as AES. 
 The last step is to encrypt the payload with KeywordMatch, and here we have two cases. 
 The first case is when all the middleboxes at SP are header-only. In this case, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they will be sent as part of a second stream.
 
