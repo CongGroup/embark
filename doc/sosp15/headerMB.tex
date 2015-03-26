@@ -1,22 +1,20 @@
 %!TEX root = mb.tex
-
+\eat{
 \begin{figure}[t]
   \centering
   \includegraphics[width=3in]{fig/mbarch}
   \caption[]{\label{fig:mbarch} Typical middlebox software components. For most middleboxes, packet processing operations in the dataplane remain unmodified by \sys.}
 \end{figure}
-
+}
 \section{Header-only middleboxes}
 \label{sec:homiddleboxes}
 % My high school english teacher would kill me for starting off a section without an introduction sentence. This is for him. HI MR KELLY.
 We now discuss how header-only middleboxes operate over the new encrypted packet format.
-Figure~\ref{fig:mbarch} guides our discussion of these changes. %Most middlebox codebases can be divided in to three categories of functionality.
-Although  middlebox software architectures are unlikely to be cleanly divided in to three independent components as shown, most classes and functions within a middlebox codebase can be labeled as one of these three categories.
-These categories are: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and connection state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
+Most classes and functions within a middlebox codebase can be labeled as one of these three categories: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and connection state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
 Importantly, packet processing only occurs in dataplane functions, which are usually tightly engineered to process each packet in microseconds or faster.
 
 As we will show, adapting middleboxes to operate over encrypted data requires (a) encrypting the rules given to the middleboxes, and (b) changes to the control logic and some of the processing state. 
-However, the key algorithms that process packets on the dataplane remain unchanged for header-only middleboxes.
+However, the key algorithms that process packets on the dataplane remain unchanged for header-only middleboxes, with the exception of proxies.
 This allows the packet-processing throughput to remain fast; as we see in our evaluation \S\ref{sec:eval} header-only middleboxes under \sys achieve near identical throughput to the same middleboxes over unencrypted data. 
 
 \subsection{Middlebox: Firewall}\label{sec:firewall}
@@ -29,7 +27,7 @@ Our RangeMatch scheme supports both types of firewalls. We now explain the desig
 
 First, it prepares the IP and port intervals. Recall that RangeMatch requires the IP addresses to be IPv6 to guarantee the injectivity of encryption (see \S\ref{sec:range}); hence, we extend an IPv4 prefix  such as 157.161.48.0/24 to an IPv6 one  ::ffff:157.161.48.0/120. 
 % Now the prefix represents the range from ::ffff:157.161.48.0 to ::ffff:157.161.48.255.
- This problem does not show up for ports because they only need to be distinct within the same IP address.
+This problem does not show up for ports because they only need to be distinct within the same IP address.
 The gateway then expands every prefix into an interval, and every exact match $x$ into [$x$, $x$]. 
 
 Next, the gateway encrypts these intervals using EncryptRanges (\S\ref{sec:range}) by running one instance of RangeMatch for IP addresses and one instance for ports.
