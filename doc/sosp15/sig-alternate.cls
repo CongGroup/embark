@@ -162,17 +162,17 @@
                                         % top of first footnote.
 \floatsep 11pt plus 2pt minus 2pt       % Space between adjacent floats moved
                                         % to top or bottom of text page.
-\textfloatsep 18pt plus 2pt minus 4pt   % Space between main text and floats
+\textfloatsep 5pt plus 2pt minus 4pt   % Space between main text and floats
                                         % at top or bottom of page.
-\intextsep 11pt plus 2pt minus 2pt      % Space between in-text figures and
+\intextsep 5pt plus 2pt minus 2pt      % Space between in-text figures and
                                         % text.
 \@ifundefined{@maxsep}{\newdimen\@maxsep}{}% this is for LaTeX2e
 \@maxsep 18pt                           % The maximum of \floatsep,
                                         % \textfloatsep and \intextsep (minus
                                         % the stretch and shrink).
-\dblfloatsep 11pt plus 2pt minus 2pt    % Same as \floatsep for double-column
+\dblfloatsep 5pt plus 2pt minus 2pt    % Same as \floatsep for double-column
                                         % figures in two-column mode.
-\dbltextfloatsep 18pt plus 2pt minus 4pt% \textfloatsep for double-column
+\dbltextfloatsep 5pt plus 2pt minus 4pt% \textfloatsep for double-column
                                         % floats.
 \@ifundefined{@dblmaxsep}{\newdimen\@dblmaxsep}{}% this is for LaTeX2e
 \@dblmaxsep 18pt                        % The maximum of \dblfloatsep and
@@ -540,7 +540,7 @@
 
 %
 \long\def\@makecaption#1#2{
-   \vskip \baselineskip
+   %\vskip \baselineskip
    \setbox\@tempboxa\hbox{\textbf{#1: #2}}
    \ifdim \wd\@tempboxa >\hsize % IF longer than one line:
        \textbf{#1: #2}\par               %   THEN set as ordinary paragraph.
@@ -551,7 +551,7 @@
 %
 
 \long\def\@makecaption#1#2{
-   \vskip 10pt
+   %\vskip 10pt
    \setbox\@tempboxa\hbox{\textbf{#1: #2}}
    \ifdim \wd\@tempboxa >\hsize % IF longer than one line:
        \textbf{#1: #2}\par                %   THEN set as ordinary paragraph.
