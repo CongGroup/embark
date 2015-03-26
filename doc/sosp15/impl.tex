@@ -84,7 +84,7 @@ The packet is then sent out to the Internet or the client at the enterprise.
 \subsection{Middlebox implementations}
 \label{sec:middleboxes}
 We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
-As we presented in~\ref{sec:homiddleboxes}, we adapted all header-only middleboxes {\it without modifying steady-state dataplane functions}, and hence preserving the performance properties of the existing middleboxes.
+As we presented in \S\ref{sec:homiddleboxes}, we adapted all header-only middleboxes {\it without modifying steady-state dataplane functions}, and hence preserving the performance properties of the existing middleboxes.
 We were able to do this because the encrypted values in the IPv6 header are stored in the normal IPv6 header formats, and because our encryption schemes preserve the exact match and range match semantics these devices use to operate correctly.
 All we need to do to be compatible with normal dataplane behavior is to encrypt all values in the rules and configuration files using the the range match encryption algorithm.
 

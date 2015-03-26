@@ -82,7 +82,7 @@ The first challenge is that performing generic computation on encrypted data is 
 
 %Shrunk re: feedback that it was (a) too long, (b) too "chestbeaty" -- giving credit to CryptDB for the vision without sounding like we're bragging
 Existing generic homomorphic encryption schemes are many orders of magnitude impractical~\cite{gentry:fhe-aes-eprint}, not just for middleboxes but for most systems (even those with more relaxed performance requirements).
-This paper hence takes inspiration from CryptDB~\cite{CryptDB}. Instead of using a generic encryption scheme, CryptDB proposes to identify core operations that underlie the functionality of the system and to support each with a specialized and fast encryption scheme. 
+This paper hence takes inspiration from CryptDB~\cite{popa:cryptdb}. Instead of using a generic encryption scheme, CryptDB proposes to identify core operations that underlie the functionality of the system and to support each with a specialized and fast encryption scheme. 
 Unfortunately, CryptDB encrypts data operated on by a database; neither the encryption schemes nor the systems techniques in CryptDB meet the tight performance requirements of our network setting.
 
 We identify two core operations that underlie middlebox processing: {\em keyword match} and {\em range match}. Keyword match refers to  identifying if a keyword appears in a byte stream.   For example, keyword match is useful for a web proxy: the service provider can identify if a filename cached at the proxy appears in a HTTP GET request in the packet flow. % data exfiltration when a watermark is searched for in the traffic, for IDS when malicious strings are searched for in the traffic and for web proxy for matching file identifiers that could be potentially in a cache. 
@@ -109,6 +109,6 @@ To address this challenge, we make the following contributions:
 
 
 
-We implemented and evaluated \sys. As mentioned, we support all applications that fit in the cloud outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
+We implemented and evaluated \sys. As mentioned, we support all applications that fit in the cloud outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which is outsourced today can also be outsourced using \sys.
 Further, \sys imposes negligible throughput overheads at the service provider: for example, a firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our gateway can forward at 1.5 Gbps on a single core; our 8 core server can transmit \sys encrypted data at up to 8Gbps.% line rate of its network interface.
