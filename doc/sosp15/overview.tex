@@ -158,7 +158,7 @@ i% addresses. Nevertheless, this is not unusual considering that more and more e
 Fig.~\ref{fig:packet} shows how the gateway encrypts each packet.
 All IP addresses and ports in the header are encrypted with RangeMatch.
 As we will see, all header-based middleboxes can operate directly on RangeMatch encrypted values as if they were normal IP addresses and port values.
-However, RangeMatch is not reversible: it is not possible to go from ciphertext back to plaintext. Hence, we also place normal AES encrypted values for the encrypted header fields in the IPv6 options header; these values are ignored by the middleboxes but used only at the gateway to decrypt packets after they return from the cloud.
+However, RangeMatch is not reversible: it is not possible to go from ciphertext back to plaintext. Hence, we also place normal AES \clan{(Do we say AES or stream cipher?)} encrypted values for the encrypted header fields in the IPv6 options header; these values are ignored by the middleboxes but used only at the gateway to decrypt packets after they return from the cloud.
 Some network appliances are commonly configured to drop packets with IP options; these middleboxes must be configured under \sys to permit packets with \sys options to pass through.
 Finally, bytestream-aware middleboxes which operate on the packet payload do not operate directly on the payload: we modify these middleboxes to read KeywordMatch values for the payload from either the options header or a secondary metadata channel which travels alongside the normal packets.
 The payload itself is encrypted with standard AES, but not operated on by any middlebox.
