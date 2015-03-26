@@ -63,19 +63,39 @@ Moreover, it can still use  any specialized hardware without changes. This prope
 \mypara{Updating rules} 
 Let us discuss the case of adding a new firewall rule; deleting a rule is similar.
 The gateway runs AddRange from \S\ref{s:rangealg}. This produces a new encrypted range [$\enc(s), \enc(e)$] 
-along with a list $L$ of other encrypted ranges that get updated. The gateway sends [$\enc(s), \enc(e)$] 
- and the list $L$ to the firewall. SP converts these to changes in the firewall rules and 
-reconfigures the firewall.  Due to the guarantees of our RangeMatch protocol, this list contains a 
+along with a list $L$ of other encrypted ranges that get updated. 
+The gateway computes the new rule(s) based on [$\enc(s), \enc(e)$] as well as a list of prefix changes based on $L$: this list maps old prefix to new prefix so that the firewall knows how to update its rules. 
+The gateway sends the new rules and prefix changes to the firewall, and the firewall reconfigures itself. 
+  Due to the guarantees of our RangeMatch protocol, this list contains a 
 small number (logarithmic) of intervals that changed, so the overhead for the reconfiguration should be modest.
+
+
+\mypara{Rules updates affect other middleboxes}
+Since some encrypted ranges shifted, a previously encrypted IP address might now match into a wrong interval. 
+This affects all the middleboxes that retained an encrypted IP address.
+
+To address this, the gateway also computes $\mathbb{I}$, the interval that encloses all the changes.
+This interval is computed by simply taking the minimum and maximum encrypted value in the list $L$ or [$\enc(s)$, $\enc(e)$].
+The gateway sends $\mathbb{I}$ to {\em every middlebox} at SP. 
  
-The list of range changes $L$ and  [$\enc(s), \enc(e)$] 
- is relevant to other middleboxes too: since the encryption of a value $v$ depends on the tree of ranges, an IP address $v$, which used to be encrypted into $e$ before the ranges were changed is now encrypted into $e'$; this can break logic at other middleboxes which stored $e'$. We discuss how the NAT uses this information in \S\ref{sec:nat}.
+ 
+We now discuss what the firewall and other middleboxes do with $\mathbb{I}$.
 
 
+\subsection{Updating ranges}
+
+Consider that a header-only middlebox MB receives the interval $\mathbb{I}$ from the gateway indicating a change of ranges. If MB has an IP address $v$ encrypted in the past and $v$ falls in $\mathbb{I}$, $v$ has become stale.  As a result,  MB sends the list of these IP addresses to the gateway along with their AES encryption (which MB should have retained when first receiving a packet with this IP address or port). The gateway remaps them to new encrypted values and sends them back to MB which updates them. 
+
+
+Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
+Moreover, \S\ref{sec:impl} describes how these updates are performed efficiently. 
+ 
 
 
 
 \subsection{Middlebox: NAT}\label{sec:nat}
+
+\todo{give example for NAT}
 
 The fast path of the NAT in \sys{} is unchanged from the regular NAT. The NAT maps IP addresses/ports that are encrypted to external IP addresses/ports 
 as if they were not encrypted, as in Fig.~\ref{fig:packetflow}. 
@@ -84,6 +104,7 @@ The difference is  when the firewall sends a list of range changes $L$ and maybe
 The NAT identifies all  encrypted IP addresses/ports  it has mapped that are affected: it computes an interval that covers all intervals in $L$ and $\enc(s), \enc(e)$ and checks which values fit in it. It then sends these values to the gateway, who reencrypts them using EncryptValue (\S\ref{s:rangealg}) so the NAT updates them. 
 
 Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
+
 
 \subsection{Middlebox: Proxy/cache}\label{s:proxy}
 
