@@ -28,10 +28,11 @@ Finally, we discuss how middleboxes are modified to enable operation over encryp
 \subsection{Redirection Architecture}
 
 \begin{figure}[t]
-  {\bf (((This is a Click diagram showing how the Gateway works; each element we need, shading
-  on the elements that we implemented special for MBArk.)))}
-  \caption[]{\label{fig:gateway}Click element diagram of the redirection gateway at the enterprise.}
+  \includegraphics[width=3.25in]{fig/gatewaydiag}
+  \caption[]{Gateway software architecture (enterprise to service provider).}
 \end{figure}
+
+
 
 \begin{itemize}
   \item Components: sender, receiver, gateway, cloud
@@ -46,15 +47,7 @@ Finally, we discuss how middleboxes are modified to enable operation over encryp
 \end{itemize}
 
 \subsection{Packet Encoding}
-\begin{figure}[t]
-  {\bf (((This is a figure of an IP packet. Each field is shaded according to what encryption scheme is used to encode it. On the right margin each field is labeled with which middleboxes operate on that field.)))}
-  \caption[]{\label{fig:packet} IP fields that are inspected by each middlebox; fields are shaded according to the encoding scheme used to encrypt them.}
-\end{figure}
 
-\begin{figure}[t]
-  {\bf ((This is a figure showing the input/output of the gateway. On input, IPv4 packets go in, and out come encrypted IPv6 packets of two categories: (1) data packets themselves, and (2) annotation packets for IDS. On output, encrypted IPv6 packets go in, and IPv4 packets come out.))} 
-  \caption[]{\label{fig:gatewayops} Gateway encryption...}
-\end{figure}
 
 \begin{itemize}
   \item Describe Figure~\ref{fig:gatewayops} -- packets come in, and are converted to encrypted v6 packets either reprsenting the packet itself of metadata for the IDS.
@@ -62,6 +55,11 @@ Finally, we discuss how middleboxes are modified to enable operation over encryp
 \end{itemize}
 
 \subsection{Middlebox Implementations}
+
+\begin{figure}[t]
+  \includegraphics[width=3.25in]{fig/mbarch}
+  \caption[]{Typical middlebox software architecture. To be compatible with \sys, most middleboxes only require changes in the control logic. For these devices, packet processing operations in the dataplane remain unmodified and performance-competitive.}
+\end{figure}
 
 \subsection{Unmodified Middleboxes}
 \begin{itemize}
