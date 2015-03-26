@@ -112,7 +112,7 @@ that an attacker that steals all the data from SP will  see only encrypted traff
 traffic. 
 
 
-
+\smallskip
 \noindent\textbf{Two types of middleboxes} \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
   We classify middleboxes in  two broad categories based on the type of encrypted fields  they compute on.
 
@@ -148,7 +148,7 @@ Most bytestream aware middleboxes achieve lower throughput than header-only midd
 %  Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
   %As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
-
+\smallskip
 \noindent\textbf{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
 The gateway always generates IPv6 packets as output to the cloud, regardless of whether the input packets from the enterprise are IPv4 or IPv6. The tunnel connecting the gateway to the cloud may be either v4 or v6.
@@ -176,7 +176,7 @@ The first case is when all the middleboxes at SP are header-only. In this case, 
 
 
 
-
+\smallskip
 \noindent\textbf{Packet flow example}
 To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud.  First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 

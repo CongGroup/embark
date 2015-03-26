@@ -171,7 +171,7 @@ The only middlebox for which any overhead is observable is the NAT -- and this i
 
 The IDS is twice faster than the baseline, which is Snort~\cite{Snort}, which is slower than  DPDK-Click pipeline our IDS is built on; nevertheless, this still shows we achieve comparable throughput. 
 
-We re-implemented the Web Proxy and IDS to enable the bytestream aware operations they require over our encrypted data. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present later, does have a higher service time per cache hit.
+We re-implemented the Web Proxy and IDS to enable the byte-stream aware operations they require over our encrypted data. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present later, does have a higher service time per cache hit.
 The IDS numbers compare Snort (baseline) to the BlindBox implementation; this is not an apples-to-apples comparison as BlindBox performs mostly exact matches where Snort performs regular expressions.
 
 In what follows, we provide some further middlebox-specific benchmarks for the firewall, proxy, and IDS.
