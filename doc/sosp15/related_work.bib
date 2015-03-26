@@ -11,17 +11,20 @@
 }
 
 @misc{m57,
+  author = {{Digital Corpora}},
   title = {{m57-Patents Scenario}},
   howpublished = {\url{http://digitalcorpora.org/corpora/scenarios/m57-patents-scenario}}
 }
 
 @misc{aryaka,
-  title = {{Aryaka WAN Optimization}},
+  author = {{Aryaka}},
+  title = {{WAN Optimization}},
   howpublished = {\url{http://www.aryaka.com/}}
 }
 
 @misc{zscalar,
-  title = {{ZScalar Internet Security}},
+  author = {{ZScalar}},
+  title = {{Internet Security}},
   howpublished = {\url{http://www.zscaler.com/}}
 }
 
@@ -33,7 +36,8 @@
 }
 
 @misc{nfvwg,
-  title = {{NFV Membership : ETSI Portal}},
+  author = {{European Telecommunications Standards Institute}},
+  title = {{NFV Membership}},
   howpublished = {\url{https://portal.etsi.org/TBSiteMap/NFV/NFVMembership.aspx}
   }
 } 
@@ -44,6 +48,7 @@
   title = {{Making Middleboxes Someone Else's Problem: Network Processing As a Cloud Service}},
   booktitle = {{Proc. ACM SIGCOMM}},
   year = {2012},
+  address = {Helsinki, Finland}
 } 
 
 
@@ -80,8 +85,7 @@
 }
 
 @misc{Snort,
-  title = {Snort},
-  howpublished={\url{https://www.snort.org/}}
+  crossref = {Snort_manual}
 }
 
 @misc{Snort_manual,
@@ -91,12 +95,20 @@
   note = {Version 2.9.7}
 }
 
-@misc{Bro, 
-  title = {{Bro}: {A} System for Detecting Network Intruders in Real-Time},
-  author = {Vern Paxson},
+
+@article{Bro,
+  author = {Paxson, Vern},
+  title = {{Bro: A System for Detecting Network Intruders in Real-time}},
+  journal = {Computer Networks,},
+  issue_date = {Dec. 1999},
+  volume = {31},
+  number = {23-24},
+  month = dec,
   year = {1999},
-  howpublished={\url{https://www.bro.org/}}
-}
+  issn = {1389-1286},
+  pages = {2435--2463},
+} 
+
 
 @TechReport{CMU_exfiltration_report,
   author = {George J. Silowash and  Todd Lewellen and Joshua W. Burns and Daniel L. Costa },
@@ -271,25 +283,34 @@ Gogo might collect private data
 }
 
 
-@misc{packet_classif,
+@article{packet_classif,
   title = {Algorithms for Packet Classification},
   author = {Pankaj Gupta and Nick McKeown},
-  howpublished = {IEEE Network}, 
-  year = {2001}
+  journal = {IEEE Network},
+  issue_date = {March 2001},
+  volume = {15},
+  number = {2},
+  month = mar,
+  year = {2001},
+  pages = {24--32},
+  publisher = {IEEE Press}
 }
 
 @misc{verizon-costs,
-  title = {{Verizon High Speed Internet Packages}},
+  author = {{Verizon}},
+  title = {{High Speed Internet Packages}},
   howpublished = {\url{http://www.verizon.com/smallbusiness/products/business-internet/broadband-packages/}}
 }
 
 @misc{megapath-costs,
-  title = {{Megapath: Ethernet Data Plus}},
+  author = {{Megapath}},
+  title = {{Ethernet Data Plus}},
   howpublished = {\url{http://www.megapath.com/promos/ethernet-dataplus/}}
 }
 
 @misc{comcast-costs,
-  title = {{Comcast: Small Business Internet}},
+  author = {{Comcast}},
+  title = {{Small Business Internet}},
   howpublished = {\url{http://business.comcast.com/internet/business-internet/plans-pricing}}
 }
 
@@ -325,10 +346,12 @@ Gogo might collect private data
 }
 
 @inproceedings{Vern:Anonymize03,
-  title = {A High-level Programming Environment for Packet Trace
-    Anonymization and Transformation},
+  title = {{A High-level Programming Environment for Packet Trace
+    Anonymization and Transformation}},
   author = {Ruoming Pang and Vern Paxson},
-  crossref = {SIGCOMM03}
+  booktitle = {{Proc. ACM SIGCOMM}},
+  year = {2003},
+  address	= {Karlsruhe, Germany},
 }
 
 
