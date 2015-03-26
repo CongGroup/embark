@@ -164,7 +164,7 @@ Because of this reconstruction cost, and the complexity of the computation over 
 
 \mypara{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
-First, all the communication that happens between the gateway and the service provider is over IPv6. This is a requirement of our RangeMatch scheme whose security requires a more than 32 bits to encode encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
+First, the enterprise traffic must be processed in IPv6 (although the tunnel connecting the enterprise to the cloud may be v4 or v6). Processing IPv6 packets rather than v4 is a requirement of our RangeMatch scheme whose security requires a more than 32 bits to encode encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
 
 Fig.~\ref{fig:packet} shows how the gateway encrypts each packet.
 All IP addresses and ports in the header get encrypted with RangeMatch. Some encrypted values fit in the header in the place of the unencrypted values, and 
