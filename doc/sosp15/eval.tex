@@ -17,8 +17,8 @@
  
 \section{Evaluation} \label{sec:eval}
 
-As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes as well as bytestream-aware middleboxes . 
-Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
+As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes as well as bytestream-aware middleboxes. 
+% Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
 
 We now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption (over the header or the payload) and redirection. 
 \sys has very low hardware overheads at the enterprise: our eight-core server could easily saturate a 10Gbps link with encrypted traffic to and from the cloud; we evaluate the gateway throughput in \S\ref{sec:gateway}.
