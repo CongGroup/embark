@@ -11,7 +11,7 @@ Hence, deploying an IDS at the cloud requires a stateful gateway at the enterpri
 We use BlindBox as follows.
 BlindBox leaves HTTPS unmodified, but augments it with a secondary channel which transmits encrypted {\it exact match tokens}.
 In it's simplest implementation, for every byte transmitted over HTTPS, the sender transmits an encrypted token using using the same approach as our keyword match algorithm.
-The encrypted token encodes that byte, and the next 8 bytes; \eg{}, a sender transmitting the word `maliciousl' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
+The encrypted token encodes that byte, and the next 8 bytes; \eg{}, a sender transmitting the word `malicious' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
 An IDS looking for the word `malicious' would declare a match if it observed both these tokens consecutively.
 In practice, the sender does not send encrypted tokens for {\it every} byte, but optimizes out some which are redundant or unnecessary (we defer to~\cite{blindbox} for details about these optimizations).
 For IDS signatures which consist {\it only} of exact match rules, keyword match is sufficient to detect attacks.
@@ -30,7 +30,7 @@ The security guarantee it gives is as follows: the IDS will learn what a byte in
   Everything we have described to this point is identical between BlindBox and \sys. We now describe how they are different, and how this improves performance and security.
 
 The key difference between BlindBox and how \sys implements IDS comes in how rules are given the IDS.
-With \sys, the gateway can simply encrypt rules with its key $k$ and transmit them to the IDS, who then applices them over the enterprises traffic.
+With \sys, the gateway can simply encrypt rules with its key $k$ and transmit them to the IDS, who then applies them over the enterprises traffic.
 With BlindBox, this is not appropriate.
 BlindBox aims to allow a client (\eg{} laptop) connecting to {\em any} network to receive IDS processing over their HTTP traffic, even if the IDS is unknown or untrusted to them.
 In this scenario, the IDS wants to {\it enforce} that all traffic be scanned for malicious behavior, but the client wants to maintain {\it privacy} from the untrusted IDS.
