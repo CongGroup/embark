@@ -71,7 +71,7 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
  \end{CompactEnumerate}
 
 
-Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both significantly less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
+Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
 
 
 Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
