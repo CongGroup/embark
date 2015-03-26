@@ -49,7 +49,7 @@ Many middleboxes perform detectio over a {\it range} of port numbers or IP addre
 The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
 For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although the scheme can be used for encrypting ports too).
 
-\mypara{Requirements}
+\noindent\textbf{Requirements}
 %
 In order for this encryption scheme to fit \sys efficiently and securely, it must:
 
@@ -124,7 +124,7 @@ We now explain concretely the API and the implementation of the scheme.
 
 \subsubsection{Gateway API and implementation}\label{s:rangealg}
 
-\mypara{Gateway state} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
+\noindent\textbf{Gateway state} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
 
 The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of
