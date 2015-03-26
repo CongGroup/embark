@@ -43,7 +43,7 @@
 
 
 
-
+Many middleboxes perform detectio over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 
 %
 The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
@@ -75,8 +75,8 @@ Unfortunately, there is no encryption scheme that supports all these requirement
 
 
 Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
-The scheme takes advantage of the network setting; it does not rely on advanced cryptography, so it can be easily understood and validated by a non-cryptographically trained reader. 
-
+%The scheme takes advantage of the network setting; it does not rely on advanced cryptography%, so it can be easily understood and validated by a non-cryptographically trained reader. 
+%Kay sez patronizing. I don't think so, but, it certainly is unnecessary and we are short on space!!!
 
 \subsubsection{Our RangeMatch scheme} 
 
