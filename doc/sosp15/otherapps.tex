@@ -25,7 +25,7 @@ largely the same because it does not compute on the traffic.
 at the gateway, because otherwise, it loses the bandwidth benefits of the compression. Hence, this middlebox does not benefit much 
  from the cloud outsourcing. 
 Nevertheless, we can still support it. 
-If the other middleboxes used are only header middleboxes, WAN optimizers can be  supported without modification.
+If the other middleboxes used are only header middleboxes, WAN optimizers can be applied directly and their benefits are retained.
 If one uses an IDS middlebox too, \sys  requires  the IDS tokenization  to run before the compression so it can tokenize
 the traffic; in this case, unfortunately, \sys  reduces the compression benefit of the WAN optimizer because the encrypted tokens 
 are not compressible. 
