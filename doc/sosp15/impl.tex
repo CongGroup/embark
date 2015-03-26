@@ -21,40 +21,65 @@ We really need your feedback at this stage."
 - some things are specific to web proxy from what I remember
 }
 
-We now describe the MBArk architecture and implementation. 
-We first describe the outsourcing and redirection implementation (\S\ref{sec:redirection}); we then describe the packet-level encoding mechanisms (\S\ref{sec:packets}).
-Finally, we discuss how middleboxes are modified to enable operation over encrypted flows; we also discuss how and why some middleboxes (such as firewalls and NATs) do not require any modifications to support MBArk (\S\ref{sec:mbimpls}).
+We now describe the \sys architecture and implementation. 
+As discussed in \S\ref{sec:overview}, \sys redirects traffic to the cloud and back for {\it middlebox processing} using a {\it redirection gateway}.
+We now present the implementation and architecture of the redirection gateway (\S\ref{sec:gateway}), followed by the modifications we made to middleboxes to support \sys (\S\ref{sec:middleboxes}).
+Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deployment}).
 
-\subsection{Redirection Architecture}
+
+\subsection{Redirection \& gateway implementation}
+\label{sec:gateway}
 
 \begin{figure}[t]
-  \includegraphics[width=3.25in]{fig/gatewaydiag}
-  \caption[]{Gateway software architecture (enterprise to service provider).}
+  \centering
+  \includegraphics[width=3.25in]{fig/gatway_metaarch.JPG}
+  \caption[]{\label{fig:gatewaymeta} Communication between the cloud and three gateway services: rule encryption, data encryption, and data decryption}
 \end{figure}
 
 
 
-\begin{itemize}
-  \item Components: sender, receiver, gateway, cloud
-  \item Sketch: redirection, follows essentially from APLOMB approach
-  \item Ref to Figure 1
-  \item How we built and tested:
-    \begin{itemize}
-      \item HW components, server specs
-      \item Deployed on EC2 using Click-based implementations for all middleboxes
-      \item Gateway scheme, components, discussion about Figure~\ref{fig:gateway}.
-    \end{itemize}
-\end{itemize}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=3.25in]{fig/gatewaydiag}
+  \caption[]{\label{fig:gateway} Enterprise to service provider packet processing pipeline.}
+\end{figure}
 
-\subsection{Packet Encoding}
+The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of IDS/FW rulesets and updates to the RangeMatch tree.
+Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
+A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
+All three services share access to the RangeMatch tree and the private key $k$.
+Figure~\ref{fig:gatewaymeta} illustratres  these three services and the data they send to and from the cloud provider.
+
+\noindent{\bf Rule Encryption.} The rule encryption component provides the cloud provider with encrypted rules/policies to use at the middlebox. 
+There are two possible ways rules can be generated. First, an enterprise may choose to generate their own rules, in which case, they send encrypted versions of the rules directly to the cloud.
+Rules can contain IP addresses, port numbers, and substrings of attack signatures; the first two must be encrypted with both keyword match and range match, the last needs only to be encrypted with keyword match.
+Alternately, the enterprise may opt in to a `default' set of rules from the cloud provider, in which case the cloud provider sends the rules to the gateway which encrypts them and sends them back.
+The rule encryption component also sends update. Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
+If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
+\todo{too high level? Details about how updates work?}
+
+\noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption and transmits packets from the enterprise to the cloud.
+This figure assumes the enterprise is already using IPv6, if it is not, the pipeline would also include a `4to6' element.
+In \S\ref{sec:overview}, we described how \sys encodes packet content using the AES, Keyword Match, and Range Match encryption algorithms. 
+The encrypted values are placed either directly back in to a data packet, or transmitted over a {\it metadata channel}.
+
+Below, we detail the three elements we implemented to encrypt the packet data:
+
+\noindent {\it Encode Headers:} Encrypts the IP, TCP, and UDP headers, replacing all IP and Port numbers in the packet with values calculated using the {\it RangeMatch} encryption algorithm. Appends the AES-encrypted values to the IP options field of the data packet.
+Required to support all middleboxes. 
+
+\noindent {\it Encode HTTP Header.} Encrypts the HTTP header for {\it the first GET request only.} Does not modify the data packet itself, but instead places the keyword match encryptions of the values in a new packet sent over the metadata channel. 
+The new packet marks (a) the encrypted 5-tuple flow ID for the packet, (b) that this is HTTP GET data for the proxy, and (c) the encrypted values. At the cloud, the proxy can read this metadata channel to obtain the encrypted URL for the GET request and check its cache for the encrypted data. This element is only needed if there is an HTTP proxy enabled at the cloud, otherwise it can be disabled at the gateway.
+
+\noindent {\it Encode HTTP Payload.} Encrypts the entire HTTP payload (as described in \S\ref{sec:ids}), placing the keyword match values in a new packet in the metadata channel. Unlike the other two elements, this element keeps per-flow state, reconstructing the TCP stream in order to generate keyword match tokens for keywords which are divided across two subsequent packets.  The metadata channel packets contain (a) the encrypted 5-tuple for the packet, (b) that the packet contains keyword match data for the IDS, and (c) the encrypted values. At the cloud, the IDS can read this metadata channel to detect attacks; if there is a match it instructs the firewall to block the 5-tuple for the flow. This element is only needed if there is an IDS enabled at the cloud, otherwise it can be disabled at the gateway.
 
 
-\begin{itemize}
-  \item Describe Figure~\ref{fig:gatewayops} -- packets come in, and are converted to encrypted v6 packets either reprsenting the packet itself of metadata for the IDS.
-  \item How do we do the v4-v6 conversion? Discuss Figure~\ref{fig:packet}. Why each field is the way it is. Emphasize: this is a VALID IPv6 packet, even though the header fields are encrypted!
-\end{itemize}
+\noindent{\bf Data Decyption.} Packets returning from the cloud follow a much simpler packet processing pipeline than those being encrypted.
+
+
 
 \subsection{Middlebox Implementations}
+\label{sec:middleboxes}
 
 \begin{figure}[t]
   \includegraphics[width=3.25in]{fig/mbarch}
@@ -80,3 +105,6 @@ Finally, we discuss how middleboxes are modified to enable operation over encryp
       \item L7 Load Balancer -- I actually don't know how this one works?
     \end{itemize}
 \end{itemize}
+
+\subsection{Deployment}
+\label{sec:deployment}
