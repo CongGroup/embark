@@ -23,6 +23,7 @@ We really need your feedback at this stage."
 
 We now describe the \sys architecture and implementation. 
 As discussed in \S\ref{sec:overview}, \sys redirects traffic to the cloud and back for {\it middlebox processing} using a {\it redirection gateway}.
+\todo{Put a little overview aout gateway, metadata channel, mbs here???}
 We now present the implementation and architecture of the redirection gateway (\S\ref{sec:gateway}), followed by the modifications we made to middleboxes to support \sys (\S\ref{sec:middleboxes}).
 Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deployment}).
 
@@ -48,7 +49,7 @@ The gateway serves two purposes. First, it redirects traffic to/from the cloud f
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
 All three services share access to the RangeMatch tree and the private key $k$.
-Figure~\ref{fig:gatewaymeta} illustratres  these three services and the data they send to and from the cloud provider.
+Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 \noindent{\bf Rule Encryption.} The rule encryption component provides the cloud provider with encrypted rules/policies to use at the middlebox. 
 There are two possible ways rules can be generated. First, an enterprise may choose to generate their own rules, in which case, they send encrypted versions of the rules directly to the cloud.
@@ -59,6 +60,7 @@ If the gateway ever changes its key, the encryption component must also signal t
 \todo{too high level? Details about how updates work?}
 
 \noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption and transmits packets from the enterprise to the cloud.
+Traffic that is returning from the Internet and traffic that is about to be sent to the Internet are both sent along this pipeline.
 This figure assumes the enterprise is already using IPv6, if it is not, the pipeline would also include a `4to6' element.
 In \S\ref{sec:overview}, we described how \sys encodes packet content using the AES, Keyword Match, and Range Match encryption algorithms. 
 The encrypted values are placed either directly back in to a data packet, or transmitted over a {\it metadata channel}.
@@ -74,37 +76,51 @@ The new packet marks (a) the encrypted 5-tuple flow ID for the packet, (b) that 
 \noindent {\it Encode HTTP Payload.} Encrypts the entire HTTP payload (as described in \S\ref{sec:ids}), placing the keyword match values in a new packet in the metadata channel. Unlike the other two elements, this element keeps per-flow state, reconstructing the TCP stream in order to generate keyword match tokens for keywords which are divided across two subsequent packets.  The metadata channel packets contain (a) the encrypted 5-tuple for the packet, (b) that the packet contains keyword match data for the IDS, and (c) the encrypted values. At the cloud, the IDS can read this metadata channel to detect attacks; if there is a match it instructs the firewall to block the 5-tuple for the flow. This element is only needed if there is an IDS enabled at the cloud, otherwise it can be disabled at the gateway.
 
 
-\noindent{\bf Data Decyption.} Packets returning from the cloud follow a much simpler packet processing pipeline than those being encrypted.
+\noindent{\bf Data Decryption.} Packets returning from the cloud follow a much simpler packet processing pipeline than those being encrypted.
+The packet payloads are decrypted using standard AES; the IP and port values from the options header are decrypted and then copied in to the packet header. The options header is removed.
+If the enterprise is running IPv4, the traffic is sent back through the 4to6 converter to convert the packet back to IPv4.
+The packet is then sent out to the Internet or the client at the enterprise.
 
 
-
-\subsection{Middlebox Implementations}
+\subsection{Middlebox implementations}
 \label{sec:middleboxes}
 
 \begin{figure}[t]
   \includegraphics[width=3.25in]{fig/mbarch}
-  \caption[]{Typical middlebox software architecture. To be compatible with \sys, most middleboxes only require changes in the control logic. For these devices, packet processing operations in the dataplane remain unmodified and performance-competitive.}
+  \caption[]{\label{fig:mbarch} Typical middlebox software components. For most middleboxes, packet processing operations in the dataplane remain unmodified by \sys.}
 \end{figure}
 
-\subsection{Unmodified Middleboxes}
-\begin{itemize}
-  \item IP Firewall, NAT, IP Forwarding, LB L4
-  \item Operations: Match, Match/Replace, Range -- on specific fields
-  \item Why no change? Packets are valid IPv6 packets, and all we need to do is have encrypted rules as well.
-  \item How rules are encrypted, how often rules must be updated for Range (basically never) which we show in eval.
-\end{itemize}
+We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{dpdk-click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
+Figure~\ref{fig:mbarch} guides our discussion of these changes. Most middlebox software can be divided in to three classes of functionality;
+although the middlebox architecture is unlikely to be cleanly divided in to three independent components, most classes and functions can be labeled as one of these three classes.
+These behaviors are: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and conneciton state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
+Importantly, packet processing only occurs in dataplane functions, which are usually tightly engineered to process each packet in microseconds or faster.
+We adapted all header-only middleboxes {\it without modifying the dataplane functions}, and hence preserving the steady-state performance properties of the existing middleboxes.
 
-\subsubsection{Modified Middleboxes}
-\begin{itemize}
-  \item Exfiltration, IDS, Proxy, App Firewall, L7 Load Balancer
-  \item Why change? All perform some kind of DPI -- variable offset, and variable operation. Key thing we need is the match, but the encoding that comes out looks very different than the normal packet.
-  \item Required modifications:
-    \begin{itemize}
-      \item Exfiltration, IDS, App Firewall -- same as BB
-      \item Proxy -- mapping from crypto to table. Note that the session termination code -- which is complicated! -- does not change at all because these are all header operations on what looks liek a valid IPv6 packet.
-      \item L7 Load Balancer -- I actually don't know how this one works?
-    \end{itemize}
-\end{itemize}
+Middleboxes which perform {\it header-only} operations and keep no {\it per-flow state} were the easiest to adapt, because they required no modifications at all; these middleboxes were the stateless IP Firewalls and the IP Routing. 
+So long as the rules (for the firewalls) or the forwarding table (for the IP router) are encrypted with the range match approach, the existing code bases work normally on encrypted packets.
+
+Middleboxes which perform {\it header-only} operations but which keep some per-flow state required modification to the control logic.
+These middleboxes include the NAT, stateful firewalls, and load balancers.
+The reason these middleboxes require some modification is because adjustments to the range match scheme or changes to the gateway key $k$ require changes to the per-flow state.
+When there is a tree adjustment or a key change, the gateway generates new rulesets and sends these to the middleboxes; this is the only update required for the stateless header-only devices.
+Stateful devices, however, enter a second round of update at this point... \todo{Talk to Raluca upstairs}.
+
+Finally, bytestream-aware middleboxes require changes in the dataplane: \sys makes reading the payload directly impossible, and hence these middleboxes must be modified to operate over the metadata channel instead.
+We re-implemented all such middleboxes from scratch.
+However, these changes need not be a performance penalty: as we show in \S\ref{sec:eval}, we wrote an HTTP proxy from scratch to cache HTTP content; this proxy achieves comparable performance to existing, unencrypted proxies despite our encryption.
+The primary difference between our proxy and a standard implementation is that the `table' storing file names/URIs and the file data is now over encrypted values; the content served is also opaque, encrypted data. 
+In addition, the file names/URIs are read from the metadata channel, rather than the primary connection with the data packets. 
+Otherwise, much of the more complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
+
 
 \subsection{Deployment}
 \label{sec:deployment}
+We deployed our middleboxes on EC2 large instances using.... \todo{CHANG???}
+
+Our prototype gateway runs with four 2.6GHz Xeon E5-2650 cores and 128 GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card.
+We deployed our prototype in our research lab and redirected traffic from a 3-server testbed through the gateway; these three client servers had the same hardware specifications as the server we used as our gateway.
+
+We evaluate our deployment in the following section.
+
+
