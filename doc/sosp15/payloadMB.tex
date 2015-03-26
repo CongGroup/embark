@@ -27,7 +27,7 @@ The security guarantee it gives is as in KeywordMatch (\S\ref{s:kwmatch}): for e
  {\em Model 2.}  While this covers the case of data exfiltration and a significant number of IDS signatures, it does not support  IDS signatures with regular expressions.
  In fact, there exists no encryption scheme that can support such generic computation over encrypted data in a practical way in the literature. 
   Hence, to support regular expressions, BlindBox -- and hence \sys -- provide a secondary protocol with a different security guarantee. 
-  Based on Snort's manual~\cite{Snort_manual}, all  IDS signatures must include exact match strings that filter a lot of the traffic -- for performance reasons, an IDS like Snort~\cite{Snort} performs regular expression detection after all exact match strings have been matched first.
+  Based on Snort's manual~\cite{Snort}, all  IDS signatures must include exact match strings that filter a lot of the traffic -- for performance reasons, an IDS like Snort~\cite{Snort} performs regular expression detection after all exact match strings have been matched first.
   Inspired by this, BlindBox allows the middlebox to decrypt all the packets in the session if and {\it only} if a suspicious exact match strings matches a packet in this session.
   Namely, if there is a reason to suspect the session is malicious, the middlebox will be able to decrypt it and see its contents, but if there is no suspicious content, the middlebox cannot physically decrypt the traffic.  This model is called `probable cause decryption'.
   The client encodes the key with the tokens such that if a match occurs, the middlebox can automatically decrypt the key (once again, details are in~\cite{blindbox}).
@@ -62,7 +62,7 @@ The first implication is performance: this startup time is eliminated, as the si
 
 \textit{Better security.}
 The second implication is improved security. We made the observation that, since setting up a signature is cheaper, we can generate more signatures and hopefully reduce some regular expression signatures to a set of exact matches.  
-For example, the regular expression 'alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3']. 
+For example, the regular expression `alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3']. 
 Not all rules are amenable to this -- \eg{} `bob[a-z]+' would result in a prohibitively large (and also far too general) number of expansions, even for \sys. 
 Hence, we try to expand each regular expression that has a modest expansion into exact match signatures. 
 %To do this expansion with BlindBox would be prohibitively expensive, as each additional exact match rules increases the already lengthy setup time.
