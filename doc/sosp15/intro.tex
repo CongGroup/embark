@@ -4,12 +4,12 @@
 \section{Introduction}\label{sec:intro}
 
 
-    Network processing appliances (``middleboxes'') such as firewalls, proxies, and intrusion detection systems are crucial components of modern networks~\cite{aplomb}. 
+    Network processing appliances (``middleboxes'') such as firewalls, NATs, proxies, and intrusion detection systems are crucial components of modern networks~\cite{aplomb}. 
      In recent trends, more and more organizations are {\it outsourcing} their network processing, either to cloud providers~\cite{aplomb, aryaka, zscalar} or to service providers through Network Functions Virtualization (NFV)~\cite{nfv} who now run  middleboxes for the organizations. This strategy promises to reduce costs, decrease the burden of managing and configuring these devices, and provide elasticity and fault tolerance, as documented in~\cite{aplomb}.
 Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging from large telecoms to hardware manufacturers, all of whom are investing in new technologies to enable outsourced traffic processing.
    
-   Nevertheless, outsourcing middleboxes to a third party service provider brings a new and important challenge: the confidentiality of the traffic. In order to be able to process and examine the traffic of an organization, the cloud  receives  the traffic {\em unencrypted}.  This means that the cloud now has access to potentially sensitive packet payloads,  IP addresses, and ports revealing confidential information about the organization. This situation is worrisome considering the amount of documented data breaches by cloud employees or hackers gaining access to clouds~\cite{XXX}.
-   Hence, an important question is: is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?
+   Nevertheless, outsourcing middleboxes to a third party service provider brings a new and important challenge: the confidentiality of the traffic. In order to be able to process and examine the traffic of an organization, the cloud  receives  the traffic {\em unencrypted}.  This means that the cloud now has access to potentially sensitive packet payloads,  IP addresses, and ports revealing confidential information about the organization. This situation is worrisome considering the number of documented data breaches by cloud employees or hackers gaining access to clouds~\cite{PrivacyRecords}.
+   Hence, an important question is: can we enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?
    
    
    
@@ -32,7 +32,7 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
      
      
   
-    We design and build \sys (read ``embark"), which enables running a wide range of middleboxes at a cloud provider while maintaining the confidentiality of the traffic against an attacker with access to all cloud data. \sys is the first and only system to provide this capabaility.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. These are: firewall, NAT, intrusion detection systems (IDS), data exfiltration systems, web proxy, load balancing, IP forwarding and VPN. \sys supports these applications with competitive performance. 
+    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. These are: firewall, NAT, web proxy, load balancer, intrusion detection systems (IDS), data exfiltration systems, IP forwarder, and VPN. \sys supports these applications with competitive performance. 
     
     The approach in \sys is to encrypt the traffic that goes to  the middleboxes in the cloud and enables the cloud to process encrypted traffic without ever decrypting it. \sys encrypts the packet payload as well as important information in the header (such as IP addresses and ports). Since the service provider receives only encrypted traffic and no decryption key, it cannot see the confidential data. However, designing a practical system that supports a wide-range of middlebox applications over encrypted traffic is challenging and required a set of new cryptographic and systems techniques.
     
@@ -80,7 +80,6 @@ on, and what it encrypts,  put section near the name}
 \end{figure*}
 
 
-    \subsection{Challenges, techniques, and contributions}
     
     \todo{be careful talking about IDS here too much -- make the BlindBox distinction clear}
 The first challenge is that performing generic computation on encrypted data is prohibitively practical. The applications considered provide complex functionalities. For example, firewall and NAT examine packet header information such as IP addresses and ports; for IDS and data exfiltration detection, the middlebox (MB) examines the packet payload and tries to match complex rules (keyword matching, offset information,  regular expressions, etc). For each packet, a middlebox must process the packet on timescales in the $\mu$s. Existing generic homomorphic encryption schemes are many orders of magnitude impractical~\cite{aesFHE}, not just for middleboxes but for most systems (even those with more relaxed performance requirements).
@@ -95,7 +94,7 @@ Table~\ref{tab:apps-ops} summarizes the middleboxes we support and the operation
 
 % TO CUT/REMOVE: just say that they are too insecure and slow and don't explain about order
 A second challenge is that there is no suitable encryption scheme for the range match scheme:
- the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch}, which is targeted at and takes advantage of the network setting. RangeMatch  is fast (performing encryptions in under 3$\mu$s, 4 orders of magnitude faster than the OPE schemes) and more secure because it does not reveal the order of the values encrypted. 
+ the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch}, which is targeted at and takes advantage of the network setting. RangeMatch  is fast (performing encryptions in under 3$\mu$s, 3 orders of magnitude faster than the OPE schemes) and it is more secure because it does not reveal the order of the values encrypted. 
  
 A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
 To address this challenge, we make the following contributions:
@@ -106,8 +105,7 @@ To address this challenge, we make the following contributions:
 \end{itemize}
 
 
-\subsection{Implementation and evaluation}
 
 
-We implemented and evaluted \sys. As mentioned, we support all applications fit in the cloud outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
-Further, \sys imposes very negligible throughput overheads at the service provider: for example, a firewall operating over encrypted data achieves \todo{XXX} where a firewall over unencrypted data achieves \todo{YYY} -- an only \todo{ZZZ}\% penalty.
+We implemented and evaluated \sys. As mentioned, we support all applications fit in the cloud outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
+Further, \sys imposes very negligible throughput overheads at the service provider: for example, a firewall operating over encrypted data achieves \todo{XXX} where a firewall over unencrypted data achieves \todo{YYY} -- an only \todo{ZZZ}\% penalty. Our gateway can forward at 1.5 Gbps on a single core; our 8 core server can easily saturate a 10Gbps link. \todo{adjust this sentence}
