@@ -151,15 +151,18 @@ Most bytstream aware middleboxes achieve lower throughput than header-only middl
 
 \mypara{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
-First, the enterprise traffic must be processed in IPv6 (although the tunnel connecting the enterprise to the cloud may be v4 or v6). Processing IPv6 packets rather than v4 is a requirement of our RangeMatch scheme whose security requires a more than 32 bits to encode encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
+The gateway always generates IPv6 packets as output to the cloud, regardless of whether the input packets from the enterprise are v4 or v6. The tunnel connecting the gateway to the cloud may be either v4 or v6.
+As we will see in the following section, our RangeMatch scheme requires 128 bits to encode encrypted IP addresses.
+i% addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using the Stateless IP/ICMP Translation Algorithm (SIIT)~\cite{SIIT}.
 
 Fig.~\ref{fig:packet} shows how the gateway encrypts each packet.
-All IP addresses and ports in the header get encrypted with RangeMatch. Some encrypted values fit in the header in the place of the unencrypted values, and 
-some other values are placed in the IPv6 options header. 
+All IP addresses and ports in the header are encrypted with RangeMatch.
+As we will see, all header-based middleboxes can operate directly on RangeMatch encrypted values as if they were normal IP addresses and port values.
+However, RangeMatch is not reversible: it is not possible to go from ciphertext back to plaintext. Hence, we also place normal AES encrypted values for the encrypted header fields in the IPv6 options header; these values are ignored by the middleboxes but used only at the gateway to decrypt packets after they return from the cloud.
 Some network appliances are commonly configured to drop packets with IP options; these middleboxes must be configured under \sys to permit packets with \sys options to pass through.
-After encrypting the header, the gateway encrypts the payload  with a standard cipher such as AES. 
-The last step is to encrypt the payload with KeywordMatch, and here we have two cases. 
-The first case is when all the middleboxes at SP are header-only. In this case, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they will be sent as part of a second stream.
+Finally, bytestream-aware middleboxes which operate on the packet payload do not operate directly on the payload: we modify these middleboxes to read KeywordMatch values for the payload from either the options header or a secondary metadata channel which travels alongside the normal packets.
+The payload itself is encrypted with standard AES, but not operated on by any middlebox.
+\todo{RALUCA PLEASE READ: Kay found this section confusing so I tried to clarify. Can you make sure this is correct/makes sense?}
 
 \mypara{Packet flow example}
 To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud.  First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
