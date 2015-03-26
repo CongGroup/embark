@@ -13,7 +13,7 @@ Unlike the previously presented middleboxes, these middleboxes are bytestream aw
 
 \sys's IDS builds on top of BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We now  summarize, but exclude many important details all of which are presented in~\cite{blindbox}.
 
-\noindent\textbf{BlindBox}
+\noindent\textbf{BlindBox.}
 To encrypt a stream of traffic from a sender, BlindBox first generates tokens from the stream.  
 For simplicity, consider that BlindBox generates a token for  every byte offset in the unencrypted payload (for a more efficient technique, see~\cite{blindbox}). 
 The  token encodes the first N = 8 bytes starting at the byte offset. Then, it encrypts the tokens with KeywordMatch, which we discussed in \S\ref{s:kwmatch}.
@@ -38,7 +38,7 @@ The security guarantee it gives is as in KeywordMatch (\S\ref{s:kwmatch}): for e
   the first model allows the middlebox to {\it detect a substring}, only if that substring is suspicious;
   the second model allows the middlebox to {\it decrypt the entire stream} if a substring is suspicious.
   
-\noindent\textbf{\sys's IDS}  
+\noindent\textbf{\sys's IDS.}  
   Everything we have described so far is identical between BlindBox and \sys. We now describe how they are different, and how \sys improves performance and security.
 
 The key difference between BlindBox and \sys's IDS comes from the cost to setup signatures at the IDS. 
