@@ -90,7 +90,7 @@ The packet is then sent out to the Internet or the client at the enterprise.
   \caption[]{\label{fig:mbarch} Typical middlebox software components. For most middleboxes, packet processing operations in the dataplane remain unmodified by \sys.}
 \end{figure}
 
-We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{dpdk-click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
+We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
 Figure~\ref{fig:mbarch} guides our discussion of these changes. %Most middlebox codebases can be divided in to three categories of functionality.
 Although  middlebox software architectures are unlikely to be cleanly divided in to three independent components as shown, most classes and functions within a middlebox codebase can be labeled as one of these three categories.
 These categories are: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and connection state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
