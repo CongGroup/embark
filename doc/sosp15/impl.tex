@@ -33,8 +33,8 @@ Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deploymen
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=3.25in]{fig/gatway_metaarch.JPG}
-  \caption[]{\label{fig:gatewaymeta} Communication between the cloud and three gateway services: rule encryption, data encryption, and data decryption}
+  \includegraphics[width=3.25in]{fig/gateway2cloud}
+  \caption[]{\label{fig:gatewaymeta} Communication between the cloud and gateway services: rule encryption, data encryption, and data decryption}
 \end{figure}
 
 
@@ -42,7 +42,7 @@ Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deploymen
 \begin{figure}[t]
   \centering
   \includegraphics[width=3.25in]{fig/gatewaydiag}
-  \caption[]{\label{fig:gateway} Enterprise to service provider packet processing pipeline.}
+  \caption[]{\label{fig:gateway} Data encryption (enterprise to cloud) click module.}
 \end{figure}
 
 The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of IDS/FW rulesets and updates to the RangeMatch tree.
