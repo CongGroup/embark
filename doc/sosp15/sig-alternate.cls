@@ -234,7 +234,7 @@
 \topsep 4pt plus 2pt minus 2pt\parsep 2pt plus 1pt minus 1pt
 \itemsep \parsep}}
 
-\def\footnotesize{\@setsize\footnotesize{9pt}\ixpt\@ixpt
+\def\footnotesize{\@setsize\footnotesize{6pt}\ixpt\@ixpt
 \abovedisplayskip 6.4pt plus 2pt minus 4pt%
 \belowdisplayskip \abovedisplayskip
 \abovedisplayshortskip \z@ plus 1pt%
