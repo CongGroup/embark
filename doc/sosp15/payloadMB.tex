@@ -25,7 +25,7 @@ For data exfiltration detection and for IDS signatures which consist {\it only} 
 The security guarantee it gives is as in KeywordMatch (\S\ref{s:kwmatch}): for every suspicious $N$-byte string part of the suspicious signatures at the IDS, the IDS learns if the string matches at a certain offset in the packet, but it does not learn anything else. In particular, if the stream contains no suspicious strings, the middlebox learns virtually nothing about the stream. 
 
  {\em Model 2.}  While this covers the case of data exfiltration and a significant number of IDS signatures, it does not support  IDS signatures with regular expressions.
- In fact, unfortunately, there does not exist an encryption scheme that can support such generic computation over encrypted data in a practical way in the literature. 
+ In fact, there exists no encryption scheme that can support such generic computation over encrypted data in a practical way in the literature. 
   Hence, to support regular expressions, BlindBox -- and hence \sys -- provide a secondary protocol with a different security guarantee. 
   Based on Snort's manual~\cite{Snort_manual}, all  IDS signatures must include exact match strings that filter a lot of the traffic -- for performance reasons, an IDS like Snort~\cite{Snort} performs regular expression detection after all exact match strings have been matched first.
   Inspired by this, BlindBox allows the middlebox to decrypt all the packets in the session if and {\it only} if a suspicious exact match strings matches a packet in this session.
@@ -52,7 +52,7 @@ Hence,  to generate the encrypted rules that the IDS can use for detection requi
 a sophisticated cryptographic computation (based on a primitive called garbled circuits~\cite{Yao82}) at the start of each connection, which makes the connection
 startup time slow. 
 Further, this computation scales with the number of exact-match rules the IDS needs to learn: the more rules, the longer the startup time.
-\sys does not have such overhead.
+%\sys does not have such overhead.
 
 Fortunately, the setup in \sys is different: even though the client is untrusted, the gateway is trusted. Hence, the middlebox can give the signatures to the gateway which can encrypt them using simple AES. Moreover, the gateway can perform this encryption once and does not need to repeat it for every user session. 
 There are two implications of this: better performance and better security.
