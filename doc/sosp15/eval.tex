@@ -33,12 +33,20 @@ We first evaluate \sys's overheads at the enterprise, including the gateway, end
   \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the stateless gateway.}
 \end{figure}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=3.25in]{fig/gateway_scale}
+  \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
+\end{figure}
+  
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as HTTP/proxy encryption. 
-For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 1.5Gbps per core; our 8-core server could easily saturate a 10Gbps link.
-With DPI enabled (not shown), throughput dropped to 240Mbps, suggesting that an enterprise would need a small cluster to reach higher bandwidth.
+For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
+In scalability experiments (shown in Fig.~\ref{fig:gwscale} Our 8-core server could could forward at up to 8Gbps while encrypting headers and payloads with a combination of AES, KeywordMatch, and RangeMatch schemes.
 
-While DPI introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
+With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need a small cluster to reach higher bandwidth for these kinds of devices.
+While DPI introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
+%Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
 
 \begin{figure}[t]
   \includegraphics[width=3.25in]{fig/xputrange}
