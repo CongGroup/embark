@@ -32,30 +32,31 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
      
      
   
-    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. These are: firewall, NAT, web proxy, load balancer, intrusion detection systems (IDS), data exfiltration systems, IP forwarder, and VPN. \sys supports these applications with competitive performance. 
+    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. We list these middleboxes in Table~\ref{tab:apps-ops}. Moreover, \sys supports these middleboxes with competitive performance. 
     
     The approach in \sys is to encrypt the traffic that goes to  the middleboxes in the cloud and enables the cloud to process encrypted traffic without ever decrypting it. \sys encrypts the packet payload as well as important information in the header (such as IP addresses and ports). Since the service provider receives only encrypted traffic and no decryption key, it cannot see the confidential data. However, designing a practical system that supports a wide-range of middlebox applications over encrypted traffic is challenging and required a set of new cryptographic and systems techniques.
     
     
-    
+\newcounter{theapp} \setcounter{theapp}{0}  
+\newcommand{\capp}{\refstepcounter{theapp}\arabic{theapp}}
     
 \begin{table}[t!]
-\centering
-\begin{tabular}{p{3.2cm}|p{2.9cm}|p{1cm}}
-{\bf Application}  & {\bf Operations used} & {\bf Details} \\
+\centering  
+\begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{3cm}}
+& {\bf Middlebox}  & {\bf Type } & {\bf Operations used}  \\
 \hline \hline
-IP Firewall &   range  & \S\ref{sec:firewall} \\
-Application Firewall & range, keyword  & \S\ref{sec:firewall}\\
-NAT & range  & \S\ref{sec:nat} \\
-IP Forwarding  & range & \S\ref{sec:other_apps} \\
-Load Balancer L4 & range & \S\ref{sec:loadb}\\
-Load Balancer L7  & range & \S\ref{sec:loadb}\\
-Web Proxy/Cache  & keyword & \S\ref{sec:proxy}\\
-Intrusion Detect (IDS)  & range, keyword & \S\ref{sec:IDS}\\
-Data Exfiltration  & keyword & \S\ref{sec:IDS} \\
-VPN Gateway &  none & \S\ref{sec:vpn} \\ 
+\capp &  IP Firewall \S\ref{sec:firewall} & HO &  range    \\
+\capp &  Application Firewall  \S\ref{sec:firewall} & BA & range, keyword  \\
+\capp & NAT  \S\ref{sec:nat} & HO & range   \\
+\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  range \\
+\capp & Load Balancer L4 \S\ref{sec:loadb} & HO & range  \\
+\capp & Load Balancer L7 \S\ref{sec:loadb} & BA & range  \\
+\capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & keyword \\
+\capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & range, keyword  \\
+\capp & Data Exfiltration  \S\ref{sec:ids} & BA & keyword  \\
+\capp & VPN Gateway \S\ref{sec:vpn} &  HO & none  \\ 
 \end{tabular}
-\caption{Middleboxes supported by \sys and the type of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
+\caption{Middleboxes supported by \sys \todo{Section too} and their type, HO (header only) or BA (bytestream aware) type \todo{finish} of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
 \todo{why have two load balancers?}
 \todo{table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
 on, and what it encrypts,  put section near the name} 
