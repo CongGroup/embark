@@ -107,9 +107,7 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 \[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that  two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time.  The reason is that  each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules).
-
-
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time. The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
 
 The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
 Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
