@@ -97,7 +97,7 @@ These translate into two  requirements for the gateway, which should be:
 \begin{figure}[t!]
 \centering
   \includegraphics[width=3.0in]{fig/packet.pdf}
-\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. Only for BA  middleboxes,  KeywordMatch returns extra payload data.  \label{fig:packet}}
+\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. Only for BA  middleboxes,  KeywordMatch produces additional encrypted data.  \label{fig:packet}}
 \end{figure}
 
 
@@ -112,31 +112,31 @@ These translate into two  requirements for the gateway, which should be:
 
 
 
-To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
+To protect privacy of the traffic, \sys encrypts all the traffic passing through the service provider (SP).
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
 As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
-the same secret key. The gateway encrypts all traffic going to the service provider (SP) using \sys's protocols.
+the same secret key. The gateway encrypts all traffic going to the service provider using \sys's encryption schemes.
 The middleboxes at SP process {\em encrypted traffic} using \sys's protocols. 
 After the processing, the middleboxes
 will produce encrypted traffic which SP sends back to the gateway. The gateway decrypts the traffic using the key $k$.
 
 Throughout this process, middleboxes at SP handle only encrypted traffic and never get the decryption key. This ensures
-that an attacker that steals all data from SP, will only see encrypted traffic and hence protects the privacy of the 
+that an attacker that steals all the data from SP will  see only encrypted traffic, which protects the privacy of the 
 traffic. 
 
 
 
 \mypara{Two types of middleboxes} \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
-  We classify middleboxes in  two broad categories based on the type of encrypted field  they compute on: {\em header-only} middleboxes (HO) and {\em bytestream-aware} middleboxes (BA).
+  We classify middleboxes in  two broad categories based on the type of encrypted fields  they compute on: {\em header-only} middleboxes (HO) and {\em bytestream-aware} middleboxes (BA).
  
-  The majority of middleboxes are `header-only' middleboxes: they operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
+Many middleboxes are `header-only': they operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
 Examples  include IP Firewalls and Network Address Translators (NATs). 
 
 Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
-  For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer which with copies of each payload it has forwarded.
+  For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer  with copies of each payload it has forwarded.
   It uses these payloads to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
    
- Web proxies are a special case: even though the middlebox reconstructs the bytestream, the only computation on encrypted data is on the HTTP header, so we classify them as a HO middlebox. 
+ Web proxies are a special case: even though this middlebox reconstructs the bytestream, the only computation on encrypted data is on the HTTP header, so we classify them as a HO middlebox. 
  
  
   
@@ -154,7 +154,7 @@ Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP by
   In Table~\ref{tab:apps-ops}, we list the type of each  middlebox in \sys. 
   
   As we will see, to support header-only middleboxes, the \sys gateway can also operate in a header-only fashion, encrypting each header field (\eg{}, IP address, port number) independently.
-  However, to support bytestream-aware appliances, the \sys gateway also needs to be be bytestream aware, in order to encrypt the concatenation packet payloads.
+  However, to support bytestream-aware appliances, the \sys gateway also needs to  be bytestream aware, in order to encrypt the concatenation of packet payloads.
  % The one exception to this rule -- that header-only middleboxes can be served by a header-only gateway, while bytestream-aware middleboxes require a bytestream-aware gateway -- is web proxying.
 %  Proxies are bytestream-aware, but can be served by a header-only middlebox when they do not allow pipelined requests.
   %As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
@@ -162,23 +162,18 @@ Some middleboxes are `bytestream-aware.' These middleboxes operate over a TCP by
 
 \mypara{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
-First, all the communication gateway to service provider to gateway happens over IPv6. This is a requirement of our RangeMatch scheme whose security requires a certain size for encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using \todo{XXXX tool name}. 
+First, all the communication that happens between the gateway and the service provider is over IPv6. This is a requirement of our RangeMatch scheme whose security needs a certain size for encrypted IP addresses. Nevertheless, this is not unusual considering that more and more enterprises are switching to IPv6. Moreover, \sys does not require the client and the server to use IPv6: they can use IPv4 in which case the gateway converts the packet to IPv6 using \todo{XXXX tool name}. 
 
 Fig.~\ref{fig:packet} shows how the gateway encrypts each packet.
 All IP addresses and ports in the header get encrypted with RangeMatch. Some encrypted values fit in the header in the place of the unencrypted values, and 
 some other values are placed in the IPv6 options header. The middleboxes have to be \sys-aware and know that the options header will contain \sys fields.  
 Next, the gateway encrypts the payload  with a standard cipher such as AES. 
-The gateway then encrypts the payload with KeywordMatch. Here we have two cases. 
-The first case is when all the middleboxes at SP are header-only. Then, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they will be sent as part of a second stream.
-
-\todo{search for extension}
-\todo{fix figure no more extens}
+The last step is to encrypt the payload with KeywordMatch, and here we have two cases. 
+The first case is when all the middleboxes at SP are header-only. In this case, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they will be sent as part of a second stream.
 
 \mypara{Packet flow example}
-To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three middleboxes in the cloud.  The first step in Fig.~\ref{fig:packetflow} is that the gateway encrypts the packet as explained above. For simplicity, assume that the BA encrypted values sent with a second stream  Back to Fig.~\ref{fig:packetflow}, the packet passes through the firewall which tries to match the encrypted information from the header against  encrypted rules, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the packet payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to an external IP address. Back at the gateway, the gateway decrypts the packet. 
+To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud.  First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
-On top of \sys, G can use SSL  to secure the communication to SP.  It can use SSL also on the links client-G and G-server.
+On top of \sys's encryption, the gateway can use SSL  to secure the communication to SP.  It can use SSL also on the links client-G and G-server.
 
-\todo{need to say somewhere that if we don't use IDs, then payload still encrypted but with normal stuff}
 
-\todo{Somewhere here need to discuss packet encryption}
