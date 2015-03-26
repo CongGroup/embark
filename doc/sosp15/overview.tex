@@ -24,7 +24,7 @@ In this setup, there are three parties: enterprise(s), the service provider (SP)
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
 The service provider runs a set of middleboxes. 
 
-We illustrate two redirectionl setups in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
+We illustrate two redirection setups in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
 It is worth mentioning that APLOMB allows an optimization that saves on bandwidth and latency relative to Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. We evaluate in \S\ref{sec:eval} what \sys loses by not allowing this optimization. 
 Nevertheless, for traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
 
@@ -123,7 +123,7 @@ Examples  include IP Firewalls and Network Address Translators (NATs).
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer  with copies of each payload it has forwarded.
   %It uses these payloads to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
 %%Because of this reconstruction cost, and the complexity of the computation over the reconstructed data, 
-Most bytstream aware middleboxes achieve lower throughput than header-only middleboxes.
+Most bytestream aware middleboxes achieve lower throughput than header-only middleboxes.
 
  Web proxies are a special case: even though this middlebox reconstructs the bytestream, the only computation on encrypted data is on the HTTP header, so we classify them as a HO middlebox. 
  

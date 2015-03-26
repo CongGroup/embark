@@ -10,7 +10,7 @@ Confidentiality of data in the cloud has been widely recognized as an important 
 A few systems~\cite{Vern:Anonymize03, Vern:Anonymize06} attempt to anonymize the packet stream in the hope of hiding the identity of the hosts.
 Unlike \sys, this approach breaks certain middlebox functionality and does not hide the data content.
 Yamada et al.~\cite{Yamada_IDS} show how one can perform some limited processing on an 
-SSL-encrypted packeti.
+SSL-encrypted packet.
      by using only the size of the data and the timing of packets. While this provides privacy, it does not 
      support middlebox processing. 
 
@@ -18,9 +18,9 @@ SSL-encrypted packeti.
 As discussed, computing on encrypted data promises to provide both confidentiality and functionality. Theoretical cryptographers developed fully homomorphic encryption~\cite{gentry:fhe, gentry:fhe-aes-eprint} and functional encryption~\cite{BSW11}, two schemes which can run any function over encrypted data. Unfortunately, these schemes remain prohibitively impractical by orders of magnitude~\cite{gentry:fhe-aes-eprint}.
 
 The CryptDB~\cite{popa:cryptdb} system introduced a vision for building practical systems that compute on encrypted data, by using an efficient encryption scheme for each core operation in the system; \sys follows the same  vision. Unfortunately, none of the encryption schemes nor the systems techniques in CryptDB apply to our setting.  The order-preserving encryption~\cite{boldyreva:ope} used in CryptDB is 
- $>3000$ times slower than RangeMatch (\S\ref{sec:eval}) and cannot sustain realistic network throughputs; moreover, it leaks the order of the IP addresses encrypted, while RangeMatch protects this information. Similarly, we use KeywordMatch for equality checks which is more secure than CryptDB's deterministic encryption because it is randomized. %Finally, the database techniques in CryptDB do not apply to our networking setting. 
+ $>3000$ times slower than RangeMatch (\S\ref{sec:eval}) and cannot sustain realistic network throughputs; moreover, it leaks the order of the IP addresses encrypted, while RangeMatch protects this information. Similarly, we use KeywordMatch for equality checks which is more secure than CryptDB's deterministic encryption.% because it is randomized. %Finally, the database techniques in CryptDB do not apply to our networking setting. 
 
-The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on IDS and does not provide solutions for header-based middleboxes such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. %In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
+The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on DPI and IDS and does not provide solutions for other middleboxes. %such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. %In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
 
 %Moreover, \sys takes an overall systems view and develops a system architecture that can run a multitude of middleboxes  on encrypted traffic in the cloud.
 

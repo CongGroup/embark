@@ -56,7 +56,7 @@ There are two possible ways rules can be generated. First, an enterprise may cho
 Rules can contain IP addresses, port numbers, and substrings of attack signatures; the first two must be encrypted with both keyword match and range match, the last needs only to be encrypted with keyword match.
 Alternately, the enterprise may opt in to a `default' set of rules from the cloud provider, in which case the cloud provider sends the rules to the gateway which encrypts them and sends them back.
 The rule encryption component also sends rule updates. Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
-If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
+If the gateway ever changes its key, the encryption component must signal to the cloud provider and re-encrypt all rules.
 %\todo{too high level? Details about how updates work?}
 
 \noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption and transmits packets from the enterprise to the cloud.
@@ -69,7 +69,7 @@ Below, we detail the three elements we implemented to encrypt the packet data:
 \noindent {\it Encode Headers:} Encrypts the IP, TCP, and UDP headers, replacing all IP and Port numbers in the packet with values calculated using the {\it RangeMatch} encryption algorithm. Appends the AES-encrypted values to the IP options field of the data packet.
 Required to support all middleboxes. 
 
-\noindent {\it Encode HTTP Header.} Encrypts the HTTP header for {\it the first GET request only.} Does not modify the data packet itself, but instead places the keyword match encryptions of the values in a new packet sent over the metadata channel. \clan{Here! And we also mention this in Section 8.2}
+\noindent {\it Encode HTTP Header.} Encrypts the HTTP header for {\it the first GET request only.} Does not modify the data packet itself, but instead places the keyword match encryptions of the values in a new packet sent over the metadata channel. %\clan{Here! And we also mention this in Section 8.2}
 The new packet marks (a) the encrypted 5-tuple flow ID for the packet, (b) that this is HTTP GET data for the proxy, and (c) the encrypted values. At the cloud, the proxy can read this metadata channel to obtain the encrypted URL for the GET request and check its cache for the encrypted data. This element is only needed if there is an HTTP proxy enabled at the cloud, otherwise it can be disabled at the gateway.
 
 \noindent {\it Encode HTTP Payload.} Encrypts the entire HTTP payload (as described in \S\ref{sec:ids}), placing the keyword match values in a new packet in the metadata channel. Unlike the other two elements, this element keeps per-flow state, reconstructing the TCP stream in order to generate keyword match tokens for keywords which are divided across two subsequent packets.  The metadata channel packets contain (a) the encrypted 5-tuple for the packet, (b) that the packet contains keyword match data for the IDS, and (c) the encrypted values. At the cloud, the IDS can read this metadata channel to detect attacks; if there is a match it instructs the firewall to block the 5-tuple for the flow. This element is only needed if there is an IDS enabled at the cloud, otherwise it can be disabled at the gateway.
@@ -84,7 +84,7 @@ The packet is then sent out to the Internet or the client at the enterprise.
 \subsection{Middlebox implementations}
 \label{sec:middleboxes}
 We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
-As we presented in~\ref{sec:homiddleboxes}, we adapted all header-only middleboxes {\it without modifying steady-state dataplane functions}, and hence preserving the performance properties of the existing middleboxes.
+As we presented in \S\ref{sec:homiddleboxes}, we adapted all header-only middleboxes {\it without modifying steady-state dataplane functions}, and hence preserving the performance properties of the existing middleboxes.
 We were able to do this because the encrypted values in the IPv6 header are stored in the normal IPv6 header formats, and because our encryption schemes preserve the exact match and range match semantics these devices use to operate correctly.
 All we need to do to be compatible with normal dataplane behavior is to encrypt all values in the rules and configuration files using the the range match encryption algorithm.
 
@@ -100,5 +100,5 @@ We re-implemented all such middleboxes from scratch.
 However, these changes need not be a performance penalty: as we show in \S\ref{sec:eval}, we wrote an HTTP proxy from scratch to cache HTTP content; this proxy achieves comparable performance to existing, unencrypted proxies despite our encryption.
 The primary difference between our proxy and a standard implementation is that the `table' storing file names/URIs and the file data is now over encrypted values; the content served is also opaque, encrypted data. 
 In addition, the file names/URIs are read from the metadata channel, rather than the primary connection with the data packets. 
-Otherwise, much of the more complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
+Much of the complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
 
