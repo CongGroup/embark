@@ -52,7 +52,6 @@ Hence, as the size of the tree goes larger, we can expect to require more time t
 We measure this effect in Figure~\ref{fig:xputrange}. 
 On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time from when the gateway begins encrypting the packet to when the gateway completes encrypting the packet; the processing time follows the same logarithmic trend.
-\todo{new latency numbers}
 
 \noindent{\it Is range encryption faster than existing order preserving algorithms?}
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
@@ -101,7 +100,7 @@ We use web performance to understand end-to-end client experience using \sys.
 Figure~\ref{fig:e2eloads} shows a CDF for the Alexa top-100 sites loaded through our testbed, we plot (a) the page load times in seconds, (b) the absolute increase in page load times in seconds, and (c) the relative increase in page load time as a multiple of the baseline. 
 Because of the `bounce' redirection \sys uses, all page load times increase; in the median case this increase is less than a second. At the 90th percentile, page loads increase by 2 seconds.
 Half of all pages see less than a 50\% overhead in load times.
-\todo{These numbers are so-so.???}
+%\todo{These numbers are so-so.???}
 
 \subsubsection{Bandwidth Overheads}
 We evaluate two costs: the increase in bandwidth due to our encryption and metadata, and the increase in bandwidth cost due to `bounce' redirection.
