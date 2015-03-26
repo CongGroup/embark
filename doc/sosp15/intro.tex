@@ -96,7 +96,7 @@ A last challenge is to design and build a system that supports the variety of ap
 To address this challenge, we make the following contributions:
 \begin{itemize}
 \item we design a  protocol for each type of middlebox in Table~\ref{tab:apps-ops} by employing our two match  primitives,
-\item  we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, use packet extension field, and sometimes add a second network flow.
+\item  we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, use the options header, and sometimes add a second network flow.
 \item  for most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} which can run identically on the encrypted traffic. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables \sys's performance on the fast path to be fast. 
 \end{itemize}
 

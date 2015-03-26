@@ -195,7 +195,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{246.00652058919277, 292.71881103515557}, {88, 11}}</string>
+			<string>{{246.00652058919277, 292.05214436848894}, {88, 11}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -428,7 +428,7 @@
 
 \f0\fs18 \cf0 sourceIP: 216.2...\
 destIP: 28.1...\
-content: password}</string>
+payload: password}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -657,10 +657,10 @@ content: password}</string>
 destIP: 
 \b \cf3 199.2..\
 
-\b0 \cf0 extens:
+\b0 \cf0 options:
 \b \cf3  x78d1
 \b0 \cf0 \
-content: 
+payload: 
 \b \cf3 x582A}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
@@ -777,10 +777,10 @@ content:
 destIP: 
 \b \cf2 199.2...\
 
-\b0 \cf0 extens:
+\b0 \cf0 options:
 \b \cf2  x78d1
 \b0 \cf0 \
-content: 
+payload: 
 \b \cf2 x582A}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
@@ -842,10 +842,10 @@ content:
 destIP: 
 \b \cf2 199.2...\
 
-\b0 \cf3 extens:
+\b0 \cf3 options:
 \b \cf2  x78d1
 \b0 \cf0 \
-content: 
+payload: 
 \b \cf2 x582A}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
@@ -958,7 +958,7 @@ content:
 
 \f0\fs18 \cf0 sourceIP: 128.0...\
 destIP: 28.1...\
-content: password}</string>
+payload: password}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -1899,7 +1899,7 @@ content: password}</string>
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2015-03-25 08:28:10 +0000</string>
+	<string>2015-03-26 07:29:16 +0000</string>
 	<key>Modifier</key>
 	<string>Raluca Ada Popa</string>
 	<key>NotesVisible</key>
