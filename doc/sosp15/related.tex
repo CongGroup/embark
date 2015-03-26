@@ -13,20 +13,36 @@ Vern has a few papers on packet trace anonymization for offline analysis. The ob
 http://www.icir.org/enterprise-tracing/devil-ccr-jan06.pdf
 http://www.icir.org/vern/papers/bro-anonymizer-sigcomm03.pdf
 
-
+Related work can be divided..
+\sys is the first system to 
 
 \subsection{Computing on encrypted data}
 
-\subsection{Theory}
+\mypara{Theory} Theoretical cryptographers developed fully homomorphic encryption~\cite{gentry:fhe, gentry:fhe-aes-eprint} and functional encryption~\cite{BSW11}, two schemes which can run any function over encrypted data. Unfortunately, these schemes remain prohibitively impractical, at least six orders of magnitude slower than unencrypted computation~\cite{gentry:fhe-aes-eprint}.
+
+\mypara{Systems} The CryptDB~\cite{popa:cryptdb} system introduced a vision for building practical systems that compute on encrypted data, by using an efficient encryption scheme for each core operation in the system, a vision which \sys follows. Unfortunately, none of the encryption schemes nor the systems techniques in CryptDB apply to our setting. First of all, the encryption schemes are both too slow and too insecure for our setting. The order-preserving encryption~\cite{boldyreva:ope} used in CryptDB is 
+ $>3000$ times slower than RangeMatch (\S\ref{sec:eval}) and cannot sustain realistic network throughputs; moreover, it leaks the order of the IP addresses encrypted, while RangeMatch protects this information. Similarly, we use KeywordMatch for equality checks which is more secure than CryptDB's deterministic encryption because it is randomized. Finally, the database techniques in CryptDB do not apply to our networking setting. 
+
+The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on IDS and does not provide solutions for header-based middleboxes such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
+
+%Moreover, \sys takes an overall systems view and develops a system architecture that can run a multitude of middleboxes  on encrypted traffic in the cloud.
 
 
-\subsection{Systems}
 
-Compare to CryptDB here carefully. 
-- need to make clear that these enc schemes are not like in CryptDB, that it is not just another CryptDB; only the vision is the same; % pioneered the vision of extracting core operations and then supporting them. Of course, the core operations are different here
-none of the technical part is the same, the enc schemes are different and in fact they are all more secure. 
+\subsection{Related work to RangeMatch}
 
-\subsection{Work related to our building blocks}
+As already mentioned, order-preserving encryption  (OPE) schemes~\cite{boldyreva:ope},~\cite{popa:mope} are less secure than RangeMatch because they leak order, and $>3000$ slower than RangeMatch, thus not sustaining realistic network loads.
+
+The scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security to ours.  same security as ours (although without the ability to use the ``>'' operator). 
+This scheme is significantly less efficient, orders of magnitude more than OPE itself, its ciphertext size is exponential in the size of the input, and it does not enable the ``>'' operator which enables using existing matching algorithms at the firewall. By taking advantage of the networks and systems setting, we constructed  a much more efficient scheme. 
+
+
+\subsection{Miscellaneous}
+
+search more privacy of traffic styff
+
+
+As mentioned, our keyword match scheme 
 
 -- what we build on here and the relationship of OPE with mOPE and others, range queries and others
 
