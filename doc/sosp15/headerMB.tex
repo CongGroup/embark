@@ -96,16 +96,15 @@ Moreover, \S\ref{sec:impl} describes how these updates are performed efficiently
 
 
 
-\mypara{Setup} \todo{describe setup also aes encryption}
 
 
 Consider a very simple NAT example:
 
-\begin{tabular}{c|c}
+\begin{tabular}{c|c|c|c|c}
 encrypted IP address  & encrypted port &  public IP address  & public port &  AES encryptions  \\
 \hline
-ab12:342::::::    & 160.1.1.0  & $\aes_k$() \\ 
-188.32.13.24    & 160.1.1.1 & $\aes_k$()
+ab12:342::               & 231                  & 160.1.1.1  &  445 &  [..] \\ 
+188e:3201::               & 829                  & 160.1.1.2 &   446  & [..] \\
 \end{tabular}
 
 The fast path of the NAT in \sys{} is unchanged from the regular NAT. The NAT maps IP addresses/ports that are encrypted to external IP addresses/ports 
