@@ -71,23 +71,22 @@ small number (logarithmic) of intervals that changed, so the overhead for the re
 
 
 \mypara{Rules updates affect other middleboxes}
-Since some encrypted ranges shifted, a previously encrypted IP address might now match into a wrong interval. 
+Since some encrypted ranges shifted, a previously encrypted IP address might now match wrong ranges.
 This affects all the middleboxes that retained an encrypted IP address.
 
-To address this, the gateway also computes $\mathbb{I}$, the interval that encloses all the changes.
-This interval is computed by simply taking the minimum and maximum encrypted value in the list $L$ or [$\enc(s)$, $\enc(e)$].
+To address this issue, the gateway also computes $\mathbb{I}$, the interval that encloses all the changes.
+This interval is computed by simply taking the minimum and the maximum encrypted values in the list $L$ or [$\enc(s)$, $\enc(e)$].
 The gateway sends $\mathbb{I}$ to {\em every middlebox} at SP. 
- 
- 
-We now discuss what the firewall and other middleboxes do with $\mathbb{I}$.
+ We now discuss what each middlebox, including the firewall, does with $\mathbb{I}$.
 
 
-\subsection{Updating ranges}
+\subsection{Updating ranges}\label{sec:rangeupdate}
 
-Consider that a header-only middlebox MB receives the interval $\mathbb{I}$ from the gateway indicating a change of ranges. If MB has an IP address $v$ encrypted in the past and $v$ falls in $\mathbb{I}$, $v$ has become stale.  As a result,  MB sends the list of these IP addresses to the gateway along with their AES encryption (which MB should have retained when first receiving a packet with this IP address or port). The gateway remaps them to new encrypted values and sends them back to MB which updates them. 
+Consider any middlebox MB. Whenever MB saves an encrypted IP address $\enc(v)$ as part of its state, MB has to save $\aes_k(v)$ that came along with it. 
 
+Now consider that  MB receives the interval $\mathbb{I}$ from the gateway indicating a change of ranges. If MB's state contains an encrypted IP address $\enc(v)$ that matches $\mathbb{I}$, $v$ has to be updated.  As a result,  MB sends $v$ along with $\aes_k(v)$ to the gateway. The gateway decrypts $\aes_k(v)$, obtains $v$, reencrypts it with EncryptValue and sends it back to MB. The scenario is the same for updates to ranges of ports. 
 
-Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
+Such adjustment of encryptions is inconvenient but it is  necessary for an encryption scheme like RangeMatch; without it, an impossibility result applies, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic in the total number of ranges. 
 Moreover, \S\ref{sec:impl} describes how these updates are performed efficiently. 
  
 
@@ -95,11 +94,32 @@ Moreover, \S\ref{sec:impl} describes how these updates are performed efficiently
 
 \subsection{Middlebox: NAT}\label{sec:nat}
 
-\todo{give example for NAT}
+
+
+\mypara{Setup} \todo{describe setup also aes encryption}
+
+
+Consider a very simple NAT example:
+
+\begin{tabular}{c|c}
+encrypted IP address  & encrypted port &  public IP address  & public port &  AES encryptions  \\
+\hline
+ab12:342::::::    & 160.1.1.0  & $\aes_k$() \\ 
+188.32.13.24    & 160.1.1.1 & $\aes_k$()
+\end{tabular}
 
 The fast path of the NAT in \sys{} is unchanged from the regular NAT. The NAT maps IP addresses/ports that are encrypted to external IP addresses/ports 
 as if they were not encrypted, as in Fig.~\ref{fig:packetflow}. 
 
+
+The only difference is that the NAT must listen to announcements of range changes as discussed in \S\ref{sec:rangeupdate}.
+
+
+
+It maps an encrypted source IP address to a public source IP address. It also stores the AES encryption of the source IP addresses. Recall that the gateway produces this AES encryption at the same time with the RangeMatch encryption. 
+
+Consider that the range is $\mathbb{I}$ = [12.0.0.0, 20.0.0.0]. 
+The NAT realizes that 12.34.21.19 became stale and 
 The difference is  when the firewall sends a list of range changes $L$ and maybe a new interval  [$\enc(s), \enc(e)$] .
 The NAT identifies all  encrypted IP addresses/ports  it has mapped that are affected: it computes an interval that covers all intervals in $L$ and $\enc(s), \enc(e)$ and checks which values fit in it. It then sends these values to the gateway, who re-encrypts them using EncryptValue (\S\ref{s:rangealg}) so the NAT updates them. 
 
