@@ -133,6 +133,8 @@ Because bounce redirection is over the `cheaper' link, the overall impact to ban
 \subsection{Middleboxes}
 \label{sec:evalcloud}
 
+We now evaluate the performance overhead at each middlebox. Overall, we find that throughput is negligibly impacted due to \sys because \sys keeps most dataplane operations unchanged.
+
 \begin{table}[t!]
 \begin{tabular}{p{3cm}|p{2cm}|p{2cm}}
 Application &  Baseline Throughput & \sys Throughput \\
@@ -153,26 +155,35 @@ IDS & 85Mbps & 166Mbps~\cite{blindbox}   \\
 \
 \end{table}
 
-\noindent{\it Is throughput reduced at the middleboxes due to Header-Only \sys?}
-Table~\ref{tbl:appsxput}...\todo{FILL IN}
+\noindent{\it Is throughput reduced at the middleboxes due to  \sys?}
+Table~\ref{tbl:appsxput} shows the throughput sustained for the apps we implemented.
+The IP Firewall, NAT, and Load Balancer are all `header only' middleboxes; the results shown compare packet processing over the same dataplane, once with encrypted IPv6 data and once with unencrypted IPv4 data.
+The only middlebox for which any overhead is observable is the NAT -- and this is a reduction of only 2.7\%.
 
+We re-implemented the Web Proxy and IDS to enable the bytestream aware operations they require over our encrypted data. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present leter, does have a higher service time per cache hit.
+The IDS numbers compare Snort (baseline) to the BlindBox implementation; this is not an apples-to-apples comparison as BlindBox performs mostly exact matches where Snort performs regular expressions.
 
+In what follows, we provide some further middlebox-specific benchmarks for the firewall, proxy, and IDS.
 
-\noindent{\bf Firewalls.} 
+\noindent{\bf Firewalls:} 
 {\it Does \sys support all rules in a typical firewall configuration? How much does the ruleset ``expand'' due to encryption?}
+We tested our firewall with three actively-used rulesets provided to us by a network administrator at our institution; two rulesets were in a proprietary firewall format and one was a set of IPTables rules for a software Linux firewall.
+We were able to encode all rules using range and keyword match encryptions.
 
-\noindent{\it How often do updates to the firewall require a rule refresh? How long does it take to refresh rules at the firewall?}
+We also investigated how much the ruleset increased due to range encryption. Rules are typically encoded in the firewall as prefixes, hence a rule over the range [4.0.0.0, 4.255.255.255] is in practice implemented as a bitmask over the first 8 bits of every packet; checking to see if the packet matches the prefix 4.0.0.0/8.
+Using range encryption, the same prefix might be mapped to 9.128.0.0-10.128.0.0.0, resulting in two /9 prefix ranges in the final rule encoding: 9.128.0.0/9 or 10.128.0.0/9
+As throughput for many middleboxes decreases with the number of rules, we were concerned that these mappings might degrade performance. However, in practice rules increased modestly, by between 5.8\% and 10.2\%.
 
-\noindent{\bf NAT.}
-\noindent{\bf LB...}
+\begin{figure}[t]
+\centering
+\includegraphics[width=3.25in]{fig/proxytime}
+\caption{\label{fig:proxygraph} Access time per page against the number of concurrent connections at the proxy.}
+\end{figure}
 
-\noindent{\bf Proxy/Caching.}
-{\it How many active connections per second can the Proxy accept? How does this compare to an unencrypted Proxy implementation, like Squid?}
-
-{\it What improvement in page load times does a client experience due to proxying, relative to no proxy at all? Relative to an unencrypted proxy implementation?}
+\noindent{\bf Proxy/Caching:}
 
 
-\noindent{\bf Intrusion Detection}
+\noindent{\bf Intrusion Detection:}
 Our IDS is based on BlindBox~\cite{blindbox}. However, \sys affords better performance and stronger privacy than BlindBox. BlindBox incurs a substantial `setup cost' every time a client initiates a new connection. With \sys, however, the gateway and the cloud maintain one, long-term persistent connection. 
 Hence, this setup cost is paid once when the gateway is initially configured. This results in two benefits:
 
