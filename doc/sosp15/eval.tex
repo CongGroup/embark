@@ -21,7 +21,7 @@ As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in ty
 % Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
 
 We now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption (over the header or the payload) and redirection. 
-\sys has very low hardware overheads at the enterprise: our eight-core server could easily saturate a 10Gbps link with encrypted traffic to and from the cloud; we evaluate the gateway throughput in \S\ref{sec:gateway}.
+\sys has  low hardware overheads at the enterprise: our eight-core server could easily saturate a 10Gbps link with encrypted traffic to and from the cloud; we evaluate the gateway throughput in \S\ref{sec:gateway}.
 Because most middleboxes are unchanged in the dataplane, throughput overheads at the cloud due to \sys are negligible, typically under 1\%, as we show in \S\ref{sec:homiddleboxes}.  
 
 We ran our experiments using the implementation described in \ref{sec:impl}. 
@@ -41,11 +41,11 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
  
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as HTTP/proxy encryption. 
-For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
-In scalability experiments (shown in Fig.~\ref{fig:gwscale} Our 8-core server could could forward at up to 8Gbps while encrypting headers and payloads with a combination of AES, KeywordMatch, and RangeMatch schemes.
+For empirical traffic traces with payload encryption (IDS) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
+In scalability experiments (shown in Fig.~\ref{fig:gwscale}),  our 8-core server  could forward at up to 8Gbps while encrypting headers and payloads with a combination of AES, KeywordMatch, and RangeMatch schemes.
 
-With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need a small cluster to reach higher bandwidth for these kinds of devices.
-While DPI introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
+With IDS enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need a small cluster to reach higher bandwidth for these kinds of devices.
+While IDS introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
 %Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
 
 \begin{figure}[t]
@@ -56,16 +56,16 @@ While DPI introduces a reduction to about one-sixth relative to other encryption
 
 \noindent{\it How do throughput and latency at the gateway scale with the number of rules for range encryption?} 
 In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
-Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
+Hence, as the size of the tree grows, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of the tree data structure. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
 \noindent{\it Is range encryption faster than existing order preserving algorithms?}
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
-Existing order-preserving approaches require multiple round trip times -- and hence many milliseconds -- for each encryption operation.
+Existing order-preserving approaches require either significant CPU time or multiple round trip times -- and hence milliseconds -- for each encryption operation.
 Our range encoding approach encrypts each value in microseconds.
-We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
+We compare against state-of-the-art schemes BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}:
 
 \begin{table}[h]
 \centering
