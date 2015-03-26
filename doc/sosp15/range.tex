@@ -107,7 +107,7 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 \[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that  two IP addresses get assigned to the same encryption is negligibly low for IPv6 and very low for IPv4.~\todo{do we need to tell them it works for ipv6 only?} The reason is that  each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules).
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that  two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time.  The reason is that  each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules).
 
 
 
@@ -126,7 +126,7 @@ We now explain concretely the API and the implementation of the scheme.
 
 \subsubsection{Gateway API and implementation}\label{s:rangealg}
 
-\mypara{Gateway state} The gateway keeps a short amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
+\mypara{Gateway state} The gateway keeps a small amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
 
 The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of

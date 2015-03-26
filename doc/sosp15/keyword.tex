@@ -31,7 +31,7 @@ Given an encrypted string $\enc(v) = (\salt, A)$ and an encrypted keyword $\encr
 in the list [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')] are equal. The reason is that they each have a different salt.  
 
 \mypara{Optimization}
-In some applications, we can use a deterministic encryption scheme instead of the scheme above {\em without sacrificing security}: this is the case when we are guaranteed that the strings encrypted are distinct. In this case, the salt is not needed, and we can simply encrypt a value $v$ with $\Enc(v) = \aes_k(v)$. This enables fast equality matching and building indexes for fast search (which will be useful for the http proxy middlebox in \S\ref{sec:proxy} ).
+In some applications, we can use a deterministic encryption scheme instead of the scheme above {\em without sacrificing security}: this is the case when we are guaranteed that the strings encrypted are distinct. In this case, the salt is not needed, and we can simply encrypt a value $v$ with $\Enc(v) = \aes_k(v)$. This enables fast equality matching and building indexes for fast search (which will be useful for the HTTP proxy middlebox in \S\ref{s:proxy} ).
 
 
 
