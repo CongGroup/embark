@@ -25,12 +25,12 @@ where $\salt$ is a random value, $H$ is a hash function and $\aes$ is the AES al
 To encrypt a keyword $r$ to search for, the gateway computes $\encr = \aes_k(r)$. 
 Given an encrypted string $\enc(v) = (\salt, A)$ and an encrypted keyword $\encr$, SP knows that there is a match if  $H(\salt, \encr) = A$.  
 
-\mypara{Security guarantees} The security of searchable encryption is well studied~\cite{song:search, blindbox}. At a high level, the security is that, given a list of encrypted strings, and an encrypted keyword, SP does not learn anything about the encrypted strings, other than which strings match the keyword. In \sys, we will not be concerned with hiding the keyword, although $\encr$ does hide it. 
+\noindent\textbf{Security guarantees} The security of searchable encryption is well studied~\cite{song:search, blindbox}. At a high level, the security is that, given a list of encrypted strings, and an encrypted keyword, SP does not learn anything about the encrypted strings, other than which strings match the keyword. In \sys, we will not be concerned with hiding the keyword, although $\encr$ does hide it. 
 
  The encryption of the strings is {\em randomized}, so it does not leak whether two encrypted strings are equal to each other, unless, of course, they both match the encrypted keyword. For instance, in the example above, SP cannot tell that the first and third encrypted strings 
 in the list [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')] are equal. The reason is that they each have a different salt.  
 
-\mypara{Optimization}
+\noindent\textbf{Optimization}
 In some applications, we can use a deterministic encryption scheme instead of the scheme above {\em without sacrificing security}: this is the case when we are guaranteed that the strings encrypted are distinct. In this case, the salt is not needed, and we can simply encrypt a value $v$ with $\Enc(v) = \aes_k(v)$. This enables fast equality matching and building indexes for fast search (which will be useful for the HTTP proxy middlebox in \S\ref{s:proxy} ).
 
 

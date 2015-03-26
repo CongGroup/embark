@@ -113,7 +113,7 @@ traffic.
 
 
 
-\mypara{Two types of middleboxes} \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
+\noindent\textbf{Two types of middleboxes} \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
   We classify middleboxes in  two broad categories based on the type of encrypted fields  they compute on.
 
 \noindent{\it Header-Only Middleboxes:} operate over packet headers (\eg{}, IP, TCP, or even HTTP headers) on a packet-by-packet basis.
@@ -149,7 +149,7 @@ Most bytstream aware middleboxes achieve lower throughput than header-only middl
   %As we will discuss in \S\ref{sec:proxies}, the gateway can encrypt the HTTP header values on a packet-by-backet basis without requiring any TCP bytestream reconstruction so long as HTTP pipelining is not enabled. 
 
 
-\mypara{Packet encryption}
+\noindent\textbf{Packet encryption}
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
 The gateway always generates IPv6 packets as output to the cloud, regardless of whether the input packets from the enterprise are v4 or v6. The tunnel connecting the gateway to the cloud may be either v4 or v6.
 As we will see in the following section, our RangeMatch scheme requires 128 bits to encode encrypted IP addresses.
@@ -164,7 +164,7 @@ Finally, bytestream-aware middleboxes which operate on the packet payload do not
 The payload itself is encrypted with standard AES, but not operated on by any middlebox.
 \todo{RALUCA PLEASE READ: Kay found this section confusing so I tried to clarify. Can you make sure this is correct/makes sense?}
 
-\mypara{Packet flow example}
+\noindent\textbf{Packet flow example}
 To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud.  First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
 On top of \sys's encryption, the gateway can use SSL  to secure the communication to SP.  It can use SSL also on the links client-G and G-server.
