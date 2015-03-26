@@ -47,7 +47,7 @@ Many middleboxes perform detectio over a {\it range} of port numbers or IP addre
 
 %
 The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
-For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although the scheme can be used for encrypting ports too).
+For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although it can be used for encrypting ports too).
 
 \noindent\textbf{Requirements}
 %
@@ -84,7 +84,7 @@ Instead, we designed a new encryption scheme that satisfies all the requirements
 
 %We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
 
-To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else about the intervals.
+To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else.
 
 For now, consider that the gateway  maintains a mapping of each interval endpoint  to its encryption, called the {\em interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encrypted with 0.0.0.0 and 255.255.255.255. 
 
@@ -120,7 +120,7 @@ readjust all the encryptions of these intervals to make space for the new interv
 
 
 
-We now explain concretely the API and the implementation of the scheme. 
+%We now explain concretely the API and the implementation of the scheme. 
 
 \subsubsection{Gateway API and implementation}\label{s:rangealg}
 

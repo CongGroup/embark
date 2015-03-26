@@ -56,7 +56,7 @@ There are two possible ways rules can be generated. First, an enterprise may cho
 Rules can contain IP addresses, port numbers, and substrings of attack signatures; the first two must be encrypted with both keyword match and range match, the last needs only to be encrypted with keyword match.
 Alternately, the enterprise may opt in to a `default' set of rules from the cloud provider, in which case the cloud provider sends the rules to the gateway which encrypts them and sends them back.
 The rule encryption component also sends rule updates. Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
-If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
+If the gateway ever changes its key, the encryption component must signal to the cloud provider and re-encrypt all rules.
 %\todo{too high level? Details about how updates work?}
 
 \noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption and transmits packets from the enterprise to the cloud.
@@ -100,5 +100,5 @@ We re-implemented all such middleboxes from scratch.
 However, these changes need not be a performance penalty: as we show in \S\ref{sec:eval}, we wrote an HTTP proxy from scratch to cache HTTP content; this proxy achieves comparable performance to existing, unencrypted proxies despite our encryption.
 The primary difference between our proxy and a standard implementation is that the `table' storing file names/URIs and the file data is now over encrypted values; the content served is also opaque, encrypted data. 
 In addition, the file names/URIs are read from the metadata channel, rather than the primary connection with the data packets. 
-Otherwise, much of the more complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
+Much of the complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
 

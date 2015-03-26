@@ -1,5 +1,20 @@
 %!TEX root = mb.tex
+\begin{figure}[t]
+  \centering
+  \begin{tabular}{cc}
+  \includegraphics[height=1.25in]{fig/gatewayxput}&
+  \includegraphics[height=1.25in]{fig/gateway_pps}\\
+  \end{tabular}
+  \includegraphics[width=2.75in]{fig/key}
+  \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the stateless gateway.}
+\end{figure}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=3in]{fig/gateway_scale}
+  \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
+\end{figure}
+ 
 \section{Evaluation} \label{sec:eval}
 
 As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes as well as bytestream-aware middleboxes . 
@@ -23,22 +38,7 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
 
 \subsubsection{Gateway}
 
-\begin{figure}[t]
-  \centering
-  \begin{tabular}{cc}
-  \includegraphics[height=1.25in]{fig/gatewayxput}&
-  \includegraphics[height=1.25in]{fig/gateway_pps}\\
-  \end{tabular}
-  \includegraphics[width=2.75in]{fig/key}
-  \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the stateless gateway.}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=3.25in]{fig/gateway_scale}
-  \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
-\end{figure}
-  
+ 
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as HTTP/proxy encryption. 
 For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
@@ -49,7 +49,8 @@ While DPI introduces a reduction to about one-sixth relative to other encryption
 %Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
 
 \begin{figure}[t]
-  \includegraphics[width=3.25in]{fig/xputrange}
+  \centering
+  \includegraphics[width=3in]{fig/xputrange}
   \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
 \end{figure}
 
@@ -58,7 +59,7 @@ In \S\ref{sec:range}, we discussed how our range encryption scheme stores encryp
 Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
 On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
-On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time from when the gateway begins encrypting the packet to when the gateway completes encrypting the packet; the processing time follows the same logarithmic trend.
+On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
 \noindent{\it Is range encryption faster than existing order preserving algorithms?}
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
@@ -183,7 +184,7 @@ As throughput for many middleboxes decreases with the number of rules, we were c
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=3.25in]{fig/proxytime}
+\includegraphics[width=3in]{fig/proxytime}
 \caption{\label{fig:proxygraph} Access time per page against the number of concurrent connections at the proxy.}
 \end{figure}
 
