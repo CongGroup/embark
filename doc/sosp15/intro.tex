@@ -94,7 +94,7 @@ Table~\ref{tab:apps-ops} summarizes the middleboxes we support and the operation
 
 % TO CUT/REMOVE: just say that they are too insecure and slow and don't explain about order
 A second challenge is that there is no suitable encryption scheme for the range match scheme:
- the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch} which is targeted at and takes advantage of the network setting. RangeMatch  is fast (performing encryptions in under 3$\mu$s, 4 orders of magnitude faster than the OPE schemes) and more secure because it does not reveal the order of the values encrypted. 
+ the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch}, which is targeted at and takes advantage of the network setting. RangeMatch  is fast (performing encryptions in under 3$\mu$s, 4 orders of magnitude faster than the OPE schemes) and more secure because it does not reveal the order of the values encrypted. 
  
 A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
 To address this challenge, we make the following contributions:
