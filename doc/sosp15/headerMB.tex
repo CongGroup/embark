@@ -1,9 +1,5 @@
 %!TEX root = mb.tex
 
-\todo{should have all header MBs into one section to save some space?}
-\todo{would really make things better to have the borderbox send ipdates to all, you mention it here not much in overview, 
-not useful for DPI anyways}
-\todo{have a figure here}
 
 \section{Header-only middleboxes}
 
@@ -12,7 +8,6 @@ not useful for DPI anyways}
 
 \subsection{Middlebox: Firewall}\label{sec:firewall}
 
-\todo{there was some text somewhere about a tool we use to switch to ipv6}
 
 We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers. Stateless firewalls commonly examine the combination of the packet's source and destination address, its protocol, and for TCP/ UDP traffic, its source and destination port number. Stateful firewalls additionally keep track of protocol states for each flow and retain packets until they have enough information to make decision. 
 Our RangeMatch scheme supports both types of firewalls. We now explain the design of the firewall based on this scheme.
