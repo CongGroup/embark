@@ -12,7 +12,7 @@ When describing these schemes, for concreteness, we refer to the encryptor as th
 \subsection{Keyword match}\label{s:kwmatch}
 
 
-Keyword match allows detecting if an encrypted keyword matches an encrypted data item by equality.
+KeywordMatch allows detecting if an encrypted keyword matches an encrypted data item by equality.
 For example, given an encryption of the keyword ``malicious'', and a list of encrypted strings  [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')], SP can  detect that the keyword matches the second string. 
 
 To implement this, we use a searchable encryption scheme~\cite{song:search, blindbox}.
