@@ -71,11 +71,11 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
  \end{CompactEnumerate}
 
 
-Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both significantly less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they are \todo{XXX} times slower (as demonstrated in \S\ref{sec:eval}), making them not practical in our setting. 
+Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both significantly less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
 
 
 Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
-The scheme takes advantage of the network setting; it does not rely on advanced cryptography, so it can be easily understood and validated by a non-cryptography reader. 
+The scheme takes advantage of the network setting; it does not rely on advanced cryptography, so it can be easily understood and validated by a non-cryptographically trained reader. 
 
 
 \subsubsection{Our RangeMatch scheme} 
@@ -126,7 +126,7 @@ We now explain concretely the API and the implementation of the scheme.
 
 \subsubsection{Gateway API and implementation}\label{s:rangealg}
 
-\mypara{Gateway state} The gateway keeps a small amount of state (\todo{XXX}) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
+\mypara{Gateway state} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
 
 The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of
