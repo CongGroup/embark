@@ -26,4 +26,4 @@ set style histogram cluster gap 1
 set style fill solid border rgb "black"
 set auto x
 #plot 'data.plot' using ($2):xtic(1) lt 1 lc rgb "red" t "Whole Page: BB+TLS" , '' using ($4) lt 1 lc rgb 'orange' t 'Whole Page: TLS', '' using ($3) lt 1 lc rgb 'navy' t 'Text/Code: BB+TLS', '' using ($5) lt 1 lc rgb 'forest-green' t 'Text/Code: TLS'
-plot 'data.plot' using ($2):xtic(1) lt 1 lc rgb "red" t "64 byte packets", '' using ($4) lt 1 lc rgb "skyblue"  t "Mixed packet sizes",  '' using ($6)  lt 1 lc rgb "slategray" t "1500 byte packets", '' using ($8) lt 1 lc rgb "orange" t "Empirical Trace (m57)" 
+plot 'data.plot' using ($2):xtic(1) lt 1 lc rgb "red" t "Pessimal: min packets", '' using ($4) lt 1 lc rgb "skyblue"  t "Realistic (mixed) packets",  '' using ($6)  lt 1 lc rgb "slategray" t "Maximal: 1500 byte packets", '' using ($8) lt 1 lc rgb "orange" t "Empirical Trace (m57)" 
