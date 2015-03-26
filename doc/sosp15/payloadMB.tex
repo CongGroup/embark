@@ -43,7 +43,7 @@ Further, this computation scales with the number of exact-match rules the IDS ne
 
 The first implication of this is performance: this startup time is eliminated, as the rules are generated once, at the gateway, and transmitted to the IDS. After this there is no more setup cost.
 
-The second implication is improved security security. We showed how BlindBox has a stronger security guarantee for exact matches than it does for regular expressions. However, many regular expressions can be converted to exact matches. 
+The second implication is improved security. We showed how BlindBox has a stronger security guarantee for exact matches than it does for regular expressions. However, many regular expressions can be converted to exact matches. 
 For example, the regular expression 'alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3'].
 To do this expansion with BlindBox would be prohibitively expensive, as each additional exact match rules increases the already lengthy setup time.
 However, as \sys has no such cost, we can expand many regular expressions and thus detect them using the stronger security model.

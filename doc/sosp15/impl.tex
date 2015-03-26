@@ -25,7 +25,7 @@ We now describe the \sys architecture and implementation.
 As discussed in \S\ref{sec:overview}, \sys redirects traffic to the cloud and back for {\it middlebox processing} using a {\it redirection gateway}.
 \todo{Put a little overview aout gateway, metadata channel, mbs here???}
 We now present the implementation and architecture of the redirection gateway (\S\ref{sec:gateway}), followed by the modifications we made to middleboxes to support \sys (\S\ref{sec:middleboxes}).
-Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deployment}).
+%Finally, we discuss our EC2 deployment of these components (\S\ref{sec:deployment}).
 
 
 \subsection{Redirection \& gateway implementation}
@@ -91,8 +91,8 @@ The packet is then sent out to the Internet or the client at the enterprise.
 \end{figure}
 
 We implemented \sys for all middleboxes listed in Table~\ref{tab:apps-ops} using DPDK-Click~\cite{dpdk-click}, with varying levels of modification to a baseline (unencrypted) design required to make them compatible with \sys. 
-Figure~\ref{fig:mbarch} guides our discussion of these changes. Most middlebox software can be divided in to three classes of functionality;
-although the middlebox architecture is unlikely to be cleanly divided in to three independent components, most classes and functions can be labeled as one of these three classes.
+Figure~\ref{fig:mbarch} guides our discussion of these changes. Most middlebox codebases can be divided in to three categories of functionality.
+Although the middlebox architecture is unlikely to be cleanly divided in to three independent components as shown, most classes and functions can be labeled as one of these three categories.
 These behaviors are: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and connection state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
 Importantly, packet processing only occurs in dataplane functions, which are usually tightly engineered to process each packet in microseconds or faster.
 
@@ -113,17 +113,4 @@ However, these changes need not be a performance penalty: as we show in \S\ref{s
 The primary difference between our proxy and a standard implementation is that the `table' storing file names/URIs and the file data is now over encrypted values; the content served is also opaque, encrypted data. 
 In addition, the file names/URIs are read from the metadata channel, rather than the primary connection with the data packets. 
 Otherwise, much of the more complicated aspects of the codebase (\eg{}, TCP session termination, storage and cache optimization, etc) can be implemented using out of the box libraries.
-
-
-\subsection{Deployment}
-\label{sec:deployment}
-\raluca{isn't this evaluation setup and should go in the first part of eval?}
-
-We deployed our middleboxes on EC2 large instances using.... \todo{CHANG???}
-
-Our prototype gateway runs with four 2.6GHz Xeon E5-2650 cores and 128 GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card.
-We deployed our prototype in our research lab and redirected traffic from a 3-server testbed through the gateway; these three client servers had the same hardware specifications as the server we used as our gateway.
-
-We evaluate our deployment in the following section.
-
 
