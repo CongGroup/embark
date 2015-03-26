@@ -20,7 +20,7 @@ First, it prepares the IP and port intervals. Recall that RangeMatch requires th
 The gateway then expands every prefix into an interval, and every exact match $x$ into [$x$, $x$]. 
 
 Next, the gateway encrypts these intervals using EncryptRanges (\S\ref{sec:range}) by running one instance of RangeMatch for IP addresses and one instance for ports.
-It then convets each encrypted IP range into a set of prefixes and duplicates the rule for each prefix in this set. 
+It then converts each encrypted IP range into a set of prefixes and duplicates the rule for each prefix in this set. 
 
 Consider an example rule from  \mf{pf}, the 
 default firewall under BSD:
@@ -81,7 +81,7 @@ The fast path of the NAT in \sys{} is unchanged from the regular NAT. The NAT ma
 as if they were not encrypted, as in Fig.~\ref{fig:packetflow}. 
 
 The difference is  when the firewall sends a list of range changes $L$ and maybe a new interval  [$\enc(s), \enc(e)$] .
-The NAT identifies all  encrypted IP addresses/ports  it has mapped that are affected: it computes an interval that covers all intervals in $L$ and $\enc(s), \enc(e)$ and checks which values fit in it. It then sends these values to the gateway, who reencrypts them using EncryptValue (\S\ref{s:rangealg}) so the NAT updates them. 
+The NAT identifies all  encrypted IP addresses/ports  it has mapped that are affected: it computes an interval that covers all intervals in $L$ and $\enc(s), \enc(e)$ and checks which values fit in it. It then sends these values to the gateway, who re-encrypts them using EncryptValue (\S\ref{s:rangealg}) so the NAT updates them. 
 
 Such adjustment of encryptions are necessary for an encryption scheme like RangeMatch, as discussed in \S\ref{sec:range}. Nevertheless, this operation happens rarely and is not expensive: it happens only when firewall rules change and the number of ranges changed is  amortized logarithmic.
 

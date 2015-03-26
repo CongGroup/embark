@@ -8,7 +8,7 @@ Hence, from a functionality perspective, \sys answers our original question, ``I
 To evaluate \sys more deeply, we now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption (over the header or the payload) and redirection. 
 Overall, we find that \sys provides client performance comparable to APLOMB~\cite{aplomb} -- e.g., page load times increase by \todo{foo}\% relative to APLOMB when caching is disabled, and by \todo{bar\%} when caching is enabled.
 System efficiency varies dramatically between Header-Only \sys and Bytestream-aware\sys.
-Header-only \sys reduces gatway throughput by \todo{foo\%} relative to APLOMB~\cite{aplomb} and has zero overhead at the outsourced middleboxes. 
+Header-only \sys reduces gateway throughput by \todo{foo\%} relative to APLOMB~\cite{aplomb} and has zero overhead at the outsourced middleboxes. 
 Bytestream-aware \sys enabled imposes a higher overhead, with the gateway able to forward \todo{bar\%} fewer Gbps than \sys without bytestream reconstruction.
 
 We ran our experiments using the implementation described in \ref{sec:impl}. 
@@ -42,7 +42,7 @@ Beyond sending the primary traffic 3 times (2$\times$ on the uplink, $1\times$ o
   \item If HTTP proxying is enabled, there are on average 132 bytes per request in additional encrypted data.
   \item If HTTP IDS is enabled, there is at worst a 5$\times$ overhead on all HTTP payloads.
 \end{itemize}
-We used te m57 trace to understand how these overheads would play out in aggregate for an enterprise.
+We used the m57 trace to understand how these overheads would play out in aggregate for an enterprise.
 On the uplink, from the gateway to the middlebox service provider, traffic would increase by 2.5\% due to encryption costs for a Header-Only Gateway. Traffic would increase by 4.3$\times$ on the uplink for a bytestream-aware gateway. 
 
 Using current bandwidth pricing~\cite{comcast-costs, megapath-costs, verizon-costs}, we can observe how such inflation would increase costs: 
@@ -64,11 +64,11 @@ We discuss the range match scheme and the gateway in the following subsection, a
   \includegraphics[height=1.25in]{fig/gateway_pps}\\
   \end{tabular}
   \includegraphics[width=2.75in]{fig/key}
-  \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the statless gateway.}
+  \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the stateless gateway.}
 \end{figure}
 
 \noindent{\it How does encryption impact throughput at the outsourcing gateway?}
-Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's IP/TCP-header encryption, and finally with IP/TCP-header encryption as well as HTTP/proxy encryption. There is little difference between the HTTP overhead and the IP/TCP overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. Overall, MBArk encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%. Hence, an enterprise moving from a traditional outsourcing approach to MBark would need to provision at worst around 2.5$\times$ the number of processors at the outsourcing gateway.
+Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's IP/TCP-header encryption, and finally with IP/TCP-header encryption as well as HTTP/proxy encryption. There is little difference between the HTTP overhead and the IP/TCP overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%. Hence, an enterprise moving from a traditional outsourcing approach to \sys would need to provision at worst around 2.5$\times$ the number of processors at the outsourcing gateway.
 
 \begin{figure}[t]
   \includegraphics[width=3.25in]{fig/xputrange}
@@ -80,7 +80,7 @@ Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to 
 In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
 Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an aditional 90k rules drops throughput to 400Kpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time from when the gateway begins encrypting the packet to when the gateway completes encrypting the packet; the processing time follows the same logarithmic trend.
 \todo{new latency numbers}
 
@@ -127,7 +127,7 @@ Web Proxy & &\\
 %IDS & & & \\
 %Exfiltration/parental filtering & & &  \\
 \end{tabular}
-\caption{Middlebox applications supported by Header-Only \sys; throughput measured with an emprical traffic workload. \label{tbl:appsxput}}
+\caption{Middlebox applications supported by Header-Only \sys; throughput measured with an empirical traffic workload. \label{tbl:appsxput}}
 \
 \end{table}
 
@@ -153,7 +153,7 @@ Table~\ref{tbl:appsxput}...\todo{FILL IN}
 
 \subsection{\sys with Bytestream Reconstruction}
 In \S\ref{sec:something}, we discussed how the \sys gateway must be stateful to support bytestream-aware applications in order to encrypt end-to-end payloads properly for intrusion detection, and in order to parse the HTTP header for proxying pipelined HTTP connections. 
-The overhead introduced by the bytestream-aware gateway is twofold: (1) the cost of statefull connection-keeping, and (2) the increased encryption cost, as cryptographic operations are performed over the payload (as much as 1500 bytes) rather than the headers (<30 bytes).
+The overhead introduced by the bytestream-aware gateway is twofold: (1) the cost of stateful connection-keeping, and (2) the increased encryption cost, as cryptographic operations are performed over the payload (as much as 1500 bytes) rather than the headers (<30 bytes).
 We tested the stateful proxy using an empirical workload of web page requests from the Alexa~\cite{alexa} top sites; on a single core the stateful gateway could forward at most 240Mbps -- about one-sixth the throughput of the stateless gateway over an empirical trace. 
 
 We now evaluate the performance of our two bytestream-aware middleboxes: a proxy for pipelined connections, and an IDS.
@@ -162,7 +162,7 @@ We now evaluate the performance of our two bytestream-aware middleboxes: a proxy
 Our IDS is based on BlindBox~\cite{blindbox}. However, \sys affords better performance and stronger privacy than BlindBox. BlindBox incurs a substantial `setup cost' every time a client initiates a new connection. With \sys, however, the gateway and the cloud maintain one, long-term persistent connection. 
 Hence, this setup cost is paid once when the gateway is initially configured. This results in two benefits:
 
-\noindent{\it (1) End-to-end performance improves.} Where BlindBox incurs an initial handshake of 414s~\cite{blindbox} to open a new connection, clients under MBark never pay this cost; instead they perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to betweeh 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.
+\noindent{\it (1) End-to-end performance improves.} Where BlindBox incurs an initial handshake of 414s~\cite{blindbox} to open a new connection, clients under \sys never pay this cost; instead they perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to between 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.
 
 \noindent{\it (2) Security improves.} As we presented in \S\ref{sec:ids}, BlindBox operates at one of two security levels: a stronger security level for exact-match strings, and a weaker security level for regular expressions. The stronger security level requires a round of handshake for each rule, but the weaker security level does not require more handshakes for each regular expression. 
 With \sys, the initial handshake/setup is performed exactly once, between the gateway and the middlebox. 

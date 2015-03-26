@@ -102,7 +102,7 @@ To achieve the desired security, the idea is to find the interval $I$ inside whi
  
 
 
-To satisfy requirement~\ref{req:injective}, we need to generate the random encryptions using a deterministic function. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the inteval $I$. 
+To satisfy requirement~\ref{req:injective}, we need to generate the random encryptions using a deterministic function. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
 \[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
