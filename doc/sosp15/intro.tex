@@ -86,7 +86,10 @@ This paper hence takes inspiration from CryptDB~\cite{CryptDB}. Instead of using
 Unfortunately, CryptDB encrypts data operated on by a database; neither the encryption schemes nor the systems techniques in CryptDB meet the tight performance requirements of our network setting.
 
 We identify two core operations that underlie middlebox processing: {\em keyword match} and {\em range match}. Keyword match refers to  identifying if a keyword appears in a byte stream.   For example, keyword match is useful for a web proxy: the service provider can identify if a filename cached at the proxy appears in a HTTP GET request in the packet flow. % data exfiltration when a watermark is searched for in the traffic, for IDS when malicious strings are searched for in the traffic and for web proxy for matching file identifiers that could be potentially in a cache. 
-Range match enables determining if a value $x$ is in an interval [$x_1$, $x_2$]. \clan{people are familiar with longest prefix matching. maybe we should point out that prefix matching is strictly a special instance of range matching.} An example middlebox that uses range match is the firewall. For example, the firewall has to determine if a source IP address from a packet falls in a certain range of IP addresses and, if so, apply a certain action to the packet.  Note that range match supports a basic version of keyword match, namely complete equality check, when the range consists of only one value.
+Range match enables determining if a value $x$ is in an interval [$x_1$, $x_2$], for example, if an IP address is in the range [18.0.0.0, 18.255.255.255] (\ie{} the prefix 18.0.0.0/8).
+%\clan{people are familiar with longest prefix matching. maybe we should point out that prefix matching is strictly a special instance of range matching.} 
+%An example middlebox that uses range match is the firewall. For example, the firewall has to determine if a source IP address from a packet falls in a certain range of IP addresses and, if so, apply a certain action to the packet.  
+Note that range match supports a basic version of keyword match, namely complete equality check, when the range consists of only one value.
 %
 Table~\ref{tab:apps-ops} summarizes the middleboxes we support and the operations they rely on. 
 
