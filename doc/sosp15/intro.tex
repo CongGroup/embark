@@ -32,35 +32,31 @@ Already now, the NFV working group~\cite{nfvwg} has over 250 members ranging fro
      
      
   
-    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. These are: firewall, NAT, web proxy, load balancer, intrusion detection systems (IDS), data exfiltration systems, IP forwarder, and VPN. \sys supports these applications with competitive performance. 
+    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. We list these middleboxes in Table~\ref{tab:apps-ops}. Moreover, \sys supports these middleboxes with competitive performance. 
     
     The approach in \sys is to encrypt the traffic that goes to  the middleboxes in the cloud and enables the cloud to process encrypted traffic without ever decrypting it. \sys encrypts the packet payload as well as important information in the header (such as IP addresses and ports). Since the service provider receives only encrypted traffic and no decryption key, it cannot see the confidential data. However, designing a practical system that supports a wide-range of middlebox applications over encrypted traffic is challenging and required a set of new cryptographic and systems techniques.
     
     
-    
+\newcounter{theapp} \setcounter{theapp}{0}  
+\newcommand{\capp}{\refstepcounter{theapp}\arabic{theapp}}
     
 \begin{table}[t!]
-\centering
-\begin{tabular}{p{3.2cm}|p{2.9cm}|p{1cm}}
-{\bf Application}  & {\bf Operations used} & {\bf Details} \\
+\centering  
+\begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{2.5cm}}
+& {\bf Middlebox}  & {\bf Type } & {\bf Example fields}  \\
 \hline \hline
-IP Firewall &   range  & \S\ref{sec:firewall} \\
-Application Firewall & range, keyword  & \S\ref{sec:firewall}\\
-NAT & range  & \S\ref{sec:nat} \\
-IP Forwarding  & range & \S\ref{sec:other_apps} \\
-Load Balancer L4 & range & \S\ref{sec:loadb}\\
-Load Balancer L7  & range & \S\ref{sec:loadb}\\
-Web Proxy/Cache  & keyword & \S\ref{sec:proxy}\\
-Intrusion Detect (IDS)  & range, keyword & \S\ref{sec:IDS}\\
-Data Exfiltration  & keyword & \S\ref{sec:IDS} \\
-VPN Gateway &  none & \S\ref{sec:vpn} \\ 
+\capp &  IP Firewall \S\ref{sec:firewall} & HO &  IP address, port   \\
+\capp &  Application Firewall  \S\ref{sec:firewall} & BA & IP address, payload  \\
+\capp & NAT  \S\ref{sec:nat} & HO & IP address, port   \\
+\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  IP address, port \\
+\capp & Load Balancer L4 \S\ref{sec:loadb} & HO & IP address  \\
+\capp & Load Balancer L7 \S\ref{sec:loadb} & BA & URL in payload  \\
+\capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & URL in payload \\
+\capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & payload \\
+\capp & Data Exfiltration  \S\ref{sec:ids} & BA & payload \\
+\capp & VPN Gateway \S\ref{sec:vpn} &  HO &  none \\ 
 \end{tabular}
-\caption{Middleboxes supported by \sys and the type of match it needs to perform. Each application is further described in the section specified. \label{tab:apps-ops} }
-\todo{why have two load balancers?}
-\todo{table is a bit confusing -- better say whether they are dpi or header, also maybe what is field it operates
-on, and what it encrypts,  put section near the name} 
-\todo{make clear that these are the apps that make sense to run in aplomb}
-\todo{add a number to the apps}
+\caption{Middleboxes supported by \sys, shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one or two examples of encrypted fields they operate on (not comprehensive). \label{tab:apps-ops} }
 \end{table}
 
 % 2nd fig/1st fig = 1.12 ratio

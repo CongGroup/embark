@@ -18,17 +18,17 @@ In this section, we present \sys's architecture, the threat model and applicatio
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{System architecture}
 
-\todo{Not quite true -- in APLOMB, we talk about this approach and call it `bounce redirection'. I tried to work it in to the text but it wound up being overly complicated. But if we want to claim that we follow the APLOMB approach, that's still true -- we just need to say we use the bounce approach and why it's less than optimal.}
-\sys's system setup is in Fig.~\ref{fig:sys-overview}. This is the same setup as in APLOMB~\cite{aplomb}, 
-except for a small difference which we will describe. 
+We now present APLOMB~\cite{aplomb}'s system setup in Fig.~\ref{fig:sys-overview}. \sys uses the same system setup, and adds confidentiality protection to it.
 We do not delve into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 In this setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud.
 The service provider runs a set of middleboxes. 
 
-There are two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enteprise communicates with an external site. The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout~\cite{aplomb} because  each enterprise has its own gateway.
+APLOMB has two typical setups as in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enteprise communicates with an external site. The second setup occurs when the traffic is sent between two enterprises as in Fig.~\ref{fig:model2}. This allows for a more optimized and faster layout~\cite{aplomb} because  each enterprise has its own gateway.
 
-\sys uses the same setup as APLOMB, except for one modification in the first setup (Fig.~\ref{fig:model1}): in Aplomb, the traffic from SP can go directly to the external site and does not have to go back through the gateway. In \sys, this is unavoidable because the traffic from SP is encrypted and cannot be understood by an external site, unless they have a gateway as in the second setup. However, the setup which is most bandwidth heavy is the second setup, enterprise to enterprise communication where \sys does not change Aplomb's setup.
+It is worth mentioning that APLOMB allows an optimization in Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. We evaluate in \S\ref{sec:eval} what \sys loses by not allowing this optimization. 
+
+
 
 
 
@@ -50,37 +50,39 @@ The goal of \sys is to protect the privacy of the traffic against an attacker at
 We consider a strong  attacker, one that has gained access to {\em all the data at SP}.
 This includes any traffic and communication SP receives from the 
 gateway, any old logged information, cloud state, and so on. Nevertheless, we assume that 
-SP provides good service and runs middlebox functionality correctly.  We are concerned with 
-protecting  the traffic's confidentiality.
+SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
+see the traffic in the process of doing so.  
 
-We assume that the gateways are trusted, and that they do not leak information.
+We assume that the gateways are trusted; in particular,  they do not leak information.
 
 
-Some middlebox functionalities (such as intrusion detection or exfiltration detection) have a threat model
-of their own regarding the client and the server. For example, intrusion detection assumes that 
-the client or the server could misbehave and mount an intrusion attack, but at most one of them misbehaves~\cite{Bro}  
-(indeed, if both misbehave, they can send attack traffic to each other encrypted with a shared symmetric key and fundamentally
-no one can detect such an attack).  We preserve all these threat models unchanged. These applications rely
+Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
+of their own about the client and the server. For example, intrusion detection assumes that 
+the client or the server could misbehave and mount an intrusion attack, but at most one of them misbehaves~\cite{Bro}.  
+%(indeed, if both misbehave, they can send attack traffic to each other encrypted with a shared symmetric key and fundamentally
+%no one can detect such an attack).  
+We preserve these threat models unchanged. These applications rely
 on the middlebox to detect attacks in these threat models. Since we assume the middlebox executes
 its functions correctly and \sys preserves the functionality of these middleboxes, 
 these threat models are irrelevant to the protocols in \sys, and we will not discuss them again. 
 
 
-\subsection{Goals at gateway}
+\subsection{Goals for the gateway}
 
 The goals of NFV and APLOMB are to delegate the burden of managing and configuring
 middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware. 
 and provide elasticity and fault tolerance; hence \sys should maintain these goals.
 %
-These translate into a set of requirements for the gateway:
+These translate into two  requirements for the gateway, which should be: 
 \begin{CompactItemize}
-\item Generic functionality: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
-\item Should perform lightweight operations.
-\item Should not maintain per connection state. The gateway can maintain a small amount of global state, as long as the state does not depend on each connection and does not grow with the packets sent.  \todo{is this contradicted by IDS state at gateway?}
+\item Implementation agnostic: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software running at the middlebox. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
+\item Should perform lightweight operations and be parallelizable. 
+
+%\item Should not maintain per connection state. The gateway can maintain a small amount of global state, as long as the state does not depend on each connection and does not grow with the packets sent.  \todo{is this contradicted by IDS state at gateway?}
 \end{CompactItemize}
 
 
-\sys achieves these goals, as follows. 
+\sys achieves both these goals, as we explain next.
 
 % Firewalls from different vendors may vary significantly in terms of rule syntaxes and organizations. However,
 % in general both hardware and software firewalls have a few interfaces. Both ingress and egress of an interface 
@@ -113,14 +115,16 @@ These translate into a set of requirements for the gateway:
 
 To protect privacy of the traffic, \sys encrypts all traffic passing through the middlebox at the cloud. 
 As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
-the same secret key. The gateway encrypts all traffic going to the middlebox in the cloud using \sys's protocols.
-The middlebox in the cloud processes {\em encrypted traffic} using \sys's protocols. 
-After the processing, the middlebox
-will produce encrypted traffic which it sends back to the gateway. The gateway decrypts the traffic using the key $k$.
+the same secret key. The gateway encrypts all traffic going to the service provider (SP) using \sys's protocols.
+The middleboxes at SP process {\em encrypted traffic} using \sys's protocols. 
+After the processing, the middleboxes
+will produce encrypted traffic which SP sends back to the gateway. The gateway decrypts the traffic using the key $k$.
 
 Throughout this process, middleboxes at SP handle only encrypted traffic and never get the decryption key. This ensures
 that an attacker that steals all data from SP, will only see encrypted traffic and hence protects the privacy of the 
 traffic. 
+
+\todo{maybe this can be explained better:}
 \sys encrypts IP addresses, ports, and the payload of the packet, thus protecting the privacy of all these parameters. 
 %Middleboxes at the cloud operate over the encrypted values in each packet, and do not have access to the decrypted data.
 
@@ -133,7 +137,7 @@ Examples  include IP Firewalls and Network Address Translators (NATs).
 
   Other middleboxes are `bytestream-aware.' These middleboxes operate over a TCP bytestream -- the concatenation of all {\it payloads} -- and hence must keep substantial state per connection.
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer which with copies of each payload it has forwarded.
-  It uses these payloads to to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
+  It uses these payloads to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
   Web proxies are also bytestream-aware; rather than keeping a copy of packets the proxy forwards, the proxy performs {\it session termination}. 
   When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if it were the web server the client wished to connect to. 
   The proxy also maintains second connection in the background to the original web server, as if it were the client. 
@@ -154,4 +158,4 @@ On top of \sys, G can use SSL  to secure the communication to SP.  It can use SS
 
 \todo{need to say somewhere that if we don't use IDs, then payload still encrypted but with normal stuff}
 
-
+\todo{Somewhere here need to discuss packet encryption}
