@@ -94,33 +94,22 @@ Such adjustment of encryptions is inconvenient but it is  necessary for an encry
 
 
 
-Instead of mapping unencrypted addresses/ports to public IP addresses/ports, the NAT maps IP addresses/ports that are encrypted to public IP addresses/ports. 
-Consider a very simple NAT example:
 
-\smallskip
-\small
-\noindent
-\begin{tabular}{c|c|c|c|c}
-encrypted IP   & encrypted  &  public IP   & public  &  AES   \\
-address           & port            &   address   &  port    & encryptions \\
-\hline
-ab12:342::               & 231                  & 160.1.1.1  &  445 &  [..] \\ 
-\end{tabular}
-\normalsize
-\smallskip
 
-The last column stores the AES encryptions corresponding to the first two columns. 
+
+Instead of mapping unencrypted addresses/ports to public IP addresses/ports, the NAT maps IP addresses/ports that are {\em encrypted} to public IP addresses/ports. 
+Consider an example: an encrypted private IP address ab12:342:: and encrypted private port 231 are mapped to a public IP address 160.1.1.1 with port 445.
 
 The fast path of the NAT in \sys{} is unchanged from the regular NAT. 
 When a packet arrives at the NAT with an encrypted   IP address of ab12:342:: and an encrypted port of 231, the NAT maps these to 160.1.1.1 and 445, and does the reverse for reverse traffic. 
 This process proceeds the same as on unencrypted data because encrypted values look the same as unencrypted values. 
+We discuss in \S\ref{sec:impl} what the NAT does when there are changes in the ranges stored at the firewall. 
 
-
-A difference is that the NAT must listen for announcements of range changes as discussed in \S\ref{sec:firewall}.
-For example, consider that the gateway announces a change of ranges for IP addresses.
-The NAT realizes that ab12:342:: might have become stale and sends it to the gateway along with the AES encryption. The gateway decrypts AES, obtains the original IP address, re-encrypts it with EncryptValue, informs the NAT of the new encryption 2e41:863:: and the NAT replaces  ab12:342:: with 2e41:863::.
-
-Because the NAT is stateful, it too must handle updates, as we describe in \S\ref{sec:impl}.
+%A difference is that the NAT must listen for announcements of range changes as will be discussed in  \S\ref{sec:impl}.
+%For example, consider that the gateway announces a change of ranges for IP addresses.
+%The NAT realizes that ab12:342:: might have become stale and sends it to the gateway along with the AES encryption. The gateway decrypts AES, obtains the original IP address, re-encrypts it with EncryptValue, informs the NAT of the new encryption 2e41:863:: and the NAT replaces  ab12:342:: with 2e41:863::.
+%
+%Because the NAT is stateful, it too must handle updates, as we describe in \S\ref{sec:impl}.
 
 \subsection{Middlebox: Proxy/cache}\label{s:proxy}
 
@@ -140,6 +129,80 @@ For miss, the proxy forwards the request to the web server. When receiving the r
 We can extend our proxy support to HTTP pipelining. %some connections bundle together in the same stream a bunch of HTTP requests. 
 In this case,  an HTTP header may no longer appear at the beginning of a packet and it can appear in the middle of the packet or across packet boundaries. We do not give the details of our solution here, but at a high level, one can use the IDS approach in \S\ref{sec:ids} to enable the web proxy to search for keywords on the payload  (effectively parsing the HTTP header over encrypted data) and identify the encrypted file path. In this case though, \sys can no longer support the web proxy in the header-only mode; it becomes a bytestream-aware application. 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%
+%
+%OLD LONGER VERSION
+%
+%
+%
+%Instead of mapping unencrypted addresses/ports to public IP addresses/ports, the NAT maps IP addresses/ports that are encrypted to public IP addresses/ports. 
+%Consider a very simple NAT example:
+%
+%\smallskip
+%\small
+%\noindent
+%\begin{tabular}{c|c|c|c|c}
+%encrypted IP   & encrypted  &  public IP   & public  &  AES   \\
+%address           & port            &   address   &  port    & encryptions \\
+%\hline
+%ab12:342::               & 231                  & 160.1.1.1  &  445 &  [..] \\ 
+%\end{tabular}
+%\normalsize
+%\smallskip
+%
+%The last column stores the AES encryptions corresponding to the first two columns. 
+%
+%The fast path of the NAT in \sys{} is unchanged from the regular NAT. 
+%When a packet arrives at the NAT with an encrypted   IP address of ab12:342:: and an encrypted port of 231, the NAT maps these to 160.1.1.1 and 445, and does the reverse for reverse traffic. 
+%This process proceeds the same as on unencrypted data because encrypted values look the same as unencrypted values. 
+%
+%
+%A difference is that the NAT must listen for announcements of range changes as discussed in \S\ref{sec:firewall}.
+%For example, consider that the gateway announces a change of ranges for IP addresses.
+%The NAT realizes that ab12:342:: might have become stale and sends it to the gateway along with the AES encryption. The gateway decrypts AES, obtains the original IP address, re-encrypts it with EncryptValue, informs the NAT of the new encryption 2e41:863:: and the NAT replaces  ab12:342:: with 2e41:863::.
+%
+%Because the NAT is stateful, it too must handle updates, as we describe in \S\ref{sec:impl}.
+%
+%\subsection{Middlebox: Proxy/cache}\label{s:proxy}
+%
+%The proxy  caches HTTP static content (e.g., images) in order to improve client-side performance. 
+%When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if the proxy were the web server. The proxy then opens a second connection in the background to the original web server, as if it were the client. 
+%When a client sends a request for new content, if the content is in the proxy's cache, the proxy will serve it from there. Otherwise, the proxy will forward this request to the web server and cache the new content. 
+%
+%\noindent\textbf{Encryption at the gateway.} 
+%The gateway parses the HTTP header in a packet's payload to identify the file path $F$ in a ``GET'' request. 
+%This is easy to do because the header appears at the start of the payload. For this task, the gateway does negligible work, resulting in less than 1\% throughput loss over the RangeMatch encryption. 
+%Next, the gateway encrypts $F$ using the KeywordMatch scheme. In this case, it can use the deterministic version (discussed in~\S\ref{s:kwmatch}) with no reduction in security because the proxy caches a set of {\em unique} file paths. Hence, using this scheme, the gateway encrypts $F$ into $\aes_k(F)$ and places it into a packet sent on the metadata channel. %\clan{in the implementation section 7.1 we said we place it in a new packet sent over the metadata channel.} 
+%%Even though it examines the packet's payload, the gateway does not need per-connection state and can parse the HTTP header quickly, as we show in \S\ref{sec:eval}. 
+%
+%\noindent\textbf{Processing at the proxy.} The proxy has a map of encrypted file path to encrypted file content. When the proxy receives a packet, the proxy extracts $\aes_k(F)$ from the options header and looks it up in the cache {\em as if it were not encrypted}. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two cases: there is a hit or a miss. For hit, the proxy assembles a packet header for reverse traffic and attaches to it the encrypted file content from the cache. Even without being able to encrypt IP addresses or ports, the proxy can create the header by reversing the encrypted information in the original header.
+%For miss, the proxy forwards the request to the web server. When receiving the response, the proxy caches it for file path $\aes_k(F)$ to serve future requests.
+%
+%We can extend our proxy support to HTTP pipelining. %some connections bundle together in the same stream a bunch of HTTP requests. 
+%In this case,  an HTTP header may no longer appear at the beginning of a packet and it can appear in the middle of the packet or across packet boundaries. We do not give the details of our solution here, but at a high level, one can use the IDS approach in \S\ref{sec:ids} to enable the web proxy to search for keywords on the payload  (effectively parsing the HTTP header over encrypted data) and identify the encrypted file path. In this case though, \sys can no longer support the web proxy in the header-only mode; it becomes a bytestream-aware application. 
+%
 
 %SOME POTENTIALLY USEFUL INFO
 %
