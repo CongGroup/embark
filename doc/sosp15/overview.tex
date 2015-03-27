@@ -162,7 +162,7 @@ As we will see, all header-based middleboxes can operate directly on RangeMatch 
 Some network appliances are commonly configured to drop packets with IP options; these middleboxes must be configured under \sys to permit packets with \sys options to pass through.
 Next, the gateway encrypts the payload  with a standard cipher such as AES.
 The last step is to encrypt the payload with KeywordMatch, and here we have two cases.
-The first case is when all the middleboxes at SP are header-only. In this case, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they will be sent as part of a second stream.
+The first case is when all the middleboxes at SP are header-only. In this case, the gateway produces one encrypted value based on the payload and places it in the options header. The second case is when there is at least one bytestream-aware middlebox at SP, in which case the gateway produces a set of encrypted values using KeywordMatch. For the purpose of the design, these can be viewed as an extension to the encrypted payload, although in our implementation (\S\ref{sec:impl}), they are sent in a second stream.
 
 
 
