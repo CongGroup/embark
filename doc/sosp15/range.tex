@@ -71,7 +71,7 @@ For example,  an encrypted IP address should look like an IP address.  This prop
 % \end{CompactEnumerate}
 
 
-Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
+Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. These schemes are both less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
 
 
 Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
@@ -89,8 +89,10 @@ To encrypt the endpoints of the intervals, we sort them, and choose as their enc
 For now, consider that the gateway  maintains a mapping of each interval endpoint  to its encryption, called the {\em interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encrypted with 0.0.0.0 and 255.255.255.255. 
 
 
-When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in (we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval. Then, to encrypt $v$, it chooses a random value in this interval.
-For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. This is great for security because the encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, SP does not learn their order. Thus, this satisfies the security requirement above, and makes our scheme more secure than order-preserving encryption schemes.
+When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in. %(we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval.
+ Then, % to encrypt $v$, 
+ it chooses a random value in this interval.
+For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. This is great for security because the encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, SP does not learn their order. Thus, this satisfies the security requirement above. %, and makes our scheme more secure than order-preserving encryption schemes.
 
 We need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Consider an example in which $v$ fits in no interval at all. Let $v$ be $127.0.0.0$ and the intervals be 18.0.0.0/8 and 172.16.0.0/16 with encryptions [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. The encryption of $v$ should not be chosen at random between  102.0.0.0 and 153.0.0.0 because SP learns that $v$ is between the two intervals. Recall that we want SP  to learn only whether $v$ matches an interval or not, but nothing else. Hence, $v$ should be mapped to a random value anywhere in the intervals [0, 51.0.0.0), (102.0.0.0, 153.0.0.0) and (204.0.0.0, 255.255.255.255]. 
 
