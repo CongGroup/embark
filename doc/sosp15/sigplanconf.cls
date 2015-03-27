@@ -356,11 +356,11 @@
 % Paragraphs:
 
 \if \@blockstyle
-  \setlength{\parskip}{5pt plus .1pt minus .5pt}
+  \setlength{\parskip}{2pt plus .1pt minus .5pt}
   \setlength{\parindent}{0pt}
 \else
   \setlength{\parskip}{0pt}
-  \setlength{\parindent}{12pt}
+  \setlength{\parindent}{6pt}
 \fi
 
 \setlength{\lineskip}{.5pt}
@@ -386,8 +386,8 @@
 \setlength{\marginparpush}{0pt}
 
 
-\setlength{\skip\footins}{8pt plus 3pt minus 1pt}
-\setlength{\footnotesep}{9pt}
+\setlength{\skip\footins}{5pt plus 3pt minus 1pt}
+\setlength{\footnotesep}{5pt}
 
 \renewcommand{\footnoterule}{%
   \hrule width .5\columnwidth height .33pt depth 0pt}
@@ -413,12 +413,12 @@
 \renewcommand{\dbltopfraction}{\topfraction}
 \renewcommand{\dblfloatpagefraction}{\floatpagefraction}
 
-\setlength{\floatsep}{10pt plus 4pt minus 2pt}
-\setlength{\textfloatsep}{10pt plus 4pt minus 3pt}
-\setlength{\intextsep}{10pt plus 4pt minus 3pt}
+\setlength{\floatsep}{5pt plus 4pt minus 2pt}
+\setlength{\textfloatsep}{5pt plus 4pt minus 3pt}
+\setlength{\intextsep}{5pt plus 4pt minus 3pt}
 
-\setlength{\dblfloatsep}{10pt plus 4pt minus 2pt}
-\setlength{\dbltextfloatsep}{10pt plus 4pt minus 3pt}
+\setlength{\dblfloatsep}{5pt plus 4pt minus 2pt}
+\setlength{\dbltextfloatsep}{5pt plus 4pt minus 3pt}
 
 % Miscellaneous:
 
@@ -772,7 +772,7 @@
     {\large \bfseries \raggedright}}
 
 \newskip{\@subsectionaboveskip}
-\setvspace{\@subsectionaboveskip}{8pt plus 2pt minus 2pt}
+\setvspace{\@subsectionaboveskip}{4pt plus 2pt minus 2pt}
 
 \newskip{\@subsectionbelowskip}
 \if \@blockstyle
@@ -800,7 +800,7 @@
     {\normalsize \bfseries \raggedright}}
 
 \newskip{\@paragraphaboveskip}
-\setvspace{\@paragraphaboveskip}{6pt plus 2pt minus 2pt}
+\setvspace{\@paragraphaboveskip}{2pt plus 2pt minus 2pt}
 
 \renewcommand{\paragraph}{%
   \@startsection%
