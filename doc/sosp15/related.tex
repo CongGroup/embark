@@ -14,11 +14,12 @@ SSL-encrypted packet.
 
 
 As discussed, computing on encrypted data promises to provide both confidentiality and functionality. Nevertheless, generic cryptography schemes~\cite{BSW11,gentry:fhe} remain impractical by orders of magnitude~\cite{gentry:fhe-aes-eprint}.
-CryptDB~\cite{popa:cryptdb} introduced a new vision for building practical systems that compute on encrypted data, but none of its encryption schemes or the systems techniques  apply to our setting.  The order-preserving encryption~\cite{boldyreva:ope} used in CryptDB is 
- $>3000$ times slower than RangeMatch (\S\ref{sec:eval}) and cannot sustain realistic network throughputs; moreover, it leaks the order of the IP addresses encrypted, while RangeMatch protects this information. %Similarly, we use KeywordMatch for equality checks which is more secure than CryptDB's deterministic encryption.% because it is randomized. 
+CryptDB~\cite{popa:cryptdb} introduced a new vision for building practical systems that compute on encrypted data, but none of its encryption schemes or systems techniques  apply to our setting.  The order-preserving encryption~\cite{boldyreva:ope} used in CryptDB is 
+ much slower and less secure than RangeMatch. 
+ %Similarly, we use KeywordMatch for equality checks which is more secure than CryptDB's deterministic encryption.% because it is randomized. 
  Finally, the database techniques in CryptDB do not apply to our networking setting. 
 
-The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on DPI and IDS and does not provide solutions for other middleboxes. %such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. %In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
+The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on DPI and IDS and does not provide solutions for other middleboxes unlike \sys. %such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. %In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
 
 
 \eat{
