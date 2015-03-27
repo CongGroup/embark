@@ -377,13 +377,13 @@
 % Standard vertical spaces:
 
 \newskip{\standardvspace}
-\setvspace{\standardvspace}{5pt plus 1pt minus .5pt}
+\setvspace{\standardvspace}{0pt plus 1pt minus .5pt}
 
 % Margin paragraphs:
 
 \setlength{\marginparwidth}{36pt}
-\setlength{\marginparsep}{2pt}
-\setlength{\marginparpush}{8pt}
+\setlength{\marginparsep}{0pt}
+\setlength{\marginparpush}{0pt}
 
 
 \setlength{\skip\footins}{8pt plus 3pt minus 1pt}
@@ -413,12 +413,12 @@
 \renewcommand{\dbltopfraction}{\topfraction}
 \renewcommand{\dblfloatpagefraction}{\floatpagefraction}
 
-\setlength{\floatsep}{18pt plus 4pt minus 2pt}
-\setlength{\textfloatsep}{18pt plus 4pt minus 3pt}
+\setlength{\floatsep}{10pt plus 4pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 4pt minus 3pt}
 \setlength{\intextsep}{10pt plus 4pt minus 3pt}
 
-\setlength{\dblfloatsep}{18pt plus 4pt minus 2pt}
-\setlength{\dbltextfloatsep}{20pt plus 4pt minus 3pt}
+\setlength{\dblfloatsep}{10pt plus 4pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 4pt minus 3pt}
 
 % Miscellaneous:
 
@@ -466,15 +466,15 @@
   \setlength{\abovedisplayshortskip}{2pt plus 1pt}%
   \setlength{\belowdisplayshortskip}{\abovedisplayshortskip}}
 
-\renewcommand{\large}{\@setfontsize{\large}{11pt}{13pt}}
+\renewcommand{\large}{\@setfontsize{\large}{11pt}{12pt}}
 
-\renewcommand{\Large}{\@setfontsize{\Large}{14pt}{18pt}}
+\renewcommand{\Large}{\@setfontsize{\Large}{14pt}{16pt}}
 
 \renewcommand{\LARGE}{\@setfontsize{\LARGE}{18pt}{20pt}}
 
-\renewcommand{\huge}{\@setfontsize{\huge}{20pt}{25pt}}
+\renewcommand{\huge}{\@setfontsize{\huge}{20pt}{22pt}}
 
-\renewcommand{\Huge}{\@setfontsize{\Huge}{25pt}{30pt}}
+\renewcommand{\Huge}{\@setfontsize{\Huge}{25pt}{38pt}}
 
 \else\if \@tenpoint
 
@@ -753,7 +753,7 @@
 \setcounter{secnumdepth}{\@numheaddepth}
 
 \newskip{\@sectionaboveskip}
-\setvspace{\@sectionaboveskip}{10pt plus 3pt minus 2pt}
+\setvspace{\@sectionaboveskip}{0pt plus 3pt minus 2pt}
 
 \newskip{\@sectionbelowskip}
 \if \@blockstyle
@@ -1094,7 +1094,7 @@
               \@setauthor{12.5pc}{#3}{\@true}\par
     \relax
   \fi\fi
-  \vspace{20pt}}
+  \vspace{10pt}}
 
 \def \@setauthor #1#2#3{%                       {width}{text}{unused}
   \vtop{%

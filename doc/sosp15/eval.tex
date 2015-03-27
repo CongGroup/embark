@@ -1,5 +1,6 @@
 %!TEX root = mb.tex
 \begin{figure}[t]
+  \small
   \centering
   \begin{tabular}{cc}
   \includegraphics[height=1.25in]{fig/gatewayxput}&
@@ -11,7 +12,7 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=3in]{fig/gateway_scale}
+  \includegraphics[width=2.5in]{fig/gateway_scale}
   \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
 \end{figure}
  
@@ -50,7 +51,7 @@ While IDS introduces a reduction to about one-sixth relative to other encryption
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=3in]{fig/xputrange}
+  \includegraphics[width=2.5in]{fig/xputrange}
   \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
 \end{figure}
 
@@ -70,6 +71,7 @@ for trees with 10K and 100K ranges:
 
 \begin{table}[h]
 \centering
+\small
 \begin{tabular}{c|c|c|c}
 Operation&BCLO~\cite{boldyreva:ope}&mOPE~\cite{popa:mope}&\sys\\
 \hline
@@ -145,6 +147,7 @@ Because bounce redirection is over the `cheaper' link, the overall impact to ban
 We now evaluate the performance overhead at each middlebox. Overall, we find that throughput is negligibly impacted due to \sys because \sys keeps most dataplane operations unchanged.
 
 \begin{table}[t!]
+\small
 \begin{tabular}{p{3cm}|p{2cm}|p{2cm}}
 Application &  Baseline Throughput & \sys Throughput \\
 \hline \hline
@@ -187,7 +190,7 @@ As throughput for many middleboxes decreases with the number of rules, we were c
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=3in]{fig/proxytime}
+\includegraphics[width=2.5in]{fig/proxytime}
 \caption{\label{fig:proxygraph} Access time per page against the number of concurrent connections at the proxy.}
 \end{figure}
 
@@ -212,6 +215,7 @@ Consequently, \sys can detect more then 80-88\% of attacks using the higher secu
 
 \begin{table}[h]
   \centering
+  \small
   \begin{tabular}{l|c|c}
     {\bf Dataset}&{\bf Exact Match}&{\bf Prob. Cause}\\
     \hline
