@@ -443,9 +443,9 @@
 
 \renewcommand{\normalsize}{%
   \@setfontsize{\normalsize}{9pt}{10pt}%
-  \setlength{\abovedisplayskip}{5pt plus 1pt minus .5pt}%
+  \setlength{\abovedisplayskip}{1pt plus 1pt minus .5pt}%
   \setlength{\belowdisplayskip}{\abovedisplayskip}%
-  \setlength{\abovedisplayshortskip}{3pt plus 1pt minus 2pt}%
+  \setlength{\abovedisplayshortskip}{1pt plus 1pt minus 2pt}%
   \setlength{\belowdisplayshortskip}{\abovedisplayshortskip}}
 
 \renewcommand{\tiny}{\@setfontsize{\tiny}{5pt}{6pt}}
@@ -454,13 +454,13 @@
 
 \renewcommand{\small}{%
   \@setfontsize{\small}{8pt}{9pt}%
-  \setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}%
+  \setlength{\abovedisplayskip}{1pt plus 1pt minus 1pt}%
   \setlength{\belowdisplayskip}{\abovedisplayskip}%
-  \setlength{\abovedisplayshortskip}{2pt plus 1pt}%
+  \setlength{\abovedisplayshortskip}{1pt plus 1pt}%
   \setlength{\belowdisplayshortskip}{\abovedisplayshortskip}}
 
 \renewcommand{\footnotesize}{%
-  \@setfontsize{\footnotesize}{8pt}{9pt}%
+  \@setfontsize{\footnotesize}{6pt}{9pt}%
   \setlength{\abovedisplayskip}{4pt plus 1pt minus .5pt}%
   \setlength{\belowdisplayskip}{\abovedisplayskip}%
   \setlength{\abovedisplayshortskip}{2pt plus 1pt}%
