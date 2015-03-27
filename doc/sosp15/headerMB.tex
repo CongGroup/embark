@@ -18,14 +18,8 @@ This allows the packet-processing throughput to remain fast; as we see in our ev
 
 \subsection{Middlebox: Firewall}\label{sec:firewall}
 
-
-<<<<<<< HEAD
-We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers. Stateless firewalls commonly examine the combination of the packet's source and destination address, its protocol, and for TCP/ UDP traffic, its source and destination port number. Stateful firewalls additionally keep track of protocol states for each flow and retain packets until they have enough information to make decision. 
-Our RangeMatch scheme supports both types of firewalls. %We now explain the design of the firewall based on this scheme.
-=======
 We use the term ``firewall'' for stateful and stateless packet filters that filter the traffic based on network layers and transport layers.
 Our RangeMatch scheme supports both types of firewalls. We now explain the design of the firewall based on this scheme.
->>>>>>> 642e75212da87de72ed51143a4f61913df77394d
 
 \noindent\textbf{Setup.} Initially, the gateway (G) encrypts the rules to be used by the firewall, by encrypting all IP addresses and ports in the rules, as follows.
 
