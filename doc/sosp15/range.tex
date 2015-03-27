@@ -43,38 +43,32 @@
 
 
 
-Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
-
+Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. 
+% For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. 
+%RangeMatch enables a middlebox to check whether en encrypted  IP address $v$ lies in  an encrypted range $[s_1, e_1]$%, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; 
+%without the middlebox  learning the values of $v$. 
 %
-The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
+%
+%
+The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the value of $v$. \sys does not aim to hide the values of values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$ because many times these come from SP. % RangeMatch only discloses the order relations between these intervals. 
 For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although it can be used for encrypting ports too).
 
 \noindent\textbf{Requirements.}
 %
 In order for this encryption scheme to fit \sys efficiently and securely, it must:
-
-\begin{CompactEnumerate}[leftmargin=*]
-
-\item  {\em be fast} % the throughput of encryption should be not much lower than network throughput. 
+(1)   {\em Be fast} % the throughput of encryption should be not much lower than network throughput. 
 % In particular,
-and ideally, the scheme should preserve the ability to use {\em existing fast packet matching algorithms}, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of SP  to compute ``>'' between $v$ and the endpoints of an interval,
-hence the encryption scheme should preserve this property. 
-
-
-
-
-\item {\em provide strong security}: % The encryption scheme should not leak $v$ to SP.
+and ideally, the scheme should preserve the ability to use {\em existing fast packet matching algorithms}, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of SP  to compute ``>'' between $v$ and the endpoints of an interval;
+%,
+%hence the encryption scheme should preserve this property. 
+(2) {\em Provide strong security}: % The encryption scheme should not leak $v$ to SP.
  SP does not learn anything about $v$ other than what interval it matches to. % In  particular, 
- Even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). \label{req:sec}
-
-
-\item {\em be deterministic} to integrate with the NAT.  \label{req:injective} % and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely. 
-
-
-\item {\em be format-preserving}: % The encryption should have the same format as the data. 
+ Even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP may learn the order relation of the intervals (in fact, in many setups, SP provides the intervals);\label{req:sec}
+(3) {\em Be deterministic} to integrate with the NAT;  \label{req:injective} % and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely. 
+(4) {\em Be format-preserving}: % The encryption should have the same format as the data. 
 For example,  an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure. %, which would be a hurdle to adoption. 
 
- \end{CompactEnumerate}
+% \end{CompactEnumerate}
 
 
 Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
