@@ -64,11 +64,9 @@ On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount 
 
 \noindent{\it Is range encryption faster than existing order preserving schemes?}
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
-Existing order-preserving approaches require either significant CPU time or multiple round trip times -- and hence milliseconds -- for each encryption operation.
-Our range encoding approach encrypts each value in microseconds.
-We compare against state-of-the-art schemes BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}, 
-for trees with 10K and 100K ranges:
-
+We benchmarked BCLO and mOPE with 10K and 100K rules. With both 10K and 100K rules BCLO required 9333$\mu$s to encrypt a single value. For mOPE, it took 6640$\mu$s to encrypt with 10K rules and 8300$\mu$s with 1000K rules. 
+RangeMatch, on the otherhand, takes only microseconds: 3$\mu$s with 100K rules, and 1.9$\mu$s with 10K rules.
+\eat{
 \begin{table}[h]
 \centering
 \small
@@ -84,7 +82,7 @@ Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
 \end{tabular}
 \end{table}
-
+}
 \noindent{\it What is the memory overhead of the stateful range map encryption scheme?}
 Storing 10k rules in memory requires 1.6MB, and storing 100k rules in memory requires 28.5MB -- using unoptimized C++ objects.
 This state overhead is negligible on any modern server.
