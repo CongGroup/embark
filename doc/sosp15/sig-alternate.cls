@@ -167,7 +167,7 @@
 \intextsep 5pt plus 2pt minus 2pt      % Space between in-text figures and
                                         % text.
 \@ifundefined{@maxsep}{\newdimen\@maxsep}{}% this is for LaTeX2e
-\@maxsep 18pt                           % The maximum of \floatsep,
+\@maxsep 10pt                           % The maximum of \floatsep,
                                         % \textfloatsep and \intextsep (minus
                                         % the stretch and shrink).
 \dblfloatsep 5pt plus 2pt minus 2pt    % Same as \floatsep for double-column
@@ -175,7 +175,7 @@
 \dbltextfloatsep 5pt plus 2pt minus 4pt% \textfloatsep for double-column
                                         % floats.
 \@ifundefined{@dblmaxsep}{\newdimen\@dblmaxsep}{}% this is for LaTeX2e
-\@dblmaxsep 18pt                        % The maximum of \dblfloatsep and
+\@dblmaxsep 10pt                        % The maximum of \dblfloatsep and
                                         % \dbltexfloatsep.
 \@fptop 0pt plus 1fil    % Stretch at top of float page/column. (Must be
                          % 0pt plus ...)
@@ -707,7 +707,7 @@
 \def\@maketitle{\newpage
  \null
  \setbox\@acmtitlebox\vbox{%
-\baselineskip 20pt
+\baselineskip 10pt
 \vskip 2em                   % Vertical space above title.
    \begin{center}
     {\ttlfnt \@title\par}       % Title set in 18pt Helvetica (Arial) bold size.

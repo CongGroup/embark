@@ -8,12 +8,12 @@
 %
 %Constructing an encryption scheme that allows checking if an encrypted value is in an encrypted range, has been a challenge in the applied cryptography community. The reason is that ..
 %
-%\begin{itemize}
+%\begin{CompactItemize}
 %\item preserve the order between Encryptd values
 %\item candidate: OPE
 %\item candidate: mOPE
 %\item So none of the existing schemes are satisfactory. A new scheme \RM.
-%\end{itemize}
+%\end{CompactItemize}
 %
 %\RM applies to cases when we know an upper bound on the values encrypted with OPE and this is a small number of values (say, less than 10,000).
 %
@@ -142,12 +142,12 @@ one point only, namely $s = e$.
               $\cup$ $\{e_1, \dots, e_n\}$ 
               $\cup$ $\{-\infty, \infty\}$.
   \State Assign an encryption $\enc(x)$ to each node $x$ in the tree:
-  \begin{itemize}
+  \begin{CompactItemize}
   \item the root gets the middle of the IP range, $e$, 
   \item the node to the left of the root gets the middle of the interval to the left of $e$: ($e/2$),
   \item the right node gets the middle of the range
   to the right of $e$: ($3e/2$), and so on.
-  \end{itemize}
+  \end{CompactItemize}
 
   \State \Return{[$\enc(s_1)$, $\enc(e_1)$], $\dots$, [$\enc(s_n)$, $\enc(e_n)$]}
 \EndProcedure

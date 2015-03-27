@@ -15,7 +15,7 @@
 In this section, we present \sys's architecture, the threat model and applications supported.
 
 
-% TO CUT REMOVE: just mentino the figures and no need to explain 
+%TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{System architecture}
 
 \sys uses the same  architecture as APLOMB~\cite{aplomb}, a system which redirects an enterprise's traffic to the cloud for middlebox processing. \sys augments this architecture with confidentiality protection.
@@ -111,7 +111,7 @@ Throughout this process, middleboxes at SP handle only encrypted traffic and nev
 that an attacker that steals all the data from SP will  see only encrypted traffic, which protects the privacy of the 
 traffic. 
 
-
+\eat
 \noindent\textbf{Two types of middleboxes.} \sys enables encrypted operation for {\em all} typical middleboxes in outsourcing scenarios, despite substantial differences in how the middleboxes operate, what packet data they access, and whether they modify or merely observe packets.
   We classify middleboxes in  two broad categories based on the type of encrypted fields  they compute on.
 
@@ -122,10 +122,10 @@ Examples  include IP Firewalls and Network Address Translators (NATs).
   For example, many Intrusion Detection Systems (IDS) are bytestream-aware; in order to detect attack signatures that span across multiple packets they keep a buffer  with copies of each payload it has forwarded.
   %It uses these payloads to reconstruct the TCP bytestream, just as the client will observe at the application layer; the IDS can then scan this bytestream for malicious substrings.
 %%Because of this reconstruction cost, and the complexity of the computation over the reconstructed data, 
-Most bytestream aware middleboxes achieve lower throughput than header-only middleboxes.
+%Most bytestream aware middleboxes achieve lower throughput than header-only middleboxes.
+
 
  Web proxies are a special case: even though this middlebox reconstructs the bytestream, the only computation on encrypted data is on the HTTP header, so we classify them as a HO middlebox. 
- 
  
   
 %  Web proxies are also bytestream-aware; rather than keeping a copy of packets the proxy forwards, the proxy performs {\it session termination}. 

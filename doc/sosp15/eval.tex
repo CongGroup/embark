@@ -1,5 +1,6 @@
 %!TEX root = mb.tex
 \begin{figure}[t]
+  \small
   \centering
   \begin{tabular}{cc}
   \includegraphics[height=1.25in]{fig/gatewayxput}&
@@ -70,6 +71,7 @@ for trees with 10K and 100K ranges:
 
 \begin{table}[h]
 \centering
+\small
 \begin{tabular}{c|c|c|c}
 Operation&BCLO~\cite{boldyreva:ope}&mOPE~\cite{popa:mope}&\sys\\
 \hline
@@ -145,6 +147,7 @@ Because bounce redirection is over the `cheaper' link, the overall impact to ban
 We now evaluate the performance overhead at each middlebox. Overall, we find that throughput is negligibly impacted due to \sys because \sys keeps most dataplane operations unchanged.
 
 \begin{table}[t!]
+\small
 \begin{tabular}{p{3cm}|p{2cm}|p{2cm}}
 Application &  Baseline Throughput & \sys Throughput \\
 \hline \hline
@@ -212,6 +215,7 @@ Consequently, \sys can detect more then 80-88\% of attacks using the higher secu
 
 \begin{table}[h]
   \centering
+  \small
   \begin{tabular}{l|c|c}
     {\bf Dataset}&{\bf Exact Match}&{\bf Prob. Cause}\\
     \hline
