@@ -34,6 +34,7 @@ It then converts each encrypted IP range into a set of prefixes and duplicates t
 Consider an example rule from  \mf{pf}, the 
 default firewall under BSD:
  \mf{ block out log quick on \$ext\_if from} \\ \mf{157.161.48.0/24 to any.}
+ 
 Let the encryption of 157.161.48.0/24 be the interval [80.0.0.0, 160.0.0.0] (for brevity, we use IPv4). 
 This interval is equivalent to the prefixes: 80.0.0.0/4, 96.0.0.0/3, 144.0.0.0/4, and 160.0.0.0/32. 
 Hence, the gateway replaces the original rule with four rules, one for each encrypted prefix. 
