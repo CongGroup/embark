@@ -70,8 +70,10 @@ hence the encryption scheme should preserve this property.
 
 \item {\em be deterministic} to integrate with the NAT.  \label{req:injective} % and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely. 
 
+
 \item {\em be format-preserving}: % The encryption should have the same format as the data. 
 For example,  an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure. %, which would be a hurdle to adoption. 
+
  \end{CompactEnumerate}
 
 
