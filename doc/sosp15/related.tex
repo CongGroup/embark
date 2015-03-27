@@ -2,7 +2,6 @@
 
 \section{Related work}\label{sec:related}
 
-
 Confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for generic applications~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. However, there has been almost no work on data confidentiality for network processing in the cloud. 
 %\sys is the first system that enables running a wide range of middleboxes at the cloud while protecting the confidentiality of the traffic from the cloud.  
 
@@ -22,11 +21,12 @@ CryptDB~\cite{popa:cryptdb} introduced a new vision for building practical syste
 The BlindBox~\cite{blindbox} system enables running an IDS on encrypted traffic. Our IDS is built on top of BlindBox, but it is much more efficient and more secure than BlindBox as discussed in \S\ref{sec:ids} and \S\ref{sec:eval}. Moreover, BlindBox focuses only on DPI and IDS and does not provide solutions for other middleboxes. %such as firewall, NAT, load balancer, web proxy and others;  \sys supports these with new techniques. %In addition, \sys takes an overall systems view and integrates all the different middleboxes into a system architecture that can process encrypted traffic in the cloud in a multitude of ways.
 
 
-
+\eat{
 Let us now present related work to our RangeMatch scheme. 
 As  mentioned, order-preserving encryption  (OPE) schemes \cite{boldyreva:ope}, \cite{popa:mope} is less secure than RangeMatch because they leak order, and are $>3000$ slower than RangeMatch, which is not feasible for networks.
 The  encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security to ours. 
 This scheme is less efficient, orders of magnitude more than OPE itself, its ciphertext size is exponential in the size of the input, and it does not preserve the ordering between inputs, which is the basis of packet classification algorithms used by firewalls and other applications. By taking advantage of the networks and systems setting, we constructed a much more efficient scheme. 
+}
 %  mOPE unfortunately requires that the gateway and the service provider interact for a number of roundtrips (e.g., xxx in our experiments) which is too slow and requires additional setup for this interaction, and violates requirement~\ref{req:sec} or~\ref{req:injective}, and BCLO has weak security (leaking always the top half bits of the values encrypted and the order of IP addresses across different packets, thus violating requirement~\ref{req:sec}), is too slow, and not format-preserving. 
 
 % HERE ARE A FEW USEFUL NOTES ABOUT HOW OUR DESIGN IS DIFFERENT FROM mOPE -- THERE IS SOME SIMILARITY DUE TO TREE AND ADJUST
