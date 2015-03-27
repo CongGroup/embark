@@ -61,12 +61,12 @@ middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce 
 and provide elasticity and fault tolerance; hence \sys should maintain these goals.
 %
 These translate into two  requirements for the gateway, which should be: 
-\begin{CompactItemize}
-\item Implementation agnostic: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software running at the middlebox. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
-\item Should perform lightweight operations and be parallelizable.  If our design were not to meet this goals, it would defeat the purpose of outsourcing in the first place: were the gateway just as complex and costly as the middleboxes themselves, there would be no cost or manageability benefits.
+
+\noindent{\bf (1)} Implementation agnostic: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software running at the middlebox. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
+
+\noindent{\bf (2)} Should perform lightweight operations and be parallelizable.  If our design were not to meet this goals, it would defeat the purpose of outsourcing in the first place: were the gateway just as complex and costly as the middleboxes, there would be no cost or manageability benefits.
 
 %\item Should not maintain per connection state. The gateway can maintain a small amount of global state, as long as the state does not depend on each connection and does not grow with the packets sent.  \todo{is this contradicted by IDS state at gateway?}
-\end{CompactItemize}
 
 
 \sys achieves both these goals, as we explain next.
