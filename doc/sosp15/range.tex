@@ -97,11 +97,8 @@ For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. This is
 We need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Consider an example in which $v$ fits in no interval at all. Let $v$ be $127.0.0.0$ and the intervals be 18.0.0.0/8 and 172.16.0.0/16 with encryptions [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. The encryption of $v$ should not be chosen at random between  102.0.0.0 and 153.0.0.0 because SP learns that $v$ is between the two intervals. Recall that we want SP  to learn only whether $v$ matches an interval or not, but nothing else. Hence, $v$ should be mapped to a random value anywhere in the intervals [0, 51.0.0.0), (102.0.0.0, 153.0.0.0) and (204.0.0.0, 255.255.255.255]. 
 
 To achieve the desired security, the idea is to find the interval $I$ inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0,0,0,0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
-\begin{equation}
-\vspace{-1mm}
- I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). \label{eq:randominterval}
- \vspace{-1mm}
- \end{equation}
+$ I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). $
+
 
  
 
@@ -111,7 +108,7 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 $ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. $ 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. If $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. However, it is not the case of IPv4.
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately,  a simple calculation shows that the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6 (but not for IPv4).  % Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. If $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. However, it is not the case of IPv4.
 
 The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
 Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
@@ -167,7 +164,7 @@ EncryptValue encrypts the values to be matched against ranges.
 \begin{algorithmic}[1]
 
 \Procedure{EncryptValue}{$v$}
-  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
+  \State Search the tree for $v$ to compute efficiently I.
   \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
   \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
   \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
