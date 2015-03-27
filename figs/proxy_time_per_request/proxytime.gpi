@@ -1,4 +1,4 @@
-set terminal postscript enhanced color "Times" 20
+set terminal postscript enhanced color "Times" 24
 set output "proxytime.eps"
 set boxwidth 1.0 absolute
 set key top left
