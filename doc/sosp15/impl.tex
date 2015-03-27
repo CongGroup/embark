@@ -46,10 +46,9 @@ We now present the implementation and architecture of the redirection gateway (\
 \end{figure}
 
 The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of IDS/FW rulesets and updates to the RangeMatch tree.
-Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
-A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
+%Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
+A gateway (Figure~\ref{fig:gatewaymeta}) can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
 All three services share access to the RangeMatch tree and the private key $k$.
-Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 \noindent{\bf Rule Encryption.} The rule encryption component provides the cloud provider with encrypted rules/policies to use at the middlebox. 
 There are two possible ways rules can be generated. First, an enterprise may choose to generate their own rules, in which case, they send encrypted versions of the rules directly to the cloud.
@@ -59,7 +58,7 @@ The rule encryption component also sends rule updates. Whenever an adjustment is
 If the gateway ever changes its key, the encryption component must signal to the cloud provider and re-encrypt all rules.
 %\todo{too high level? Details about how updates work?}
 
-\noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption and transmits packets from the enterprise to the cloud.
+\noindent{\bf Data Encryption.} In Figure~\ref{fig:gateway}, we show the DPDK-Click~\cite{click} packet processing pipeline that implements data encryption.%and transmits packets from the enterprise to the cloud.
 Traffic that is returning from the Internet and traffic that is about to be sent to the Internet are both sent along this pipeline.
 This figure assumes the enterprise is already using IPv6, if it is not, the pipeline would also include a `4to6' element.
 In \S\ref{sec:overview}, we described how \sys encodes packet content using the AES, Keyword Match, and Range Match encryption algorithms. 
@@ -70,9 +69,13 @@ Below, we detail the three elements we implemented to encrypt the packet data:
 Required to support all middleboxes. 
 
 \noindent {\it Encode HTTP Header.} Encrypts the HTTP header for {\it the first GET request only.} Does not modify the data packet itself, but instead places the keyword match encryptions of the values in a new packet sent over the metadata channel. %\clan{Here! And we also mention this in Section 8.2}
-The new packet marks (a) the encrypted 5-tuple flow ID for the packet, (b) that this is HTTP GET data for the proxy, and (c) the encrypted values. At the cloud, the proxy can read this metadata channel to obtain the encrypted URL for the GET request and check its cache for the encrypted data. This element is only needed if there is an HTTP proxy enabled at the cloud, otherwise it can be disabled at the gateway.
+The new packet marks (a) the encrypted 5-tuple flow ID for the packet, (b) that this is HTTP GET data for the proxy, and (c) the encrypted values. 
+%At the cloud, the proxy can read this metadata channel to obtain the encrypted URL for the GET request and check its cache for the encrypted data. 
+This element is only needed if there is an HTTP proxy enabled at the cloud, otherwise it can be disabled at the gateway.
 
-\noindent {\it Encode HTTP Payload.} Encrypts the entire HTTP payload (as described in \S\ref{sec:ids}), placing the keyword match values in a new packet in the metadata channel. Unlike the other two elements, this element keeps per-flow state, reconstructing the TCP stream in order to generate keyword match tokens for keywords which are divided across two subsequent packets.  The metadata channel packets contain (a) the encrypted 5-tuple for the packet, (b) that the packet contains keyword match data for the IDS, and (c) the encrypted values. At the cloud, the IDS can read this metadata channel to detect attacks; if there is a match it instructs the firewall to block the 5-tuple for the flow. This element is only needed if there is an IDS enabled at the cloud, otherwise it can be disabled at the gateway.
+\noindent {\it Encode HTTP Payload.} Encrypts the entire HTTP payload (as described in \S\ref{sec:ids}), placing the keyword match values in a new packet in the metadata channel. Unlike the other two elements, this element keeps per-flow state, reconstructing the TCP stream in order to generate keyword match tokens for keywords which are divided across two subsequent packets.  The metadata channel packets contain (a) the encrypted 5-tuple for the packet, (b) that the packet contains keyword match data for the IDS, and (c) the encrypted values. 
+%At the cloud, the IDS can read this metadata channel to detect attacks; if there is a match it instructs the firewall to block the 5-tuple for the flow. 
+This element is only needed if there is an IDS enabled at the cloud, otherwise it can be disabled at the gateway.
 
 
 \noindent{\bf Data Decryption.} Packets returning from the cloud follow a much simpler packet processing pipeline than those being encrypted.
