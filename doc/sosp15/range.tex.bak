@@ -8,12 +8,12 @@
 %
 %Constructing an encryption scheme that allows checking if an encrypted value is in an encrypted range, has been a challenge in the applied cryptography community. The reason is that ..
 %
-%\begin{CompactItemize}
+%\begin{itemize}
 %\item preserve the order between Encryptd values
 %\item candidate: OPE
 %\item candidate: mOPE
 %\item So none of the existing schemes are satisfactory. A new scheme \RM.
-%\end{CompactItemize}
+%\end{itemize}
 %
 %\RM applies to cases when we know an upper bound on the values encrypted with OPE and this is a small number of values (say, less than 10,000).
 %
@@ -43,13 +43,13 @@
 
 
 
-Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
+Many middleboxes perform detectio over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 
 %
 The functionality of the RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
 For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although it can be used for encrypting ports too).
 
-\noindent\textbf{Requirements.}
+\noindent\textbf{Requirements}
 %
 In order for this encryption scheme to fit \sys efficiently and securely, it must:
 
@@ -71,7 +71,7 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
  \end{CompactEnumerate}
 
 
-Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
+Unfortunately, there is no encryption scheme that supports all these requirements. The closest schemes to these requirements  is {\em order-preserving encryption}, BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}. However, these schemes are both significantly less secure and less efficient than our scheme. In terms of security, they leak the order between any two IP addresses encrypted, and not just whether they match the same interval or not. Moreover, BCLO~\cite{boldyreva:ope} leaks the top half of the bits too. In terms of performance, they cannot keep up with packet-processing demands, as they take milliseconds per encryption (as demonstrated in \S\ref{sec:eval}), which would only allow the gateway to forward a few hundred packets per second. 
 
 
 Instead, we designed a new encryption scheme that satisfies all the requirements above called {\em range match} scheme. 
@@ -107,7 +107,7 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 \[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. If $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. However, it is not the case of IPv4.
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time. The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
 
 The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
 Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
@@ -124,7 +124,7 @@ readjust all the encryptions of these intervals to make space for the new interv
 
 \subsubsection{Gateway API and implementation}\label{s:rangealg}
 
-\noindent\textbf{Gateway state.} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
+\noindent\textbf{Gateway state} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
 
 The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of
@@ -142,12 +142,12 @@ one point only, namely $s = e$.
               $\cup$ $\{e_1, \dots, e_n\}$ 
               $\cup$ $\{-\infty, \infty\}$.
   \State Assign an encryption $\enc(x)$ to each node $x$ in the tree:
-  \begin{CompactItemize}
+  \begin{itemize}
   \item the root gets the middle of the IP range, $e$, 
   \item the node to the left of the root gets the middle of the interval to the left of $e$: ($e/2$),
   \item the right node gets the middle of the range
   to the right of $e$: ($3e/2$), and so on.
-  \end{CompactItemize}
+  \end{itemize}
 
   \State \Return{[$\enc(s_1)$, $\enc(e_1)$], $\dots$, [$\enc(s_n)$, $\enc(e_n)$]}
 \EndProcedure
