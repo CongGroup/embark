@@ -780,3 +780,49 @@ correlation matrix of the fit parameters:
                a      b      
 a               1.000 
 b              -0.985  1.000 
+
+
+*******************************************************************************
+Thu Mar 26 19:29:54 2015
+
+
+FIT:    data read from 'data.latency.plot'
+        format = z
+        #datapoints = 26
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+fitted parameters initialized with current variable values
+
+
+
+ Iteration 0
+ WSSR        : 6.37498e+10       delta(WSSR)/WSSR   : 0
+ delta(WSSR) : 0                 limit for stopping : 1e-05
+ lambda	  : 394731
+
+initial set of free parameter values
+
+a               = 1
+b               = 1
+
+After 15 iterations the fit converged.
+final sum of squares of residuals : 0.0598501
+rel. change during last iteration : -1.07809e-07
+
+degrees of freedom    (FIT_NDF)                        : 24
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.0499375
+variance of residuals (reduced chisquare) = WSSR/ndf   : 0.00249376
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+
+a               = 1.05602          +/- 0.02918      (2.763%)
+b               = 0.0685965        +/- 0.00271      (3.951%)
+
+
+correlation matrix of the fit parameters:
+
+               a      b      
+a               1.000 
+b              -0.985  1.000 
