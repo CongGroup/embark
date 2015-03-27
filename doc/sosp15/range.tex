@@ -78,7 +78,7 @@ Instead, we designed a new encryption scheme that satisfies all the requirements
 %The scheme takes advantage of the network setting; it does not rely on advanced cryptography%, so it can be easily understood and validated by a non-cryptographically trained reader. 
 %Kay sez patronizing. I don't think so, but, it certainly is unnecessary and we are short on space!!!
 
-\subsubsection{Our RangeMatch scheme} 
+\subsubsection{Intuition} 
 
 
 
@@ -103,12 +103,12 @@ $ I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). $
  
 
 
-To satisfy Req.~\ref{req:injective}, we need to generate the random encryptions using a deterministic function. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the interval $I$. 
+To ensure the encryption is deterministic, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
 $ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. $ 
   Note that, in the system's setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately,  a simple calculation shows that the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6 (but not for IPv4).  % Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. If $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. However, it is not the case of IPv4.
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately,  a simple calculation shows that the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6 (but not quite for IPv4).  % Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. If $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. However, it is not the case of IPv4.
 
 The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
 Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
@@ -123,7 +123,7 @@ readjust all the encryptions of these intervals to make space for the new interv
 
 %We now explain concretely the API and the implementation of the scheme. 
 
-\subsubsection{Gateway API and implementation}\label{s:rangealg}
+\subsubsection{Algorithms used by the gateway}\label{s:rangealg}
 
 \noindent\textbf{Gateway state.} The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
 
@@ -183,7 +183,8 @@ any intervals not containing $v$. The gateway can precompute and store this inte
 
 EncryptValue returns an AES encryption of $v$ too, because $\enc(v)$ is not decryptable. 
 
-We now describe the procedure for AddRange and DeleteRange which add or delete an interval. 
+We now describe the procedure for AddRange, which adds an interval. Deleting an interval is similar and we do
+not present it.
 These will modify the state at the gateway. Besides the interval added or deleted, a small number
 of other intervals may be moved. For these, the algorithm returns the old and new encryption of the interval. 
 
@@ -212,9 +213,8 @@ Since we are using a scapegoat tree, the number of nodes that change position du
 
 A natural question is whether there exists a scheme that does not need to adjust already encrypted intervals. For a related setting, Popa et al.~\cite{popa:mope} proved that whenever one supports ``>'' over  encrypted data, there must be some adjustment similar to this; the proof holds for our setting too.  
 
-DeleteRange is similar, except that the result contains only $L$. 
 
-\subsubsection{Cloud API}
+\subsubsection{Algorithms used by the cloud}
 
 The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted endpoint $\enc(s)$ and $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
 

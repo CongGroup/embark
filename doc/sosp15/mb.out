@@ -7,9 +7,9 @@
 \BOOKMARK [1][-]{section.3}{Building blocks}{}% 7
 \BOOKMARK [2][-]{subsection.3.1}{Keyword match}{section.3}% 8
 \BOOKMARK [2][-]{subsection.3.2}{Range match }{section.3}% 9
-\BOOKMARK [3][-]{subsubsection.3.2.1}{Our RangeMatch scheme}{subsection.3.2}% 10
-\BOOKMARK [3][-]{subsubsection.3.2.2}{Gateway API and implementation}{subsection.3.2}% 11
-\BOOKMARK [3][-]{subsubsection.3.2.3}{Cloud API}{subsection.3.2}% 12
+\BOOKMARK [3][-]{subsubsection.3.2.1}{Intuition}{subsection.3.2}% 10
+\BOOKMARK [3][-]{subsubsection.3.2.2}{Algorithms used by the gateway}{subsection.3.2}% 11
+\BOOKMARK [3][-]{subsubsection.3.2.3}{Algorithms used by the cloud}{subsection.3.2}% 12
 \BOOKMARK [3][-]{subsubsection.3.2.4}{Security guarantees}{subsection.3.2}% 13
 \BOOKMARK [1][-]{section.4}{Header-only middleboxes}{}% 14
 \BOOKMARK [2][-]{subsection.4.1}{Middlebox: Firewall}{section.4}% 15
