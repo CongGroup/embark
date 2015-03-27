@@ -78,12 +78,7 @@ Instead, we designed a new encryption scheme that satisfies all the requirements
 %The scheme takes advantage of the network setting; it does not rely on advanced cryptography%, so it can be easily understood and validated by a non-cryptographically trained reader. 
 %Kay sez patronizing. I don't think so, but, it certainly is unnecessary and we are short on space!!!
 
-\subsubsection{Intuition} 
-
-
-
-%We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
-
+\mypara{Intuition} 
 To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else.
 
 For now, consider that the gateway  maintains a mapping of each interval endpoint  to its encryption, called the {\em interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encrypted with 0.0.0.0 and 255.255.255.255. 
@@ -115,7 +110,8 @@ Since we tried to spread out the encryptions of the intervals evenly in the IP s
 readjust all the encryptions of these intervals to make space for the new interval. However, this would require the firewall hardware to reconfigure fully which is slow. Ideally, we would only reconfigure the firewall hardware incrementally, for the new interval. For this, we build on the idea from mOPE~\cite{popa:mope} and store the intervals at the gateway in a balanced scapegoat tree as in Fig.~\ref{fig:tree}. This tree is a search tree that has the property that when inserting or deleting a node, the number of other nodes that change encryption is small, namely, $O(\log n)$ amortized worst case where $n$ is the number of nodes. Each node in the tree is now encrypted similarly to before: the root gets the middle of the IP range,  the left node gets the middle of the IP space to the left of the middle, and so on, as in Fig.~\ref{fig:tree}.  Note that, since the tree is balanced, it maintains our desire of having the encryptions of endpoints roughly uniformly distributed.
 
 \begin{figure}
-  \includegraphics[width=3.45in]{fig/tree}
+\centering
+  \includegraphics[width=3.3in]{fig/tree}
   \caption{\label{fig:tree} Range match tree. The values of nodes in the tree are the unencrypted IP addresses, and the blue values on the horizontal axis are their encryptions. }
 \end{figure}
 
@@ -158,7 +154,7 @@ one point only, namely $s = e$.
 
 
 
-EncryptValue encrypts the values to be matched against ranges.
+EncryptValue encrypts the values to be matched in ranges.
 
 \begin{framed}
 \begin{algorithmic}[1]
