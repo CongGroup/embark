@@ -4,75 +4,90 @@
 
 \section{Middlebox: IDS and exfiltration detection}\label{sec:ids}
 
-In intrusion detection or prevention~\cite{Snort}, a middlebox (IDS or IPS) attempts to detect intrusion attacks by looking to match attack signatures against the traffic.
-In data exfiltration prevention~\cite{CMU_exfiltration_report}, a middlebox attempts to detect if a malicious employee of an organization 
-attempts to exfiltrate confidential data, as follows.  The confidential data has watermarks in it, the middlebox knows these watermarks and tries to find them
-in the traffic. 
 
-Unlike the previously presented middleboxes, these middleboxes are bytestream aware:  they operate over the TCP bytestream, as opposed to over each packet individually. Hence, deploying an IDS at the cloud requires a stateful gateway at the enterprise.
-
-\sys's IDS builds on top of BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We now  summarize, but exclude many important details all of which are presented in~\cite{blindbox}.
-
-\noindent\textbf{BlindBox.}
-To encrypt a stream of traffic from a sender, BlindBox first generates tokens from the stream.  
-For simplicity, consider that BlindBox generates a token for  every byte offset in the unencrypted payload (for a more efficient technique, see~\cite{blindbox}). 
-The  token encodes the first N = 8 bytes starting at the byte offset. Then, it encrypts the tokens with KeywordMatch, which we discussed in \S\ref{s:kwmatch}.
-For example, a sender transmitting the word `malicious' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
-
- {\em Model 1.} BlindBox adds these encrypted tokens to the  regular HTTPS traffic, on  a secondary channel.
-An IDS looking for the word `malicious' would declare a match if it observes both these tokens consecutively.
-For data exfiltration detection and for IDS signatures which consist {\it only} of exact match signatures, KeywordMatch is sufficient to detect attacks.
-The security guarantee it gives is as in KeywordMatch (\S\ref{s:kwmatch}): for every suspicious $N$-byte string part of the suspicious signatures at the IDS, the IDS learns if the string matches at a certain offset in the packet, but it does not learn anything else. In particular, if the stream contains no suspicious strings, the middlebox learns virtually nothing about the stream. 
-
- {\em Model 2.}  While this covers the case of data exfiltration and a significant number of IDS signatures, it does not support  IDS signatures with regular expressions.
- In fact, there exists no encryption scheme that can support such generic computation over encrypted data in a practical way in the literature. 
-  Hence, to support regular expressions, BlindBox -- and hence \sys -- provide a secondary protocol with a different security guarantee. 
-  Based on Snort's manual~\cite{Snort}, all  IDS signatures must include exact match strings that filter a lot of the traffic -- for performance reasons, an IDS like Snort~\cite{Snort} performs regular expression detection after all exact match strings have been matched first.
-  Inspired by this, BlindBox allows the middlebox to decrypt all the packets in the session if and {\it only} if a suspicious exact match strings matches a packet in this session.
-  Namely, if there is a reason to suspect the session is malicious, the middlebox will be able to decrypt it and see its contents, but if there is no suspicious content, the middlebox cannot physically decrypt the traffic.  This model is called `probable cause decryption'.
-  The client encodes the key with the tokens such that if a match occurs, the middlebox can automatically decrypt the key (once again, details are in~\cite{blindbox}).
-  Now, if there is a match and the packet gets decrypted, the middlebox can run the regular expressions on the unencrypted traffic as before. 
-  
-  
-  In summary, the first model is more secure but less expressive: 
-  the first model allows the middlebox to {\it detect a substring}, only if that substring is suspicious;
-  the second model allows the middlebox to {\it decrypt the entire stream} if a substring is suspicious.
-  
-\noindent\textbf{\sys's IDS.}  
-  Everything we have described so far is identical between BlindBox and \sys. We now describe how they are different, and how \sys improves performance and security.
-
-The key difference between BlindBox and \sys's IDS comes from the cost to setup signatures at the IDS. 
-With \sys, the gateway can simply encrypt rules with its key $k$ and transmit them to the IDS, who then applies them over the enterprise's traffic.
-With BlindBox, this is not appropriate.
-BlindBox aims to allow a client (\eg{} laptop) connecting to {\em any} receiver to receive IDS processing over their HTTP traffic, even if the IDS is unknown or untrusted to them.
-Hence, the middlebox cannot give the signatures to the client both to prevent the client from avoiding detection~\cite{Bro} and to prevent the client from leaking these expensive signatures. 
-In this scenario, the IDS wants to {\it enforce} that all traffic be scanned for malicious behavior, but the client wants to maintain {\it privacy} from the untrusted IDS.
-As a result, the middlebox will not give its rules to the client, and the client will not give its key to the middlebox.
-Hence,  to generate the encrypted rules that the IDS can use for detection requires BlindBox to perform
-a sophisticated cryptographic computation (based on a primitive called garbled circuits~\cite{Yao82}) at the start of each connection, which makes the connection
-startup time slow. 
-Further, this computation scales with the number of exact-match rules the IDS needs to learn: the more rules, the longer the startup time.
-%\sys does not have such overhead.
-
-Fortunately, the setup in \sys is different: even though the client is untrusted, the gateway is trusted. Hence, the middlebox can give the signatures to the gateway which can encrypt them using simple AES. Moreover, the gateway can perform this encryption once and does not need to repeat it for every user session. 
-There are two implications of this: better performance and better security.
-
-\textit{Better performance.}
-The first implication is performance: this startup time is eliminated, as the signatures are generated once, at the gateway, and transmitted to the IDS. After this there is no more setup cost. This improves the overall time to setup a connection by orders of magnitude, as discussed in \S\ref{sec:eval}. 
-
-\textit{Better security.}
-The second implication is improved security. We made the observation that, since setting up a signature is cheaper, we can generate more signatures and hopefully reduce some regular expression signatures to a set of exact matches.  
-For example, the regular expression `alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3']. 
-Not all rules are amenable to this -- \eg{} `bob[a-z]+' would result in a prohibitively large (and also far too general) number of expansions, even for \sys. 
-Hence, we try to expand each regular expression that has a modest expansion into exact match signatures. 
-%To do this expansion with BlindBox would be prohibitively expensive, as each additional exact match rules increases the already lengthy setup time.
-%However, as \sys has no such cost, we can expand many regular expressions and thus detect them using the stronger security model.
-For the signatures that we could expand, \sys provides the security of Model 1 whereas BlindBox provides Model 2, and hence \sys improves security. 
-The more signatures we can support this way, the less often the middlebox is able to perform stream decryption. 
-In \S\ref{sec:eval}, we evaluate existing signature sets, and find that regular expression expansion almost doubles the number of signatures that can be detected using the stronger security model.
+In intrusion detection~\cite{Snort} and data exfiltration, a middlebox (IDS) attempts to detect intrusion attacks by looking to match attack signatures against the traffic.
 
 
-%Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
-%IDS/IPS are canonical examples of DPI devices.
+\sys's IDS builds on top of BlindBox~\cite{blindbox}, an IDS which uses searchable encryption (like KeywordMatch) to detect malicious signatures on encrypted traffic.  Due to space limits, we cannot describe BlindBox, but refer  the reader to~\cite{blindbox} for details.  \sys improves both the performance and security of BlindBox. BlindBox has a different threat model where the encryptor of the traffic is not trusted and hence it must run a sophisticated algorithm that is slow. \sys's gateway is trusted and hence \sys can avoid this slowdown. This improves the overall time to setup a connection by orders of magnitude, as discussed in \S\ref{sec:eval}. 
 
+Each attack signature in BlindBox and Snort that has a regular expression $r$ must also have an exact match string $s$. Moreover, since there exists no encryption scheme that supports generic regular expressions efficiently over encrypted data, BlindBox decrypts any packet that matches $s$ so that $r$ can run on it. Since the setup in \sys is much cheaper,  \sys can expand the regular expressions into exact matches for a number of signatures. In this way, the number of rules that have regular expressions decreases up to half which means that less packets are going to be decrypted.
 
+%
+%
+%
+%PREVIOUS IDS
+%
+%
+%
+%In intrusion detection or prevention~\cite{Snort}, a middlebox (IDS or IPS) attempts to detect intrusion attacks by looking to match attack signatures against the traffic.
+%In data exfiltration prevention~\cite{CMU_exfiltration_report}, a middlebox attempts to detect if a malicious employee of an organization 
+%attempts to exfiltrate confidential data, as follows.  The confidential data has watermarks in it, the middlebox knows these watermarks and tries to find them
+%in the traffic. 
+%
+%Unlike the previously presented middleboxes, these middleboxes are bytestream aware:  they operate over the TCP bytestream, as opposed to over each packet individually. Hence, deploying an IDS at the cloud requires a stateful gateway at the enterprise.
+%
+%\sys's IDS builds on top of BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We now  summarize, but exclude many important details all of which are presented in~\cite{blindbox}.
+%
+%\noindent\textbf{BlindBox.}
+%To encrypt a stream of traffic from a sender, BlindBox first generates tokens from the stream.  
+%For simplicity, consider that BlindBox generates a token for  every byte offset in the unencrypted payload (for a more efficient technique, see~\cite{blindbox}). 
+%The  token encodes the first N = 8 bytes starting at the byte offset. Then, it encrypts the tokens with KeywordMatch, which we discussed in \S\ref{s:kwmatch}.
+%For example, a sender transmitting the word `malicious' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
+%
+% {\em Model 1.} BlindBox adds these encrypted tokens to the  regular HTTPS traffic, on  a secondary channel.
+%An IDS looking for the word `malicious' would declare a match if it observes both these tokens consecutively.
+%For data exfiltration detection and for IDS signatures which consist {\it only} of exact match signatures, KeywordMatch is sufficient to detect attacks.
+%The security guarantee it gives is as in KeywordMatch (\S\ref{s:kwmatch}): for every suspicious $N$-byte string part of the suspicious signatures at the IDS, the IDS learns if the string matches at a certain offset in the packet, but it does not learn anything else. In particular, if the stream contains no suspicious strings, the middlebox learns virtually nothing about the stream. 
+%
+% {\em Model 2.}  While this covers the case of data exfiltration and a significant number of IDS signatures, it does not support  IDS signatures with regular expressions.
+% In fact, there exists no encryption scheme that can support such generic computation over encrypted data in a practical way in the literature. 
+%  Hence, to support regular expressions, BlindBox -- and hence \sys -- provide a secondary protocol with a different security guarantee. 
+%  Based on Snort's manual~\cite{Snort}, all  IDS signatures must include exact match strings that filter a lot of the traffic -- for performance reasons, an IDS like Snort~\cite{Snort} performs regular expression detection after all exact match strings have been matched first.
+%  Inspired by this, BlindBox allows the middlebox to decrypt all the packets in the session if and {\it only} if a suspicious exact match strings matches a packet in this session.
+%  Namely, if there is a reason to suspect the session is malicious, the middlebox will be able to decrypt it and see its contents, but if there is no suspicious content, the middlebox cannot physically decrypt the traffic.  This model is called `probable cause decryption'.
+%  The client encodes the key with the tokens such that if a match occurs, the middlebox can automatically decrypt the key (once again, details are in~\cite{blindbox}).
+%  Now, if there is a match and the packet gets decrypted, the middlebox can run the regular expressions on the unencrypted traffic as before. 
+%  
+%  
+%  In summary, the first model is more secure but less expressive: 
+%  the first model allows the middlebox to {\it detect a substring}, only if that substring is suspicious;
+%  the second model allows the middlebox to {\it decrypt the entire stream} if a substring is suspicious.
+%  
+%\noindent\textbf{\sys's IDS.}  
+%  Everything we have described so far is identical between BlindBox and \sys. We now describe how they are different, and how \sys improves performance and security.
+%
+%The key difference between BlindBox and \sys's IDS comes from the cost to setup signatures at the IDS. 
+%With \sys, the gateway can simply encrypt rules with its key $k$ and transmit them to the IDS, who then applies them over the enterprise's traffic.
+%With BlindBox, this is not appropriate.
+%BlindBox aims to allow a client (\eg{} laptop) connecting to {\em any} receiver to receive IDS processing over their HTTP traffic, even if the IDS is unknown or untrusted to them.
+%Hence, the middlebox cannot give the signatures to the client both to prevent the client from avoiding detection~\cite{Bro} and to prevent the client from leaking these expensive signatures. 
+%In this scenario, the IDS wants to {\it enforce} that all traffic be scanned for malicious behavior, but the client wants to maintain {\it privacy} from the untrusted IDS.
+%As a result, the middlebox will not give its rules to the client, and the client will not give its key to the middlebox.
+%Hence,  to generate the encrypted rules that the IDS can use for detection requires BlindBox to perform
+%a sophisticated cryptographic computation (based on a primitive called garbled circuits~\cite{Yao82}) at the start of each connection, which makes the connection
+%startup time slow. 
+%Further, this computation scales with the number of exact-match rules the IDS needs to learn: the more rules, the longer the startup time.
+%%\sys does not have such overhead.
+%
+%Fortunately, the setup in \sys is different: even though the client is untrusted, the gateway is trusted. Hence, the middlebox can give the signatures to the gateway which can encrypt them using simple AES. Moreover, the gateway can perform this encryption once and does not need to repeat it for every user session. 
+%There are two implications of this: better performance and better security.
+%
+%\textit{Better performance.}
+%The first implication is performance: this startup time is eliminated, as the signatures are generated once, at the gateway, and transmitted to the IDS. After this there is no more setup cost. This improves the overall time to setup a connection by orders of magnitude, as discussed in \S\ref{sec:eval}. 
+%
+%\textit{Better security.}
+%The second implication is improved security. We made the observation that, since setting up a signature is cheaper, we can generate more signatures and hopefully reduce some regular expression signatures to a set of exact matches.  
+%For example, the regular expression `alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3']. 
+%Not all rules are amenable to this -- \eg{} `bob[a-z]+' would result in a prohibitively large (and also far too general) number of expansions, even for \sys. 
+%Hence, we try to expand each regular expression that has a modest expansion into exact match signatures. 
+%%To do this expansion with BlindBox would be prohibitively expensive, as each additional exact match rules increases the already lengthy setup time.
+%%However, as \sys has no such cost, we can expand many regular expressions and thus detect them using the stronger security model.
+%For the signatures that we could expand, \sys provides the security of Model 1 whereas BlindBox provides Model 2, and hence \sys improves security. 
+%The more signatures we can support this way, the less often the middlebox is able to perform stream decryption. 
+%In \S\ref{sec:eval}, we evaluate existing signature sets, and find that regular expression expansion almost doubles the number of signatures that can be detected using the stronger security model.
+%
+%
+%%Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
+%%IDS/IPS are canonical examples of DPI devices.
+%
+%
