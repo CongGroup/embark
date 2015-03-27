@@ -1,6 +1,5 @@
 %!TEX root = mb.tex
 \begin{figure}[t]
-  \small
   \centering
   \begin{tabular}{cc}
   \includegraphics[height=1.25in]{fig/gatewayxput}&
@@ -12,17 +11,17 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=2.5in]{fig/gateway_scale}
+  \includegraphics[width=3in]{fig/gateway_scale}
   \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
 \end{figure}
  
 \section{Evaluation} \label{sec:eval}
 
-As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes as well as bytestream-aware middleboxes. 
-% Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
+As we showed in \S\ref{sec:impl}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,nfv} -- including header-only middleboxes as well as bytestream-aware middleboxes . 
+Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
 
 We now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption (over the header or the payload) and redirection. 
-\sys has low hardware overheads at the enterprise: our eight-core server generates up to 8Gbps encrypted traffic to and from the cloud; we evaluate the gateway throughput in \S\ref{sec:gateway}.
+\sys has very low hardware overheads at the enterprise: our eight-core server could easily saturate a 10Gbps link with encrypted traffic to and from the cloud; we evaluate the gateway throughput in \S\ref{sec:gateway}.
 Because most middleboxes are unchanged in the dataplane, throughput overheads at the cloud due to \sys are negligible, typically under 1\%, as we show in \S\ref{sec:homiddleboxes}.  
 
 We ran our experiments using the implementation described in \ref{sec:impl}. 
@@ -42,43 +41,41 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
  
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as HTTP/proxy encryption. 
-For empirical traffic traces with payload encryption (IDS) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
-In scalability experiments (shown in Fig.~\ref{fig:gwscale}),  our 8-core server  could forward at up to 8Gbps while encrypting headers and payloads with a combination of AES, KeywordMatch, and RangeMatch schemes.
+For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 1.5Gbps per core; for full-sized packets it achieves over 2Gbps.
+In scalability experiments (shown in Fig.~\ref{fig:gwscale} Our 8-core server could could forward at up to 8Gbps while encrypting headers and payloads with a combination of AES, KeywordMatch, and RangeMatch schemes.
 
-With IDS enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need a small cluster to reach higher bandwidth for these kinds of devices.
-While IDS introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
+With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need a small cluster to reach higher bandwidth for these kinds of devices.
+While DPI introduces a reduction to about one-sixth relative to other encryption schemes, there is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
 %Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=2.5in]{fig/xputrange}
+  \includegraphics[width=3in]{fig/xputrange}
   \caption[]{\label{fig:xputrange} Throughput as number of rules for range encrypt increases.}
 \end{figure}
 
 \noindent{\it How do throughput and latency at the gateway scale with the number of rules for range encryption?} 
 In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
-Hence, as the size of the tree grows, we can expect to require more time to process each packet and throughput to decrease.
+Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of the tree data structure. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
-\noindent{\it Is range encryption faster than existing order preserving schemes?}
+\noindent{\it Is range encryption faster than existing order preserving algorithms?}
 Our range encryption is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information needed for firewall rules. 
-Existing order-preserving approaches require either significant CPU time or multiple round trip times -- and hence milliseconds -- for each encryption operation.
+Existing order-preserving approaches require multiple round trip times -- and hence many milliseconds -- for each encryption operation.
 Our range encoding approach encrypts each value in microseconds.
-We compare against state-of-the-art schemes BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope}, 
-for trees with 10K and 100K ranges:
+We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
 \begin{table}[h]
 \centering
-\small
 \begin{tabular}{c|c|c|c}
 Operation&BCLO~\cite{boldyreva:ope}&mOPE~\cite{popa:mope}&\sys\\
 \hline
 \hline
-Encrypt, 10K ranges&9333$\mu$s&6640$\mu$s&1.95$\mu$s\\
+Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1.95$\mu$s\\
 \hline
-Encrypt, 100K ranges&9333$\mu$s&8300$\mu$s&3$\mu$s\\
+Encrypt, 100K rules&9333$\mu$s&8300$\mu$s&3$\mu$s\\
 \hline
 Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
@@ -147,7 +144,6 @@ Because bounce redirection is over the `cheaper' link, the overall impact to ban
 We now evaluate the performance overhead at each middlebox. Overall, we find that throughput is negligibly impacted due to \sys because \sys keeps most dataplane operations unchanged.
 
 \begin{table}[t!]
-\small
 \begin{tabular}{p{3cm}|p{2cm}|p{2cm}}
 Application &  Baseline Throughput & \sys Throughput \\
 \hline \hline
@@ -172,9 +168,7 @@ Table~\ref{tbl:appsxput} shows the throughput sustained for the apps we implemen
 The IP Firewall, NAT, and Load Balancer are all `header only' middleboxes; the results shown compare packet processing over the same dataplane, once with encrypted IPv6 data and once with unencrypted IPv4 data.
 The only middlebox for which any overhead is observable is the NAT -- and this is a reduction of only 2.7\%.
 
-The IDS is twice faster than the baseline, which is Snort~\cite{Snort}, which is slower than  DPDK-Click pipeline our IDS is built on; nevertheless, this still shows we achieve comparable throughput. 
-
-We re-implemented the Web Proxy and IDS to enable the byte-stream aware operations they require over our encrypted data. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present later, does have a higher service time per cache hit.
+We re-implemented the Web Proxy and IDS to enable the bytestream aware operations they require over our encrypted data. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present leter, does have a higher service time per cache hit.
 The IDS numbers compare Snort (baseline) to the BlindBox implementation; this is not an apples-to-apples comparison as BlindBox performs mostly exact matches where Snort performs regular expressions.
 
 In what follows, we provide some further middlebox-specific benchmarks for the firewall, proxy, and IDS.
@@ -190,7 +184,7 @@ As throughput for many middleboxes decreases with the number of rules, we were c
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=2.5in]{fig/proxytime}
+\includegraphics[width=3in]{fig/proxytime}
 \caption{\label{fig:proxygraph} Access time per page against the number of concurrent connections at the proxy.}
 \end{figure}
 
@@ -206,12 +200,15 @@ Hence, this setup cost is paid once when the gateway is initially configured. Th
 
 \noindent{\it (1) End-to-end performance improves.} Where BlindBox incurs an initial handshake of 414s~\cite{blindbox} to open a new connection, clients under \sys never pay this cost; instead they perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to between 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.
 
-\noindent{\it (2) Security improves.} As we presented in \S\ref{sec:ids}, BlindBox operates at one of two security levels: a stronger security level for exact-match strings, and a weaker security level for regular expressions. However, \sys can convert many regular expressions to exact matches without the performance overhead that BlindBox incurs.
+\noindent{\it (2) Security improves.} As we presented in \S\ref{sec:ids}, BlindBox operates at one of two security levels: a stronger security level for exact-match strings, and a weaker security level for regular expressions. The stronger security level requires a round of handshake for each rule, but the weaker security level does not require more handshakes for each regular expression. 
+With \sys, the initial handshake/setup is performed exactly once, between the gateway and the middlebox. 
+Hence, we can convert regular expressions to exact match strings, even if they result in many hundreds of times more exact match rules. 
+Consequently, more rules can be detected using the stronger security guarantee, without incurring any handshake overhead.
+Using IDS rulesets from Snort, we converted regular expressions to exact match strings as discussed in \S\ref{sec:ids}; we were able to convert about half of all regular expressions to a finite number of exact match strings. 
 Consequently, \sys can detect more then 80-88\% of attacks using the higher security level, rather than 42-67\% as with BlindBox:
-\eat{
+
 \begin{table}[h]
   \centering
-  \small
   \begin{tabular}{l|c|c}
     {\bf Dataset}&{\bf Exact Match}&{\bf Prob. Cause}\\
     \hline
@@ -228,5 +225,5 @@ Consequently, \sys can detect more then 80-88\% of attacks using the higher secu
     \hline
   \end{tabular}
 \end{table}
-}
+
 
