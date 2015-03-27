@@ -116,11 +116,9 @@ We evaluate two costs: the increase in bandwidth due to our encryption and metad
 
 \noindent{\it How much does \sys encryption increase the amount of data sent to the cloud?}
 The gateway inflates the size of traffic due to three encryption costs:
-\begin{CompactItemize}
-  \item If the enterprise uses IPv4, there is a 20-byte per-packet cost to convert from IPv4 to IPv6. If the enterprise uses IPv6 by default, there is no such cost.
-  \item If HTTP proxying is enabled, there are on average 132 bytes per request in additional encrypted data.
-  \item If HTTP IDS is enabled, there is at worst a 5$\times$ overhead on all HTTP payloads.
-\end{CompactItemize}
+(1) If the enterprise uses IPv4, there is a 20-byte per-packet cost to convert from IPv4 to IPv6. If the enterprise uses IPv6 by default, there is no such cost.
+(2) If HTTP proxying is enabled, there are on average 132 bytes per request in additional encrypted data.
+(3) If HTTP IDS is enabled, there is at worst a 5$\times$ overhead on all HTTP payloads.
 We used the m57 trace to understand how these overheads would play out in aggregate for an enterprise.
 On the uplink, from the gateway to the middlebox service provider, traffic would increase by 2.5\% due to encryption costs for a Header-Only Gateway. Traffic would increase by 4.3$\times$ on the uplink for a bytestream-aware gateway. 
 
