@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (TeX Live 2014) (preloaded format=xelatex 2014.5.25)  26 MAR 2015 18:44
+This is XeTeX, Version 3.14159265-2.6-0.99991 (TeX Live 2014) (preloaded format=xelatex 2014.5.25)  26 MAR 2015 18:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -492,8 +492,6 @@ File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
 
 )
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
 \c@theapp=\count143
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 47.
@@ -516,12 +514,14 @@ File: fig/model_1.pdf Graphic file (type QTm)
 <use  "fig/model_1.pdf" >
 File: fig/model_2.pdf Graphic file (type QTm)
  <use  "fig/model_2.pdf" >
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 2027) has occurred while \output is active []
 
  [1
 
 
 ]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 LaTeX Font Info:    Try loading font information for OMS+ptm on input line 103.
 
 
@@ -532,8 +532,11 @@ LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <9> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 103.
 )
 (./overview.tex [2]
+Underfull \vbox (badness 6396) has occurred while \output is active []
+
 File: fig/packet.pdf Graphic file (type QTm)
- <use  "fig/packet.pdf" >
+
+<use  "fig/packet.pdf" >
 Underfull \hbox (badness 1742) in paragraph at lines 87--87
 \T1/ptm/b/n/10 Figure 2. []\T1/ptm/m/n/10 Packet en-cryp-tion at the gate-way. 
 Pat-terned
@@ -546,11 +549,10 @@ Underfull \hbox (badness 1178) in paragraph at lines 118--120
  head-ers
  []
 
-[3]
+[3]) (./keyword.tex
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-)
-(./keyword.tex
+
 Overfull \hbox (19.3576pt too wide) in paragraph at lines 18--21
 []\T1/ptm/m/n/10 To im-ple-ment this, we use a search-able en-cryp-tion scheme 
 [[],
@@ -571,26 +573,20 @@ r/m/n/10 0\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 0\OML/cmm/m/it/10 ; \OT1/cmr/m/n/1
 \OML/cmm/m/it/10 :\OT1/cmr/m/n/10 255]$\T1/ptm/m/n/10 .
  []
 
-
-Underfull \vbox (badness 1062) has occurred while \output is active []
-
- [5]
+[5]
 File: fig/tree.pdf Graphic file (type QTm)
-
-<use  "fig/tree.pdf" >
+ <use  "fig/tree.pdf" >
 Overfull \hbox (9.33127pt too wide) in paragraph at lines 117--118
 [][] 
  []
 
-[6]
+
 Overfull \hbox (23.28825pt too wide) in paragraph at lines 185--188
 []\T1/ptm/m/n/10 We now de-scribe the pro-ce-dure for Ad-dRange and DeleteRange
 
  []
 
-) (./headerMB.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+[6]) (./headerMB.tex
 LaTeX Font Info:    Try loading font information for T1+cmtt on input line 40.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/t1cmtt.fd
@@ -601,10 +597,7 @@ Overfull \hbox (32.14977pt too wide) in paragraph at lines 40--48
 157.161.48.0/24
  []
 
-
-Underfull \vbox (badness 3872) has occurred while \output is active []
-
- [7]
+[7]
 Overfull \hbox (1.06758pt too wide) in paragraph at lines 108--117
 []
  []
@@ -665,7 +658,7 @@ Overfull \hbox (20.5719pt too wide) in paragraph at lines 98--107
 []  [] 
  []
 
-[13]
+
 Underfull \hbox (badness 10000) in paragraph at lines 152--152
 []|\T1/ptm/m/n/9 Baseline
  []
@@ -680,19 +673,24 @@ Underfull \hbox (badness 1199) in paragraph at lines 166--166
 \T1/ptm/m/n/10 MBArk; through-put mea-sured with an em-pir-i-cal traf-fic
  []
 
+[13]
 File: fig/proxytime.pdf Graphic file (type QTm)
-<use  "fig/proxytime.pdf" > [14]
-LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 220.
-) (./related.tex
+ <use  "fig/proxytime.pdf" >
+Underfull \vbox (badness 4266) has occurred while \output is active []
+
+)
+(./related.tex
 Overfull \hbox (1.95772pt too wide) in paragraph at lines 4--5
 []\T1/ptm/m/n/10 The two sys-tems most re-lated to MBArk are CryptDB [[]]
  []
 
-) (./concl.tex) (./mb.bbl
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 6.
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/t1pcr.fd
+Underfull \vbox (badness 1769) has occurred while \output is active []
+
+ [14])
+(./mb.bbl
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 6.
+ (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
 Underfull \hbox (badness 10000) in paragraph at lines 47--51
@@ -710,7 +708,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 53--57
 \T1/pcr/m/n/9 / / digitalcorpora . org / corpora / scenarios /
  []
 
-[15]
+
 Underfull \hbox (badness 3428) in paragraph at lines 104--108
 []\T1/ptm/m/sc/9 Kallahalla, M., Riedel, E., Swami-nathan, R.,
  []
@@ -721,7 +719,7 @@ Underfull \hbox (badness 4366) in paragraph at lines 115--118
 /n/9 http : / / www .
  []
 
-
+[15]
 Underfull \hbox (badness 2990) in paragraph at lines 185--189
 []\T1/ptm/m/sc/9 Verizon\T1/ptm/m/n/9 .  High Speed In-ter-net Pack-ages.  [][]
 $\T1/pcr/m/n/9 http :
@@ -746,12 +744,12 @@ Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 286.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 286.
  ) 
 Here is how much of TeX's memory you used:
- 12922 strings out of 493734
- 181746 string characters out of 6146348
- 269904 words of memory out of 5000000
- 16055 multiletter control sequences out of 15000+600000
- 47801 words of font info for 57 fonts, out of 8000000 for 9000
+ 12916 strings out of 493734
+ 181685 string characters out of 6146348
+ 269810 words of memory out of 5000000
+ 16052 multiletter control sequences out of 15000+600000
+ 46105 words of font info for 56 fonts, out of 8000000 for 9000
  1328 hyphenation exceptions out of 8191
- 32i,12n,48p,1025b,486s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 32i,12n,48p,1025b,538s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on mb.pdf (16 pages).

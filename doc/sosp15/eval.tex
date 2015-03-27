@@ -206,13 +206,9 @@ Hence, this setup cost is paid once when the gateway is initially configured. Th
 
 \noindent{\it (1) End-to-end performance improves.} Where BlindBox incurs an initial handshake of 414s~\cite{blindbox} to open a new connection, clients under \sys never pay this cost; instead they perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to between 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.
 
-\noindent{\it (2) Security improves.} As we presented in \S\ref{sec:ids}, BlindBox operates at one of two security levels: a stronger security level for exact-match strings, and a weaker security level for regular expressions. The stronger security level requires a round of handshake for each rule, but the weaker security level does not require more handshakes for each regular expression. 
-With \sys, the initial handshake/setup is performed exactly once, between the gateway and the middlebox. 
-Hence, we can convert regular expressions to exact match strings, even if they result in many hundreds of times more exact match rules. 
-Consequently, more rules can be detected using the stronger security guarantee, without incurring any handshake overhead.
-Using IDS rulesets from Snort, we converted regular expressions to exact match strings as discussed in \S\ref{sec:ids}; we were able to convert about half of all regular expressions to a finite number of exact match strings. 
+\noindent{\it (2) Security improves.} As we presented in \S\ref{sec:ids}, BlindBox operates at one of two security levels: a stronger security level for exact-match strings, and a weaker security level for regular expressions. However, \sys can convert many regular expressions to exact matches without the performance overhead that BlindBox incurs.
 Consequently, \sys can detect more then 80-88\% of attacks using the higher security level, rather than 42-67\% as with BlindBox:
-
+\eat{
 \begin{table}[h]
   \centering
   \small
@@ -232,5 +228,5 @@ Consequently, \sys can detect more then 80-88\% of attacks using the higher secu
     \hline
   \end{tabular}
 \end{table}
-
+}
 

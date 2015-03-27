@@ -22,11 +22,13 @@
 \citation{nfvwg}
 \citation{PrivacyRecords}
 \citation{aplomb}
-\citation{gentry:fhe-aes-eprint}
-\citation{popa:cryptdb}
 \HyPL@Entry{0<</S/D>>}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Middleboxes supported by MBArk\xspace  , shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one example of an encrypted field each operates on.  }}{1}{table.1}}
+\newlabel{tab:apps-ops}{{1}{1}{Middleboxes supported by \sys , shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one example of an encrypted field each operates on}{table.1}{}}
+\citation{gentry:fhe-aes-eprint}
+\citation{popa:cryptdb}
 \citation{boldyreva:ope,popa:mope}
 \citation{aplomb}
 \citation{aplomb}
@@ -39,8 +41,6 @@
 \newlabel{fig:sys-overview}{{1}{2}{System architecture. Aplomb and NFV system setup with \sys encryption at the gateway. The arrows indicate traffic from the client to the server; the response traffic follows the reverse direction}{figure.1}{}}
 \@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {Enterprise to external site communication}}}{2}{figure.1}}
 \@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {Enterprise to enterprise communication}}}{2}{figure.1}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Middleboxes supported by MBArk\xspace  , shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one example of an encrypted field each operates on.  }}{2}{table.1}}
-\newlabel{tab:apps-ops}{{1}{2}{Middleboxes supported by \sys , shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one example of an encrypted field each operates on}{table.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Overview}{2}{section.2}}
 \newlabel{sec:overview}{{2}{2}{Overview}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}System architecture}{2}{subsection.2.1}}
@@ -138,20 +138,16 @@
 \citation{popa:mope}
 \citation{comcast-costs,megapath-costs,verizon-costs}
 \citation{comcast-costs,verizon-costs}
+\citation{blindbox}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces }}{13}{figure.10}}
 \newlabel{fig:e2eloads}{{10}{13}{}{figure.10}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {8.1.2}Client Performance}{13}{subsubsection.8.1.2}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {8.1.3}Bandwidth Overheads}{13}{subsubsection.8.1.3}}
-\citation{blindbox}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Middleboxes}{13}{subsection.8.2}}
+\newlabel{sec:evalcloud}{{8.2}{13}{Middleboxes}{subsection.8.2}{}}
 \citation{Snort}
 \citation{blindbox}
 \citation{blindbox}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Middlebox applications supported by Header-Only MBArk\xspace  ; throughput measured with an empirical traffic workload. }}{14}{table.2}}
-\newlabel{tbl:appsxput}{{2}{14}{Middlebox applications supported by Header-Only \sys ; throughput measured with an empirical traffic workload}{table.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Middleboxes}{14}{subsection.8.2}}
-\newlabel{sec:evalcloud}{{8.2}{14}{Middleboxes}{subsection.8.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces  Access time per page against the number of concurrent connections at the proxy.}}{14}{figure.11}}
-\newlabel{fig:proxygraph}{{11}{14}{Access time per page against the number of concurrent connections at the proxy}{figure.11}{}}
 \citation{popa:cryptdb}
 \citation{blindbox}
 \citation{Baumann:Haven}
@@ -159,6 +155,12 @@
 \citation{blaze:cfs,kallahalla:plutus,goh:sirius}
 \citation{popa:cryptdb}
 \citation{Zhang:CloudVisor}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Middlebox applications supported by Header-Only MBArk\xspace  ; throughput measured with an empirical traffic workload. }}{14}{table.2}}
+\newlabel{tbl:appsxput}{{2}{14}{Middlebox applications supported by Header-Only \sys ; throughput measured with an empirical traffic workload}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces  Access time per page against the number of concurrent connections at the proxy.}}{14}{figure.11}}
+\newlabel{fig:proxygraph}{{11}{14}{Access time per page against the number of concurrent connections at the proxy}{figure.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Related work}{14}{section.9}}
+\newlabel{sec:related}{{9}{14}{Related work}{section.9}{}}
 \citation{Vern:Anonymize03,Vern:Anonymize06}
 \citation{Yamada_IDS}
 \citation{gentry:fhe,gentry:fhe-aes-eprint}
@@ -179,10 +181,6 @@
 \bibcite{comcast-costs}{{8}{}{{}}{{}}}
 \bibcite{m57}{{9}{}{{}}{{}}}
 \bibcite{nfvwg}{{10}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Related work}{15}{section.9}}
-\newlabel{sec:related}{{9}{15}{Related work}{section.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{15}{section.10}}
-\newlabel{sec:concl}{{10}{15}{Conclusion}{section.10}{}}
 \bibcite{nfv}{{11}{}{{}}{{}}}
 \bibcite{gentry:fhe}{{12}{}{{}}{{}}}
 \bibcite{gentry:fhe-aes-eprint}{{13}{}{{}}{{}}}
