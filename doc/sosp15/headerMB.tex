@@ -108,12 +108,15 @@ Instead of mapping unencrypted addresses/ports to public IP addresses/ports, the
 Consider a very simple NAT example:
 
 \smallskip
+\small
+\noindent
 \begin{tabular}{c|c|c|c|c}
 encrypted IP   & encrypted  &  public IP   & public  &  AES   \\
 address           & port            &   address   &  port    & encryptions \\
 \hline
 ab12:342::               & 231                  & 160.1.1.1  &  445 &  [..] \\ 
 \end{tabular}
+\normalsize
 \smallskip
 
 The last column stores the AES encryptions corresponding to the first two columns. 
