@@ -9,7 +9,7 @@
 \section{Header-only middleboxes}
 \label{sec:homiddleboxes}
 % My high school english teacher would kill me for starting off a section without an introduction sentence. This is for him. HI MR KELLY.We now discuss how header-only middleboxes operate over the new encrypted packet format.
-Most classes and functions within a middlebox codebase can be labeled as one of these three categories: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state like counters and connection state), and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
+Most classes and functions within a middlebox codebase can be labeled as one of these three categories: the dataplane (which performs packet processing), the middlebox state (which stores and updates rules and policies, as well as per-flow state, and the control logic (which converts user configurations to rules and policies, and updates/refreshes state). 
 Importantly, packet processing only occurs in dataplane functions, which are usually tightly engineered to process each packet in microseconds or faster.
 
 As we will show, adapting middleboxes to operate over encrypted data requires (a) encrypting the rules given to the middleboxes, and (b) changes to the control logic and some of the processing state. 
