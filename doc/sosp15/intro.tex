@@ -99,11 +99,12 @@ A second challenge is that, although there exist algorithms for keyword match, t
  
 A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
 To address this challenge, we make the following contributions:
-\begin{CompactItemize}
-\item We design a  protocol for each type of middlebox in Table~\ref{tab:apps-ops} by employing our two encrypted match  primitives.
-\item  We integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, leverage the IPv6 options header, and sometimes add a second network flow.
-\item  For most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} data plane which processes packets. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables middlebox throughput with \sys to almost match throughput without \sys, despite our changes.
-\end{CompactItemize}
+
+\noindent (a) We design a  protocol for each type of middlebox in Table~\ref{tab:apps-ops} by employing our two encrypted match  primitives.
+
+\noindent (b) We integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, leverage the IPv6 options header, and sometimes add a second network flow.
+
+\noindent (c) For most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} data plane which processes packets. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables middlebox throughput with \sys to almost match throughput without \sys, despite our changes.
 
 
 
