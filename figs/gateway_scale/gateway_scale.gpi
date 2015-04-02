@@ -1,4 +1,4 @@
-set terminal postscript enhanced color "Times" 18
+set terminal postscript enhanced color "Times" 22
 set output "gateway_scale.eps"
 set boxwidth 1.0 absolute
 #set key horiz at 5, -0.5
@@ -27,6 +27,7 @@ set style data histogram
 set style histogram cluster gap 1
 set style fill solid border rgb "black"
 set auto x
+set yrange [0:*]
 #plot 'data.plot' using ($2):xtic(1) lt 1 lc rgb "red" t "Whole Page: BB+TLS" , '' using ($4) lt 1 lc rgb 'orange' t 'Whole Page: TLS', '' using ($3) lt 1 lc rgb 'navy' t 'Text/Code: BB+TLS', '' using ($5) lt 1 lc rgb 'forest-green' t 'Text/Code: TLS'
-plot 'data.plot2' using ($2):xtic(1) lt 1 lc rgb "orange" t "APLOMB", '' using ($3) lt 1 lc rgb "light-green"  t "MBark, Header-Only",  '' using ($4)  lt 1 lc rgb "medium-blue" t "MBark, Header + HTTP"
+plot 'data.plot2' using ($2):xtic(1) lt 1 lc rgb "orange" t "APLOMB", '' using ($3) lt 1 lc rgb "light-green"  t "MBArk, Header",  '' using ($4)  lt 1 lc rgb "medium-blue" t "MBArk, Header+HTTP"
 #, '' using ($9) lt 1 lc rgb "orange" t "Empirical Trace (m57)" 
