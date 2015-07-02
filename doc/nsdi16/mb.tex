@@ -1,4 +1,5 @@
-\documentclass[10pt,preprint,nocopyrightspace]{sigplanconf}
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix}
 \usepackage{times}
 \usepackage{amsmath}
 % SOME OF OUR DEFINITIONS
@@ -12,7 +13,7 @@
 % EMBArk
 
 \usepackage[compact]{titlesec}
-%\usepackage[small]{caption}
+\usepackage[small]{caption}
 \usepackage{fancyvrb}
 \usepackage{listings}
 \usepackage[T1]{fontenc}
@@ -41,26 +42,15 @@
   citecolor={blue},
   pdfpagemode={UseOutlines}
 }
-  
-%\usepackage{algorithmic}
-  
-\conferenceinfo{SOSP'15}{October 4--7, 2015, Monterey, CA}
-\copyrightyear{2015} 
-\date{}
 
 \usepackage[noend]{algpseudocode}
 
 % edit the comments 
 \usepackage{eqparbox}
 \renewcommand{\algorithmiccomment}[1]{\eqparbox{COMMENT}{// {\emph #1}}}
-  
-%\usepackage{multicol}
-%\usepackage{amsmath, amssymb}
-%\usepackage{amsthm}
+
 \usepackage{enumitem}
-%\usepackage{rotating}
-%\onehalfspacing
-%\newcommand{\tbd}[1]{[{\bf{#1}}]}
+
 \newcommand{\tbd}[1]{}
 \newcommand{\ie}{{\it i.e.}}
 \newcommand{\eg}{{\it e.g.}}
@@ -97,7 +87,6 @@
 \setlist[itemize]{itemsep=0.00cm}
 \setlist[itemize]{parsep=0.01cm}
 %\setlist[itemize]{parskip=0.01cm}
-
 
 \newenvironment{myitemize}
 { \begin{itemize}[nolistsep]
@@ -210,79 +199,53 @@
   {\end{enumerate}\let\usecounter=\latexusecounter}
 \makeatother
 
-\authorinfo{Paper \textbf{\#59}}{14 pages\vspace{-25pt}}
+
+% Tweaks
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{-12pt}
+\frenchspacing
+
+% Title, authors
+\date{}
+
+\title{
+\vspace{-0.6in}
+\sys: Securely outsourcing middleboxes to the cloud
+}
+
+\newcommand{\superscript}[1]{\ensuremath{^{\textrm{#1}}}}
+\newcommand{\affila}{\superscript{*}}
+\newcommand{\affilb}{\superscript{\dag}}
+\newcommand{\affilc}{\superscript{\ddag}}
+
+\author{
+{\rm Chang Lan\affila} \qquad 
+{\rm Justine Sherry\affila} \qquad 
+{\rm Raluca Ada Popa\affila\affilb} \qquad 
+{\rm Sylvia Ratnasamy\affila} \qquad 
+{\rm Zhi Liu\affilc} \\
+\affila UC Berkeley \qquad \affilb ETH Zurich \qquad \affilc Tsinghua University
+}
 
 \begin{document}
 
-
-
-%
-% --- Author Metadata here ---
-%\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
-%\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
-%\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
-% --- End of Author Metadata ---
-
-\title{\sys: Securely outsourcing middleboxes to the cloud}
-
 \maketitle
 
-\input{abstract.tex}
-
-% A category with the (minimum) three required fields
-%\category{H.4}{Information Systems Applications}{Miscellaneous}
-%A category including the fourth, optional field follows...
-%\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
-
-
-%\terms{Systems}
-
-%\keywords{ACM proceedings, \LaTeX, text tagging}
-
+\input{abstract}
 \input{intro}
-
 \input{overview}
-
 \input{keyword}
-
 \input{range}
-
 \input{headerMB}
 \input{payloadMB}
-
 \input{otherapps}
-
-
 \input{impl}
-
 \input{eval}
-
 \input{related}
 
 %\input{concl}
-
-
-
-%
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-\bibliographystyle{acm}
-    \bibliography{related_work,cryptobib,rp,rp-str,rp-conf}
-  % sigproc.bib is the name of the Bibliography in this case
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
-
-
-
-
-%
-% ACM needs 'a single self-contained file'!
-%
-%APPENDICES are optional
-\balancecolumns
+{\footnotesize \bibliographystyle{acm}
+\bibliography{related_work,cryptobib,rp,rp-str,rp-conf}}
 
 % That's all folks!
 \end{document}
