@@ -1,0 +1,11 @@
+%!TEX root = mb.tex
+
+\section{Conclusion} \label{sec:concl}
+
+
+
+In this paper, we presented \sys, the first system that enables running a wide range of middleboxes at a service provider 
+while maintaining the confidentiality of traffic.
+    \sys delivers on the promise of APLOMB and NFV to reduce costs, decrease the burden of managing and configuring these devices, and provide redundant resources for elasticity and fault tolerance.
+    However, \sys provides strong privacy for enterprises by  by enabling the service provider to compute on the encrypted traffic without decrypting it. 
+We showed that \sys supports a wide-range of middleboxes, and despite the encryption, \sys has modest overheads. In our tests on EC2, middlebox throughput with \sys was nearly unchanged relative to normal middlebox processing. In our local experiments, we saw that a single server is capable of generating 8Gbps of encrypted traffic: enough for most enterprises to replace all of their middleboxes with only a single server.

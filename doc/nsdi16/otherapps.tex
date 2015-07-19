@@ -1,0 +1,61 @@
+%!TEX root = mb.tex
+
+\section{Other middleboxes}\label{sec:vpn} \label{sec:other_apps} \label{sec:not_supp}\label{sec:loadb}
+
+ \sys supports other middleboxes as straightforward extensions of the ones we presented so far. 
+\sys supports the L4 balancer similarly to the NAT, the L7 balancer similarly to the web proxy, the IP forwarder similarly to a combination of NAT and firewall. 
+In APLOMB~\cite{aplomb}, the VPN requires an APLOMB client as part of the VPN client; \sys also adds a module  which performs the encryption at the gateway. WAN optimizers run at the gateway in APLOMB so they can run on unencrypted traffic. 
+
+
+
+%
+%\bpara{L4 and L7 Load balancer} 
+%The L4 load balancer spreads the load from packets destined to the same IP address across different servers. \sys supports this middlebox in a 
+%very similar way to the NAT presented in \S\ref{sec:nat}. The L7 load balancer spreads the load destined for the same URL or path across 
+%different servers. \sys supports this middlebox in a very similar way to the web proxy presented in \S\ref{s:proxy}. 
+%
+%
+%\bpara{IP forwarding} This functionality is supported similarly to a NAT and firewall. 
+%
+%
+%\bpara{VPN} The APLOMB~\cite{aplomb} model supports the VPN by installing an APLOMB client at the user endpoint, as part of the VPN client.
+%\sys also installs a \sys client as part of the VPN client which does the encryption and decryption work of the gateway. The VPN middlebox remains
+%largely the same because it does not compute on the traffic. 
+%
+%
+%\bpara{Application firewall} This middlebox is a simple version of an IDS combined with a firewall. 
+%
+%
+%\bpara{WAN optimizers} WAN optimizers compress network traffic. APLOMB~\cite{aplomb} requires the compression to happen
+%at the gateway, because otherwise, it loses the bandwidth benefits of the compression. Hence, this middlebox does not benefit much 
+% from the cloud outsourcing. 
+%Nevertheless, we can still support it. 
+%If the other middleboxes used are only header middleboxes, WAN optimizers can be applied directly and their benefits are retained.
+%If one uses an IDS middlebox too, \sys  requires  the IDS tokenization  to run before the compression so it can tokenize
+%the traffic; in this case, unfortunately, \sys  reduces the compression benefit of the WAN optimizer because the encrypted tokens 
+%are not compressible. 
+
+
+
+
+% some potentially useful things
+%\section{Discussion}
+%
+%No one will put a firewall behind a NAT
+%
+%since we are giving primitives, one might be able to add later applications that can also be supported with the same primitives, although one has to add encryption at the gateway for the specific fields 
+%
+%What do we do about these issues?
+%
+%Checksum Many middleboxes change packet contents, and thus packet check-
+%sums. However, it is not clear that if we can compute correct checksums based
+%
+%on encrypted packet contents.
+%
+%IP Fragmentation Middleboxes working above L3 may need to reassemble
+%
+%IP fragments, our encryption scheme need to be carefully designed to avoid any
+%
+%issues.
+
+
