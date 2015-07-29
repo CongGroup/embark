@@ -9,55 +9,33 @@
      Network Functions Virtualization (NFV)~\cite{nfv}, which proposes moving network appliances from hardware deployments to virtualized, software deployments, makes this move increasingly attractive to service providers who can offer virtualized network features in a similar fashion to how cloud providers manage virtual servers and storage.
      For enterprise clients, this strategy promises to reduce costs, decrease the burden of managing and configuring these devices, and provide redundant resources for elasticity and fault tolerance~\cite{aplomb}.
    
-   Nevertheless, outsourcing middleboxes to a third party service provider brings a new and important challenge: the confidentiality of the traffic. In order to be able to process and examine the traffic of an organization, the cloud  receives  the traffic {\em unencrypted}.  This means that the cloud now has access to potentially sensitive packet payloads,  IP addresses, and ports revealing confidential information about the organization. This situation is worrisome considering the number of documented data breaches by cloud employees or hackers gaining access to clouds~\cite{PrivacyRecords}.
+   Nevertheless, outsourcing middleboxes to a third party service provider brings a new and important challenge: the confidentiality of the traffic. In order to be able to process and examine the traffic of an organization, the service provider  receives  the traffic {\em unencrypted}.  This means that the service provider now has access to potentially sensitive packet payloads,  IP addresses, and ports revealing confidential information about the organization. This situation is worrisome considering the number of documented data breaches by cloud employees or hackers gaining access to clouds~\cite{PrivacyRecords}.
    Hence, an important question is: can we enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?
    
    
-% Justine's text unchanged: (the above is a combination of Justine & Raluca)
-%    Network processing appliances (''middleboxes'') such as firewalls, proxies, and intrusion detection systems make up a substantial fraction of modern network infrastructure; studies show that as much as 1/3 of enterprise network hardware consists of such devices~\cite{aplomb}.
-%    However, recent trends suggest that this fraction may begin to decline as more and more networks begin to {\it outsource} their network processing, either to cloud providers~\cite{aplomb, aryaka, zscalar} or to service providers through Network Functions Virtualization (NFV)~\cite{nfv}.
-%    For consumers, outsourcing traffic processing offers many of the same benefits that outsourcing compute and storage have attained through cloud computing: decreased costs, ease of management, the ability to scale and failover on demand, \etc{}.
-%    Nevertheless, outsourcing network processing brings new challenges, and among them, an issue which is critical to most enterprises: privacy.
-%    
-%    Under traditional middlebox deployments, traffic is processed and inspected by devices which are owned, hosted, and managed entirely within the enterprise itself.
-%    Encrypted traffic is often decrypted to enable deep packet inspection (DPI) such as intrusion detection and exfiltration detection.
-%    This configuration places critical trust in the hands of network administrators, who can potentially read or even modify {\it any} connection within the company.
-%    Outsourcing shifts this trust away from network administrators who are employed and monitored by the company whose data is being processed, and to a third party company with its own employees, hiring practices, and motivations.
-%    Hence, in this paper, we ask: is it possible to enable a third party to perform traffic processing for an enterprise, without transferring the ability to read and monitor the enterprise's traffic?
-%    
-% 
-     
-     
-     
-  
-    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). \sys supports a wide range of middleboxes, in fact, all middleboxes that~\cite{aplomb} documents to be fit for cloud outsourcing. We list these middleboxes in Table~\ref{tab:apps-ops}. Moreover, \sys supports these middleboxes with competitive performance, with almost no penalty in typical middlebox throughput despite our changes. 
+    We design and build \sys (read ``embark"), the first system that enables running a wide range of middleboxes at a cloud  while maintaining the confidentiality of the traffic. \sys provides these guarantees even against attackers who gained access to {\em all} the data at the cloud.  \sys's name concatenates the words MB (middlebox) and Ark (protection). 
     
-    The approach in \sys is to encrypt the traffic that goes to  the middleboxes in the cloud and enables the cloud to process encrypted traffic without ever decrypting it. \sys encrypts the packet payload as well as the header (\eg{} IP addresses and ports). Since the service provider receives only encrypted traffic and no decryption key, it cannot see the confidential data. However, designing a practical system that supports a wide-range of middlebox applications over encrypted traffic is challenging and required a set of new cryptographic and systems techniques.
+    \sys encrypts traffic sent to cloud and enables the cloud to process the traffic without ever decrypting it. \sys encrypts the packet payload as well as the header (\eg{} IP addresses and ports). Since the service provider receives only encrypted traffic and no decryption key, it cannot see the confidential data. 
+    Although \sys does not allow the cloud to directly read unencrypted traffic, \sys supports {\it all middlebox capabilities} typical to outsourcing environments by supporting two forms of computational encryption: {\it keyword match}, a form of searchable encryption~\cite{blindbox}, and {\it RangeMatch}.
+    RangeMatch is a new encryption scheme we designed for \sys in order to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg., if a port is in the range 1000-2000), which are common actions performed by middleboxes such as firewalls. 
+    
+    Using just these two encryption schemes, we implemented a wide range of encrypted security appliances -- such as a firewall and an intrusion detection system -- as well as performance-enhancing appliances, including a WAN optimizer, a web proxy, and a load balancer. 
+    Moreover, \sys supports these devices while imposing {\it zero overhead on middlebox throughput}.
+    On the dataplane, middleboxes remain entirely unchanged from how they operate today: they treat encrypted packets and rules just as they treat plaintext packets and rules.
+    We present a full list of the appliances \sys supports, and how it supports them, in \S\ref{sec:appliances}.
 
-    
-    
+
+    In implementing \sys, we faced both cryptographic and systems design challenges. 
+
+    On the algorithmic side, as we mentioned, implementing \sys required designing a new encryption scheme for {\it RangeMatch} detection.
+    We required a new encryption scheme because no existing system provided both the {\it performance} and the {\it privacy} properties we desired for \sys.
+    Of existing cryptographic schemes, OPE~\cite{cryptdb} is the closest relative of {\it RangeMatch}; however, it is four orders of magnitude slower than {\it RangeMatch} and leaks unnecessary information to the cloud provider.
+    Where {\em RangeMatch} only reveals whether or not a value lies within a pre-determined range, OPE reveals the total ordering among all encrypted values, whether they lie within a range or not.
+    We discuss the {\em RangeMatch} scheme in \S\ref{sec:rangematch} leaks unnecessary information to the cloud provider.
+    %%I cut all of this discussion of homomorphic encryption -- I think Raluca has successfully sold the research community that limited, per-capabaility encryption is a good idea relative to FE or FHE. It sounds like old hat now.
+
 \newcounter{theapp} \setcounter{theapp}{0}  
 \newcommand{\capp}{\refstepcounter{theapp}\arabic{theapp}}
-\eat{ %%Never liked this table -- to much to put in the intro, it's overwhelming and doesn't mean much.   
-\begin{table}[t!]
-\centering  
-\begin{tabular}{c|p{3.3cm}|p{0.6cm}|p{2.5cm}}
-& {\bf Middlebox}  & {\bf Type } & {\bf Example fields}  \\
-\hline \hline
-\capp &  IP Firewall \S\ref{sec:firewall} & HO &  IP address   \\
-\capp &  Application Firewall  \S\ref{sec:firewall} & BA & IP address  \\
-\capp & NAT  \S\ref{sec:nat} & HO & IP address  \\
-\capp & IP Forwarding  \S\ref{sec:other_apps}  & HO &  IP address \\
-\capp & Load Balancer L4 \S\ref{sec:loadb} & HO & IP address  \\
-\capp & Load Balancer L7 \S\ref{sec:loadb} & BA & URL in payload  \\
-\capp & Web Proxy/Cache  \S\ref{s:proxy} & HO & URL in payload \\
-\capp & Intrusion Detect (IDS) \S\ref{sec:ids} & BA & payload \\
-\capp & Data Exfiltration  \S\ref{sec:ids} & BA & payload \\
-\capp & VPN Gateway \S\ref{sec:vpn} &  HO &  IP address \\ 
-\end{tabular}
-\caption{Middleboxes supported by \sys, shown with the section that discusses them, their type, HO (header only) or BA (bytestream aware), and one  example of an encrypted field  each operates on. \label{tab:apps-ops} }
-\end{table}
-}
 
 % 2nd fig/1st fig = 1.12 ratio
 \begin{figure*}[t!]
@@ -76,32 +54,24 @@
 \end{figure*}
 
 
-    
-The first challenge is that performing generic computation on encrypted data is prohibitively impractical. The applications considered provide complex functionalities. For example, firewall and NAT examine packet header information such as IP addresses and ports; for IDS and data exfiltration detection, the middlebox (MB) examines the packet payload and tries to match complex rules (e.g., keywords, regular expressions). For each packet, a middlebox must process a packet on the timescale of microseconds. Existing generic homomorphic encryption schemes are many orders of magnitude impractical~\cite{gentry:fhe-aes-eprint}, not just for middleboxes but for most systems (even those with more relaxed performance requirements).
+  On the systems side, \sys must be deliberate in how and where it introduces overheads due to encryption:
+  
+  \noindent{\it At the service provider:}
+    \begin{itemize}
+      \item Keep packet formats unchanged; keep dataplane unchanged. Remain compatible with state of the art classification algorithms!
+      \item Almost all middleboxes require no dataplane changes, except Proxy and IDS. Although these two required changes, we need to make them as efficient as possible. Our proxy is comparable to state of the art proxy performance.
+      While our IDS is based on the keywordmatch from blindbox, blindbox is too slow in setup time, and has lower security guarantees than we would like. We discuss how we improve on BlindBox in \S\ref{sec:ids}. 
+      \item Minimal changes to control plane: less frequently invoked. Do require some changes to handle {\it rule updates}.
+    \end{itemize}
 
-Fortunately, a recent paper, CryptDB~\cite{popa:cryptdb}, put forth a new vision for building practical such systems, and we are inspired by this vision too. Instead of using a generic encryption scheme, the idea is to identify core operations that underlie the functionality of the system and to support each with a specialized and fast encryption scheme. Unfortunately, neither the encryption schemes nor the systems techniques in CryptDB fit in our network setting so we need to start from zero.
-
-We studied the relevant middleboxes, and we managed to identify two core operations that underlie all these middleboxes: {\em keyword match} and {\em range match}. Keyword match refers to  identifying if a keyword appears in a byte stream at some offset.   For example, keyword match is useful for a web proxy: the service provider can identify if a filename cached at the proxy appears in a HTTP GET request in the packet flow. % data exfiltration when a watermark is searched for in the traffic, for IDS when malicious strings are searched for in the traffic and for web proxy for matching file identifiers that could be potentially in a cache. 
-Range match enables determining if a value $x$ is in an interval [$x_1$, $x_2$]. An example middlebox that uses range match is the firewall.   For example, the firewall has to determine if a source IP address from a packet falls in a certain range of IP addresses and, if so, apply a certain action to the packet.  Note that range match supports a basic version of keyword match, namely complete equality check, when the range consists of only one value.
-%
-Table~\ref{tab:apps-ops} summarizes the middleboxes we support and the operations they rely on. 
-
-
-% TO CUT/REMOVE: just say that they are too insecure and slow and don't explain about order
-A second challenge is that there is no suitable encryption scheme for the range match scheme:
- the only practical schemes applicable here, order-preserving encryption (OPE)~\cite{boldyreva:ope,popa:mope}, are both too insecure and too slow for our setting.  For example, OPE schemes leak the order of the values encrypted. We designed a new encryption scheme, called {\em RangeMatch}, which is targeted at and takes advantage of the network setting. RangeMatch  is fast (performing encryptions in under 3$\mu$s, 3 orders of magnitude faster than the OPE schemes) and it is more secure because it does not reveal the order of the values encrypted. 
- 
-A last challenge is to design and build a system that supports the variety of applications mentioned, is practical and easy to deploy. 
-To address this challenge, we make the following contributions:
-\begin{itemize}
-\item we design a  protocol for each type of middlebox in Table~\ref{tab:apps-ops} by employing our two encrypted match  primitives,
-\item  we integrate these protocols in a way that {\em does not change the existing packet structure}. We achieve this by ensuring that our encrypted values fit into the space of the unencrypted values, leverage the IPv6 options header, and sometimes add a second network flow.
-\item  for most middleboxes, we keep {\em unchanged  the algorithms employed on the fast path} data plane which processes packets. In particular, firewalls implemented in hardware can use the existing hardware unchanged.  This enables middlebox throughput with \sys to almost match throughput without \sys, despite our changes.
-\end{itemize}
+  \noindent{\it At the enterprise:}
+    \begin{itemize}
+      \item Gateway: stateless
+      \item Gateway: low-complexity
+      \item To do otherwise would defeat the purpose of outsourcing!
+    \end{itemize}
 
 
-
-
-We implemented and evaluated \sys. As mentioned, we support all applications fit in the cloud outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
+We implemented and evaluated \sys. As mentioned, we support all applications fit in the outsourcing model, as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
 Further, \sys imposes very negligible throughput overheads at the service provider: for example, a firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
-Our gateway can forward at 1.5 Gbps on a single core; our 8 core server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
+Our enterprise gateway can forward at 1.5 Gbps on a single core; our 8 core server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
