@@ -2,10 +2,10 @@
 
 \begin{abstract}
 
-Network middleboxes such as firewalls, NAT, proxies, and intrusion prevention systems are crucial components of modern networks. Recently, more and more organizations are outsourcing their middleboxes to the cloud. However, this poses a problem for the confidentiality of the traffic because now the cloud provider has access to the organization's traffic.
+It is increasingly common for enterprises and other organizations to outsource network processing -- such as firewalling and caching -- to the cloud, just as they often outsource compute and storage.
+However, this poses a threat to enterprise confidentiality because the cloud provider gains access to the organization's traffic.
 
-
-We design and build \sys (read ``embark''), the first system that enables running a wide range of middleboxes at a cloud provider while maintaining the confidentiality of traffic. \sys encrypts the traffic that reaches the cloud and enables the cloud to process the {\em encrypted} traffic without decrypting it.
-\sys supports a wide-range of middleboxes such as firewall, NAT, web proxy, load balancing, IP forwarding, intrusion prevention systems, data exfiltration systems, and VPN. Our evaluation shows that \sys supports these applications with competitive performance: because \sys makes no modifications to the dataplane for most middleboxes, throughput at most middleboxes is uneffected by our changes.
+We design and build \sys, the first system that enables a cloud provider to offer a wide range of middleboxes while maintaining client confidentiality. \sys encrypts the traffic that reaches the cloud and enables the cloud to process the  traffic {\em without decrypting it}.
+\sys supports a wide-range of middleboxes such as firewalls, NATs, web proxies, load balancers, intrusion prevention systems, and data exfiltration systems. Our evaluation shows that \sys supports these applications with competitive performance: because \sys makes no modifications to the dataplane for most middleboxes, throughput at most middleboxes is uneffected by our changes.
 
 \end{abstract}
