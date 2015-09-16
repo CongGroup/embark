@@ -2,6 +2,7 @@
 \usepackage{usenix}
 \usepackage{times}
 \usepackage{amsmath}
+\usepackage{multirow}
 % SOME OF OUR DEFINITIONS
 %\usepackage{savetrees-clean}
 \usepackage{xspace}
@@ -89,7 +90,7 @@
 %\setlist[itemize]{parskip=0.01cm}
 
 \newenvironment{myitemize}
-{ \begin{itemize}[nolistsep]
+{ \begin{itemize}[nolistsep,leftmargin=0.15in]
     \setlength{\itemsep}{0.5pt}
     \setlength{\parskip}{0.9pt}
     \setlength{\parsep}{0.1pt}     }
@@ -164,14 +165,14 @@
 \usepackage[compact]{titlesec}
 
 \newcommand{\tickYes}{\checkmark}
-\newcommand{\todo}[1]{}
-\newcommand{\justine}[1]{}
 \newcommand{\raluca}[1]{}
 \newcommand{\clan}[1]{}
 \newcommand{\sr}[1]{{\color{CarnationPink} SR: {#1}}} % :)
 \newcommand{\shaddi}[1]{{\color{SkyBlue} SH: {#1}}} % :)
 \newcommand{\qu}[1]{{\color{Magenta}  {\bf Question:} {#1}}} 
 \newcommand{\warning}[1]{{\color{Red}{\bf Warning: #1}}}
+\newcommand{\todo}[1]{{\color{Red}{\bf TODO: #1}}}
+\newcommand{\justine}[1]{{\color{Green}{\bf JS: #1}}}
 
 \newcommand{\aes}{\mathsf{AES}}
 \newcommand{\encr}{\mathsf{enc\_r}}
@@ -236,10 +237,13 @@
 \input{overview}
 \input{keyword}
 \input{range}
-\input{headerMB}
-\input{payloadMB}
-\input{otherapps}
-\input{impl}
+
+\input{newgateway}
+\input{newmiddle}
+%input{headerMB}
+%\input{payloadMB}
+%\input{otherapps}
+%\input{impl}
 \input{eval}
 \input{related}
 
