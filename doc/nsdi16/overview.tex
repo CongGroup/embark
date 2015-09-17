@@ -114,12 +114,13 @@ An additional consequence of this shift -- that the client now desires that the 
 %
 %
 \subsection{Encryption Overview}
+\eat{
 \begin{figure}[t!]
 \centering
   \includegraphics[width=3.0in]{fig/packet.pdf}
 \caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. Only for DPI  middleboxes,  KeywordMatch produces additional encrypted data. \justine{Change fig to say DPI not BA}  \label{fig:packet}}
 \end{figure}
-
+}
 
 \begin{figure*}[t!]
 \centering
@@ -188,14 +189,13 @@ Recall that the provider holds a set of encrypted rules at the middleboxes which
 \end{myitemize}
 We discuss these cryptographic algorithm in \S\ref{sec:crypto}.
 
-Figure~\ref{fig:packet} illustrates how we use these schemes to encrypt different packet fields: an IPv4 (or v6, not shown) packet is encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
-We use IPv6 because our RangeMatch scheme requires 128 bits to encode an encrypted IP address -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
-This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}.
-The tunnel connecting the client to the provider may be either v4 or v6.
+Using these algorithms, a plaintext packet is encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
+We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to encode an encrypted IP address -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
+This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
 
-Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements, which guide us to the configuration shown in~Fig. \ref{fig:packet}.
+Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
 At a high level, we classify these middleboxes as operating only over packet headers, operating only over packet headers and HTTP headers, or operating over all data including arbitrary fields in the connection bytestream (DPI).
-We revisit these middleboxes in detail in \S\ref{sec:middleboxes}, but we summarize their requirements for our encryption scheme as follows:
+We revisit these middleboxes in detail in \S\ref{sec:newmb}, but we summarize their requirements for our encryption scheme as follows:
 
 \noindent{\bf IP and Transport Headers} are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
 We use RangeMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
