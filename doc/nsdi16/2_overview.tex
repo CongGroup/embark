@@ -36,7 +36,12 @@ In this section, we present \sys's architecture, the threat model and applicatio
 \subsection{System Achitecture}
 
 \sys uses the same  architecture as APLOMB, system which redirects an enterprise's traffic to the cloud for middlebox processing~\cite{aplomb}. \sys augments this architecture with confidentiality protection.
-We do not delve into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
+
+The benefits of outsourcing are to delegate the burden of managing and configuring
+middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
+and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
+We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
+
 In the APLOMB setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
 The service provider -- ISP or cloud-based -- runs a set of middleboxes. 
@@ -44,21 +49,6 @@ The service provider -- ISP or cloud-based -- runs a set of middleboxes.
 We illustrate two redirection setups in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
 It is worth mentioning that APLOMB allows an optimization that saves on bandwidth and latency relative to Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. We evaluate in \S\ref{sec:eval} what \sys loses by not allowing this optimization. 
 Nevertheless, for traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
-
-
-\subsection{Outsourcing Benefits}
-
-The benefits of outsourcing are to delegate the burden of managing and configuring
-middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
-and provide elasticity and fault tolerance; hence \sys should maintain these benefitss despite any changes made to to the gateway at the enterprise or middleboxes.
-%
-This leaves us with some requirements for the gateway: 
-
-\noindent{\bf Generic and Implementation Agnostic}: for each {\em type} of middlebox, the gateway should implement a generic functionality, and it should not depend on the specific version and vendor of the software running at the middlebox. For example, the gateway should not need to change when a new version of the McAfee firewall is installed, when the admin changes the firewall  from McAfee to Juniper, or when the NAT software gets upgraded. 
-
-\noindent{\bf Low Overhead and Scalable}: the gateway should perform only inexpensive per-packet operations, and should be parallelizable.  
-
-If our design were not to meet these goals, it would defeat the purpose of outsourcing in the first place. If the gateway scaled poorly the client would achieve no cost benefit. If the gateway were complex the client would have no manageability improvement.
 
 
 
@@ -187,35 +177,22 @@ Recall that the provider holds a set of encrypted rules at the middleboxes which
 \item KeywordMatch:  allows the provider to detect if an encrypted value in the packet is equal to an encrypted rule value
 \item RangeMatch: allows the provider to detect whether or not an encrypted value lies in a range of rule values -- e.g. addresses in 128.0.0.0/24 or ports between 80-96.
 \end{myitemize}
-We discuss these cryptographic algorithm in \S\ref{sec:crypto}.
+We discuss these cryptographic algorithm in \S\ref{sec:buildingblocks}.
 
-Using these algorithms, a plaintext packet is encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
+The key idea behind \sys is to encrypt {\it each field} of a packet using the appropriate encryption algorithm such that middleboxes can process each field of data as if it were not encrypted. 
+Plaintext packets are encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
+For example, an encrypted IPv6 packet will contain a source address that is an encryption of the original packet's source address using RangeMatch. This allows, e.g., a firewall to check whether the packet's source belongs to a prefix known to be controlled by a botnet -- but without learning what the actual source IP address is.
 We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to encode an encrypted IP address -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
 This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
 
+We choose which encryption scheme is appropriate for each field based on a high level classification of middlebox capabilities.
 Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
-At a high level, we classify these middleboxes as operating only over packet headers, operating only over packet headers and HTTP headers, or operating over all data including arbitrary fields in the connection bytestream (DPI).
-We revisit these middleboxes in detail in \S\ref{sec:newmb}, but we summarize their requirements for our encryption scheme as follows:
-
-\noindent{\bf IP and Transport Headers} are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
-We use RangeMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
-RangeMatch also supports middleboxes like NATs and L4 Load Balancers, which rewrite a particular input value for an IP address or port to an output value for IP or port -- these `exact match' operations are a special case of RangeMatch, where the range being matched contains one value.
-We store the AES encrypted values for the header fields in the options header; because RangeMatch is not reversible (it cannot be used to decrypt) we require these values to enable decryption when the packets leave the cloud and return to the gateway.
-
-\noindent{\bf Payload Data} is encrypted with KeywordMatch using a searchable encryption approach (we discuss this in detail in \S\ref{sec:gateway}). This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
-These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
-The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
-Other middleboxes ignore this extra data.
-In addition, the payload is encrypted with AES and placed back into the packet payload -- like RangeMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.\justine{Do we? What if we just cached it at the gateway???}
-
-\noindent{\bf HTTP Headers} are a special case of payload data.
-Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
-We treat these values specially compared to other payload data; we encrypt the HTTP URI and METHOD and store them in IP options header of the packet containing the request.
-As we will discuss in \S\ref{sec:gatewayarch}, supporting middleboxes which operate over payload data in general requires a stateful gateway; we can keep our gateway stateless for those middleboxes which {\it only} access HTTP headers in the payload by storing these values in the options header. 
+We classify these middleboxes as operating only over packet headers, operating only over packet headers and HTTP headers, or operating over all data including arbitrary fields in the connection bytestream (DPI).
+We revisit these middleboxes in detail in \S\ref{sec:mbs}.
 
 
-\noindent\textbf{Example: End to End}
-To understand \sys, Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud.  First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
+{\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
+First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings on the extension of the packet's payload, and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
 
 
