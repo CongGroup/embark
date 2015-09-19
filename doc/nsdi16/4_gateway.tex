@@ -86,20 +86,34 @@ We do need to rewrite HTTP parsing devices but, like DPI devices, they are imple
 
 \subsection{Rule Encryption}
 \label{sec:rulenc}
-\justine{lock here -- currently editing!}
 
-The rule encryption component provides the cloud provider with encrypted rules/policies to use at the middlebox. 
-There are two possible ways rules can be generated. First, an enterprise may choose to generate their own rules, in which case, they send encrypted versions of the rules directly to the cloud.
-Alternately, the enterprise may opt in to a `default' set of rules from the cloud provider, in which case the cloud provider sends the rules to the gateway which encrypts them and sends them back.
-Rules can contain IP and transport header values -- which must be encrypted with RangeMatch -- or HTTP header fields, or DPI signatures, which must be encrypted with KeywordMatch.
+We now discuss how encrypted rules are generated from plaintext rules at the gateway and how they are updated while the service is running.
 
+\noindent\textbf{Rule generation.} Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
+For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
+On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client.
+\sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
+RangeMatch rules only supports (a) and (c) -- the gateway who maintains the rule tree {\it must} know the rules to perform encryption properly.
+
+If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or RangeMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
+
+If the client is not permitted to know the rules, we must somehow allow the cloud provider (who knows the rules, but should not learn the client's key) to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox (where the client may never learn the rules)~\cite{blindbox}.
+As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
+Unlike BlindBox, this rule exchange occurs exactly once -- when the gateway initializes the rule. 
+After this setup, all connections from the enterprise are encrypted with the same key at the gateway.
+This is important because for a typical industry ruleset, a garbled circuit + oblivious transfer exchange takes 97 seconds~\cite{blindbox}; with BlindBox this exchange must be performed for every connection and thus is prohibitive for practicality.
+For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
+
+\textbf{Rule Updates.}
 The rule encryption component also handles rule updates. 
 Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
 If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
 
+\justine{We had had a much longer discussion a while back about rule updates. Today, when I update the rules, I say that a packet either receives the old policy or the new one. When updates are done to KWM, the encryption values change too. This means that it is possible for a packet to processed incorrectly -- neither under the old policy, nor the new one, since the encryption values may lag or be ahead of when the rule values are changed at the middlebox. We had discussed a solution, but I can't remember how it works off the top of my head.}
 
-\subsection{Discussion}
+\subsection{Scalability and Complexity}
 \label{sec:gwdiscuss}
+\justine{Todo...}
 \textbf{Scalability}
 \textbf{Complexity}
 \textbf{Fault Tolerance}
