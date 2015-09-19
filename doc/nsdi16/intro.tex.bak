@@ -29,7 +29,7 @@
     \sys achieves both generality with practical performance through a combination of cryptographic and systems innovations.
     \sys relies on two forms of computational encryption: {\it keyword match}, a form of searchable encryption~\cite{blindbox}, and {\it RangeMatch}.
     RangeMatch is a new encryption scheme we designed for \sys in order to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg., if a port is in the range 1000-2000), which are common actions performed by middleboxes such as firewalls. 
-    Using just these two encryption schemes, we implemented a wide range of encrypted security appliances -- such as a firewall and an intrusion detection system -- as well as performance-enhancing appliances, including  a web proxy and a load balancer. 
+    Using just these two encryption schemes (along with traditional AES), we implemented a wide range of encrypted security appliances -- such as a firewall and an intrusion detection system -- as well as performance-enhancing appliances, including  a web proxy and a load balancer. 
     We present a full list of the appliances \sys supports, and how it supports them, in \S\ref{sec:appliances}.
 
     We designed {\it RangeMatch} because no existing system provided the computational expressiveness, performance properties, and the privacy properties we desired for \sys.
