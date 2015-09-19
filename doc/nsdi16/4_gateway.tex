@@ -46,26 +46,31 @@ We use RangeMatch for these fields because many middleboxes perform analysis ove
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted range match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
-Not only does this ensure backwards-compatibility with existing software {\it and hardware} dataplane operations -- because per-packet operations are tightly optimized in production middleboxes, this compatibility ensures good performance at the cloud despite our changes.
+This ensures backwards-compatibility with existing software {\it and hardware} dataplane operations.
+Because per-packet operations are tightly optimized in production middleboxes, this compatibility ensures good performance at the cloud despite our changes.
 
 An additional challenge for format compatibility is where to place the decryptable AES data; one option would be to define our own packet format, but this could potentially lead to incompatibilities with existing middlebox software. By placing it in the IPv6 options header, middleboxes can be configured to ignore this data using standard configuration.\footnote{It is a common misconception that middleboxes are incompatible with IP options. Commercial middleboxes are usually aware of IP options but many administrators {\it configure} the devices to filter or drop packets with certain kinds of options enabled.}
 
 
 \subsubsection{Payload Data} 
-Payload Data is encrypted with KeywordMatch using a searchable encryption approach (we discuss this in detail in \S\ref{sec:gateway}). This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
+The connection bytestream is encrypted with KeywordMatch using a searchable encryption approach.
+This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
 These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
+Because this encrypted payload data is over the {\it bytestream}, we need to generate encrypted values which span `between' packet payloads. 
+Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {'malici', 'alicio', 'liciou', 'icious'}.
+If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
+
 The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 Other middleboxes ignore this extra data.
 
-Importantly, because this encrypted payload data is over the {\it bytestream}, we need to generate encrypted values which span `between' packets. Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {'malici', 'alicio', 'liciou', 'icious'}.
-If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
+
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like RangeMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.
 
-\noindent{\bf Format-compatibility.} To middleboxes which only inspect/modify packet headers, encrypting payloads has no impact. Once again we are still faced with the challenge of where to place the extra data, however, with the KeywordMatch values. By placing this data in the extension channel, the extra traffic can be routed past and ignored by middleboxes which do not need to operate over this data, hence it will not interfere with normal processing. 
+\noindent{\bf Format-compatibility.} To middleboxes which only inspect/modify packet headers, encrypting payloads has no impact. Once again we are still faced with the challenge of where to place the extra data in the form of the KeywordMatch values. By placing this data in the extension channel, the extra traffic can be routed past and ignored by middleboxes which do not need to operate over this data, hence it will not interfere with normal processing. 
 
-DPI middleboxes which do inspect payloads must be modified to inspect the extension channel alongside the primary channel, as described in~\cite{blindbox}; as we show in \S\ref{sec:eval}, DPI devices are typically implemented in software rather than hardware and our modifications to them to inspect the extension channel rather than the primary impose modest throughput overhead. 
+DPI middleboxes which do inspect payloads must be modified to inspect the extension channel alongside the primary channel, as described in~\cite{blindbox}; DPI devices are typically implemented in software rather than hardware and and these modifications are both straightforward and introduce limited overhead (as we will see in \S\ref{sec:eval}). 
 
 \subsubsection{HTTP Headers} 
 
@@ -98,7 +103,7 @@ RangeMatch rules only supports (a) and (c) -- the gateway who maintains the rule
 
 If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or RangeMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
 
-If the client is not permitted to know the rules, we must somehow allow the cloud provider (who knows the rules, but should not learn the client's key) to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
+If the client is not permitted to know the rules, we must somehow allow the cloud provider to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
 As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
 Unlike BlindBox, this rule exchange occurs exactly once -- when the gateway initializes the rule. 
 After this setup, all connections from the enterprise are encrypted with the same key at the gateway.
