@@ -73,9 +73,10 @@ HTTP Headers are a special case of payload data.
 Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
 We treat these values specially compared to other payload data; we encrypt the HTTP URI using unsalted AES (which is deterministic) and store them in IP options header of the packet containing the request.
 
-This optimization is useful for two reasons. First, so many middleboxes inspect HTTP headers that it does not make sense for them to parse entire packet bytestreams -- as generated in the extension channel -- because we are scanning through the traffic at the gateway already is makes sense to mark these fields specially.
-Second, when DPI is not enabled, we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
+This optimization is useful for two reasons. 
+First, when DPI is not enabled, we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
 Hence, if DPI is disabled we can avoid reconstructing the TCP bytestream at the middlebox.
+Second, when DPI is enabled, the gateway scans through every byte of data in the connection already;  extracting these headers allows the middlebox to avoid re-doing work which has already been done at the gateway.
 
 \noindent{\bf Decryption.} The packet is decrypted as normal using the data stored in the payload; options are removed.
 
@@ -97,7 +98,7 @@ RangeMatch rules only supports (a) and (c) -- the gateway who maintains the rule
 
 If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or RangeMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
 
-If the client is not permitted to know the rules, we must somehow allow the cloud provider (who knows the rules, but should not learn the client's key) to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox (where the client may never learn the rules)~\cite{blindbox}.
+If the client is not permitted to know the rules, we must somehow allow the cloud provider (who knows the rules, but should not learn the client's key) to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
 As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
 Unlike BlindBox, this rule exchange occurs exactly once -- when the gateway initializes the rule. 
 After this setup, all connections from the enterprise are encrypted with the same key at the gateway.
@@ -109,7 +110,7 @@ The rule encryption component also handles rule updates.
 Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
 If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
 
-\justine{We had had a much longer discussion a while back about rule updates. Today, when I update the rules, I say that a packet either receives the old policy or the new one. When updates are done to KWM, the encryption values change too. This means that it is possible for a packet to processed incorrectly -- neither under the old policy, nor the new one, since the encryption values may lag or be ahead of when the rule values are changed at the middlebox. We had discussed a solution, but I can't remember how it works off the top of my head.}
+\justine{We had had a much longer discussion a while back about rule updates. Today, when I update the rules, I say that a packet either receives the old policy or the new one. When updates are done to KWM, the encryption values change too. This means that it is possible for a packet to processed incorrectly -- neither under the old policy, nor the new one, since the encryption values may lag or be ahead of when the rule values are changed at the middlebox. We had discussed a solution, but I can't remember how it works... am going to scan through sosp submission}
 
 \subsection{Scalability and Complexity}
 \label{sec:gwdiscuss}

@@ -9,10 +9,3 @@
 \subsection{Full TCP Reconstruction}
 
 
-\subsection{Design Discussion}
-Reflecting on these implementation, we summarize design decisions
-\begin{itemize}
-  \item keep dataplane unchanged by (1) re-use existing protocols and formats (2) using format-preserving crypto
-  \item take advantage of trust between gateway and SP: no changes for end hosts. rule setup is cheaper. shared connection = better performance.
-  \item gateway simplicity -- cheap, cost-effective. Parallizable, minimize crypto operations, make use of hardware ops where possible. 
-\end{itemize}
