@@ -127,7 +127,6 @@ We now consider the general case, where $v$ may map to one interval, no interval
 
  
 
-\newpage
 To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it return the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across different connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{x}(n) \rightarrow {1 \ldots x}$, mapping $n$ to a random value between $1$ and $x$ inclusive. 
 
 We seed $\prf$  in $k$, the key, and $t$, a hash of the 5-tuple connection header.  Let $|I|$ be the size of the interval $I$. 
