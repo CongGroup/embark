@@ -127,10 +127,13 @@ We now consider the general case, where $v$ may map to one interval, no interval
 
  
 
+\newpage
+To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it return the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across different connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{x}(n) \rightarrow {1 \ldots x}$, mapping $n$ to a random value between $1$ and $x$ inclusive. 
 
-To support middleboxes like NATs -- which require that every time a value it is encrypted, it return the same value -- we need to generate the random encryptions using a deterministic function. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$, seeded in $k$.   Let $|I|$ be the size of the interval $I$. 
+We seed $\prf$  in $k$, the key, and $t$, a hash of the 5-tuple connection header.  Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
-\[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
+%\[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
+\[ \mathsf{index}(v) = \prf_{k,t}^{|I|}(v) \] 
   Note that, in the systems setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
 When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time. The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
