@@ -35,12 +35,11 @@ In this section, we present \sys's architecture, the threat model and applicatio
 % TO CUT REMOVE: just mentino the figures and no need to explain 
 \subsection{System Achitecture}
 
-\sys uses the same  architecture as APLOMB, system which redirects an enterprise's traffic to the cloud for middlebox processing~\cite{aplomb}. \sys augments this architecture with confidentiality protection.
+\sys uses the same  architecture as APLOMB, a system which redirects an enterprise's traffic to the cloud for middlebox processing~\cite{aplomb}. \sys augments this architecture with confidentiality protection.
 
 The benefits of outsourcing are to delegate the burden of managing and configuring
 middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
 and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
-We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
 In the APLOMB setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
@@ -51,19 +50,18 @@ It is worth mentioning that APLOMB allows an optimization that saves on bandwidt
 Nevertheless, for traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
 
 
+We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
 
 \subsection{Threat Model}
 
 Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
-
-{\bf Context.} 
   Clients adopt cloud services for compute, storage, and increasingly network processing because they the providers are known and trusted to provide good service (at competitive costs). 
   However, while clients trust cloud providers to perform their services correctly, there is increasing concern that cloud providers may access or leak confidential data in the process of providing service.
   Reports in the popular press describe companies selling customer data to marketers~\cite{example}, disgruntled employees snooping or exporting data~\cite{something}, and hackers gaining access to clouds~\cite{somethingelse}.
   The type of threat in this scenario is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver or service it correctly, but who may want to learn more from the data than is strictly necessary or desired.
   Such an attacker differs from a classical, `active' attacker, who seeks to harm the client outright, for example by manipulating data or denying service~\cite{goodrich}.
-  This distinction, which based on users concerns today, informs our threat model below. 
+  This distinction informs our threat model below. 
 
 {\bf Threat Model.}
 The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
@@ -91,6 +89,7 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 APLOMB~\cite{aplomb} assumes that the provider is fully trusted with client data; \sys's threat model allows for a passive attacker with access to the clients' data at the cloud.
 The differences between BlindBox~\cite{blindbox} and \sys are threefold:
 
+\justine{todo: Sylvia email}
 %
 \noindent(1) With BlindBox, the middlebox and client are unknown to each other; the middlebox wishes to {\it enforce} a policy over the client's traffic, and the client is not allowed to observe the rules being enforced. With \sys, the policy imposed over a clients traffic is a policy the client {\it wishes to have enforced}. 
 Some rules may come from the client itself -- such as exfiltration policies -- while others may come from a trusted rule provider such as McAfee or Symantec, as in BlindBox. We discuss how rules are generated and exchanged between the gateway and the cloud in \S\ref{sec:gateway}.
