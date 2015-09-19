@@ -61,7 +61,7 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 
 \subsection{Range match } \label{sec:range}
 
-Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
+Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by Stanford, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
 
 One might ask whether RangeMatch is strictly necessary. To detect whether or not a port number lies in the range 80-83 is the same as asking whether the port number is equal to anything in the set \{80,81,82,83\} -- hence, one could use KeywordMatch to implement all range detection operations by converting each range to a set of exact-match values.
