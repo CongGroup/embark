@@ -139,6 +139,11 @@ When encrypting IP addresses, we do not want two different IP addresses to map t
   \caption{\label{fig:tree} Range match tree. The values of nodes in the tree are the unencrypted IP addresses, and the blue values on the horizontal axis are their encryptions. }
 \end{figure}
 
+\textbf{Comparing encrypted values against rules.}
+The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted endpoint $\enc(s)$ and $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
+
+
+
 
 
 \textbf{Security guarantees.}

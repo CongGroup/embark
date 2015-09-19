@@ -34,21 +34,28 @@ We now discuss how the gateway performs encryption and decryption (\S\ref{sec:da
 
 \subsection{Data Encryption and Decryption}
 \label{sec:dataenc}
-\justine{Reiterate schemes.}
-Data dedup.
 
-\noindent{\bf IP and Transport Headers} are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
+As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middleboxes, which operate only on IP and transport headers; HTTP middleboxes, which operate on HTTP headers and may operate on IP and transport headers; and DPI middleboxes, which operate on arbitrary fields in a connection bytestream. 
+We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
+
+\subsubsection{IP and Transport Headers}
+IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
 We use RangeMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
-RangeMatch also supports middleboxes like NATs and L4 Load Balancers, which rewrite a particular input value for an IP address or port to an output value for IP or port -- these `exact match' operations are a special case of RangeMatch, where the range being matched contains one value.
-We store the AES encrypted values for the header fields in the options header; because RangeMatch is not reversible (it cannot be used to decrypt) we require these values to enable decryption when the packets leave the cloud and return to the gateway.
 
-\noindent{\bf Payload Data} is encrypted with KeywordMatch using a searchable encryption approach (we discuss this in detail in \S\ref{sec:gateway}). This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
+\noindent{\bf Decryption.} RangeMatch is not reversible. To enable packet decryption, We store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header restores them to the IP or tranport header.
+
+\noindent{\bf Format-compatibility.} 
+
+\subsubsection{Payload Data} 
+Payload Data is encrypted with KeywordMatch using a searchable encryption approach (we discuss this in detail in \S\ref{sec:gateway}). This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
 These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
 The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 Other middleboxes ignore this extra data.
 In addition, the payload is encrypted with AES and placed back into the packet payload -- like RangeMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.\justine{Do we? What if we just cached it at the gateway???}
 
-\noindent{\bf HTTP Headers} are a special case of payload data.
+\subsubsection{HTTP Headers} 
+
+HTTP Headers are a special case of payload data.
 Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
 We treat these values specially compared to other payload data; we encrypt the HTTP URI and METHOD and store them in IP options header of the packet containing the request.
 As we will discuss in \S\ref{sec:gatewayarch}, supporting middleboxes which operate over payload data in general requires a stateful gateway; we can keep our gateway stateless for those middleboxes which {\it only} access HTTP headers in the payload by storing these values in the options header. 

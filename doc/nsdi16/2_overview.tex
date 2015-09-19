@@ -144,9 +144,9 @@ On top of \sys's encryption, the gateway can use a secure tunneling protocol, su
 \hline
 
 \parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Header}}}
-&IP Firewall&Range&n/a&n/a\\
-&L4 LB&Range&n/a&n/a\\
-&NAT&Exact&n/a&n/a\\
+&IP Firewall&Range&-&-\\
+&L4 LB&Range&-&-\\
+&NAT&Exact&-&-\\
 \hline
 
 
@@ -156,11 +156,11 @@ On top of \sys's encryption, the gateway can use a secure tunneling protocol, su
 \hline
 
 \parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{HTTP}}}
-&Proxy&Exact&Exact&n/a\\
-&Parent Filter&n/a&Exact&n/a\\
-&L7 LB&Exact&Exact&n/a\\
+&Proxy&Exact&Exact&-\\
+&Parent Filter&-&Exact&-\\
+&L7 LB&Exact&Exact&-\\
 \hline
-*&VPN&n/a&n/a&n/a\\
+*&VPN&-&-&-\\
 
 \end{tabular}
 \caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}}
