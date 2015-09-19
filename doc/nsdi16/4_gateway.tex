@@ -136,4 +136,5 @@ The administrator places the gateway at the border of their enterprise network t
 The administrator supplies any rules/policies to the cloud provider and the gateway is then configured by the cloud provider.
 
 \noindent\textbf{Fault Tolerance.}
-
+When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
+When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenizeation; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
