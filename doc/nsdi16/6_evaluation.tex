@@ -94,22 +94,22 @@ This state overhead is negligible on any modern server.
 
 \begin{figure}
   \hspace{-15pt}
-  \begin{tabular}{cccc}
-  \includegraphics[height=1in]{fig/cdflabel}
-  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_loadtimes}
-  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_absolute}
-  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_relative}
-  \\
-  &(a)&(b)&(c)\\
-  \end{tabular}
-  \caption[]{\label{fig:e2eloads} Page load times through \sys compared to direct download.}
+%  \begin{tabular}{cccc}
+%  \includegraphics[height=1in]{fig/cdflabel}
+%  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_loadtimes}
+%  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_absolute}
+%  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_relative}
+%  \\
+%  &(a)&(b)&(c)\\
+%  \end{tabular}
+  \centering
+  \includegraphics[width=3in]{fig/e2e_compare}
+  \caption[]{\label{fig:e2eloads} Page load times through \sys under different deployment scenarios (Central Office, CDN, EC2) compared to direct download (Baseline).}
 \end{figure}
 
 We use web performance to understand end-to-end client experience using \sys.
-Figure~\ref{fig:e2eloads} shows a CDF for the Alexa top-1000 sites loaded through our testbed, we plot (a) the page load times in seconds, (b) the absolute increase in page load times in seconds, and (c) the relative increase in page load time as a multiple of the baseline. 
-Because of the `bounce' redirection \sys uses, all page load times increase; in the median case this increase is less than a second. At the 90th percentile, page loads increase by 2 seconds.
-Half of all pages see less than a 50\% overhead in load times.
-%\todo{These numbers are so-so.???}
+Figure~\ref{fig:e2eloads} shows a CDF for the Alexa top-500 sites loaded through our testbed. We compare the baseline (direct download) with 3 different deployment scenarios of \sys: Central Office, CDN, and Amazon EC2-like virtual private server. To measure the performance under those scenarios, we inflate the mean roundtrip latency with 60us for CO, 4ms for CDN, and 30ms for EC2. 
+Because of the `bounce' redirection \sys uses, all page load times increase; in the median case this increase is less than 0.05 second for CO, 0.1 second for CDN, and 0.72 second for EC2. At the 90th percentile, page loads increase by about 0.4 second for CO, 0.6 second for CDN, and 0.73 second for EC2.
 
 \subsubsection{Bandwidth Overheads}
 We evaluate two costs: the increase in bandwidth due to our encryption and metadata, and the increase in bandwidth cost due to `bounce' redirection.
