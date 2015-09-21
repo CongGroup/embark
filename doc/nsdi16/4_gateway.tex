@@ -111,11 +111,7 @@ This is important because for a typical industry ruleset, a garbled circuit + ob
 For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
 
 \textbf{Rule Updates.}
-The rule encryption component also handles rule updates. 
-Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
-If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
-
-\justine{We had had a much longer discussion a while back about rule updates. Today, when I update the rules, I say that a packet either receives the old policy or the new one. When updates are done to KWM, the encryption values change too. This means that it is possible for a packet to processed incorrectly -- neither under the old policy, nor the new one, since the encryption values may lag or be ahead of when the rule values are changed at the middlebox. We had discussed a solution, but I can't remember how it works... am going to scan through sosp submission}
+The gateway also handles updates to rules, which we discussed in \S\ref{sec:updates}.
 
 \subsection{Implementation}
 \label{sec:gwimpl}
