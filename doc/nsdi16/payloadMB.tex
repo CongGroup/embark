@@ -2,30 +2,22 @@
 
 
 
-\section{Middlebox: IDS and exfiltration detection}\label{sec:ids}
-Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
+\subsection{Middlebox: IDS}\label{sec:ids}
+\eat{Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
 Hence, deploying an IDS at the cloud requires a stateful gateway at the enterprise.
-
-\sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We highlight the functionality of BlindBox as follows, but exclude many important details all of which are presented in~\cite{blindbox}
+}
+\sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We highlight the functionality of BlindBox as follows, but exclude many important details all of which are presented in~\cite{blindbox}. \sys improves on BlindBox by resolving its costly 97 second per-connection setup time, and by making it more secure.
 
 We use BlindBox as follows.
 BlindBox leaves HTTPS unmodified, but augments it with a secondary channel which transmits encrypted {\it exact match tokens}.
 In it's simplest implementation, for every byte transmitted over HTTPS, the sender transmits an encrypted token using using the same approach as our keyword match algorithm.
 The encrypted token encodes that byte, and the next 8 bytes; \eg{}, a sender transmitting the word `maliciousl' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
 An IDS looking for the word `malicious' would declare a match if it observed both these tokens consecutively.
-In practice, the sender does not send encrypted tokens for {\it every} byte, but optimizes out some which are redundant or unnecessary (we defer to~\cite{blindbox} for details about these optimizations).
+In practice, the sender does not send encrypted tokens for {\it every} byte, but optimizes out some which are redundant or unnecessary.
 For IDS signatures which consist {\it only} of exact match rules, keyword match is sufficient to detect attacks.
 The security guarantee it gives is as follows: the IDS will learn what a byte in the flow is if it is {\it suspicious}, \ie{}, it matches a substring of a known attack.
-
-  However, for IDS signatures which include regular expressions, keyword match is not sufficient to completely perform signature detection; further, there exists no \todo{RALUCA::: FAST ENOUGH SCHEME} to detect over encrypted data).
-  Hence, to support regular expressions, BlindBox -- and \sys -- provide a secondary protocol with a different security guarantee. 
-  All IDS rules include exact match strings -- for performance reasons, an IDS like Snort~\cite{Snort} only performs regular expression detection after all exact match strings have been detected first.
-  Inspired by this, BlindBox allows the middlebox to decrypt the session {\it only} if suspicious exact match strings have already been detected.
-  The client encodes the key with the tokens such that if a match occurs, the middlebox can automatically decrypt the key (once again, details are in~\cite{blindbox}).
-  This approach can detect regular expressions, but provides a different security guarantee. 
-  The first model allows the middlebox to {\it detect a substring, only if that substring is suspicious.} 
-  The second model allows the middlebox to {\it decrypt the entire stream} of a substring is suspicious.
-  This model is called `probable cause decryption'.
+  However, for IDS signatures which include regular expressions, keyword match is not sufficient to completely perform signature detection.
+  Hence, to support regular expressions, BlindBox provides secondary protocol with a weaker security guarantee than for exact match detection (due to space reasons we do not describe this secondary protocol here).
 
   Everything we have described to this point is identical between BlindBox and \sys. We now describe how they are different, and how this improves performance and security.
 
@@ -50,9 +42,6 @@ However, as \sys has no such cost, we can expand many regular expressions and th
 Not all rules are amenable to this -- \eg{} `bob[a-z]+' would result in a prohibitively large (and also far too general) number of expansions, even for \sys. 
 In \S\ref{sec:eval}, we find for some rulsets regular expression expansion almost doubles the number of rules that can be detected using the stronger security model.
 
-\todo{clear that no boundary conditions}
-
-%Like proxies, Intrusion Detection/Prevention systems operate over packet payloads, not just the IP/TCP/UDP headers.
-%IDS/IPS are canonical examples of DPI devices.
+\justine{SOLVE BOUNDARY PROBLEM.}
 
 

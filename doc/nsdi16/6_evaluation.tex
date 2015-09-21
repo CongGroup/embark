@@ -2,8 +2,8 @@
 \begin{figure}[t]
   \centering
   \begin{tabular}{cc}
-  \includegraphics[height=1.25in]{fig/gatewayxput}&
-  \includegraphics[height=1.25in]{fig/gateway_pps}\\
+  \includegraphics[height=1in]{fig/gatewayxput}&
+  \includegraphics[height=1in]{fig/gateway_pps}\\
   \end{tabular}
   \includegraphics[width=2.75in]{fig/key}
   \caption[]{\label{fig:gwxput} Throughput/Packets per Second on a single core at the stateless gateway.}
@@ -69,8 +69,9 @@ We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
 \begin{table}[h]
 \centering
+\small
 \begin{tabular}{c|c|c|c}
-Operation&BCLO~\cite{boldyreva:ope}&mOPE~\cite{popa:mope}&\sys\\
+{\bf Operation}&{\bf BCLO~\cite{boldyreva:ope}}&{\bf mOPE~\cite{popa:mope}}&{\bf \sys}\\
 \hline
 \hline
 Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1.95$\mu$s\\
@@ -95,9 +96,9 @@ This state overhead is negligible on any modern server.
   \hspace{-15pt}
   \begin{tabular}{cccc}
   \includegraphics[height=1in]{fig/cdflabel}
-  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_loadtimes}
-  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_delta_absolute}
-  &\hspace{-10pt}\includegraphics[height=1in]{fig/e2e_delta_relative}
+  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_loadtimes}
+  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_absolute}
+  &\hspace{-10pt}\includegraphics[height=.9in]{fig/e2e_delta_relative}
   \\
   &(a)&(b)&(c)\\
   \end{tabular}
@@ -144,8 +145,9 @@ Because bounce redirection is over the `cheaper' link, the overall impact to ban
 We now evaluate the performance overhead at each middlebox. Overall, we find that throughput is negligibly impacted due to \sys because \sys keeps most dataplane operations unchanged.
 
 \begin{table}[t!]
-\begin{tabular}{p{3cm}|p{2cm}|p{2cm}}
-Application &  Baseline Throughput & \sys Throughput \\
+\small
+\begin{tabular}{p{2.5cm}|p{2cm}|p{2cm}}
+{\bf Application} &  {\bf Baseline Throughput} & {\bf \sys Throughput} \\
 \hline \hline
 IP Firewall &  9.8Gbps &  9.8Gbps \\
 %Application Firewall  & & \\
@@ -209,19 +211,21 @@ Consequently, \sys can detect more then 80-88\% of attacks using the higher secu
 
 \begin{table}[h]
   \centering
+  \small
   \begin{tabular}{l|c|c}
-    {\bf Dataset}&{\bf Exact Match}&{\bf Prob. Cause}\\
+  %\begin{tabular}{p{1.75in}|p{.4in}|p{.4in}}
+    {{\bf Rule Set}}&{\bf Exact Match}&{\bf Prob. Cause}\\
     \hline
     \hline
-    BlindBox: Community&67\%&100\%\\
+    BB: Community&67\%&100\%\\
     \hline
-    \sys: Community&88.7\%&100\%\\
+    MB: Community&88.7\%&100\%\\
 
     \hline
     \hline
-    BlindBox: Emerging Threats&42\%&100\%\\
+    BB: Emerging Threats&42\%&100\%\\
     \hline
-    \sys: Emerging Threats&79.8\%&100\%\\
+    MB: Emerging Threats&79.8\%&100\%\\
     \hline
   \end{tabular}
 \end{table}
