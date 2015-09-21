@@ -172,8 +172,13 @@ On top of \sys's encryption, the gateway can use a secure tunneling protocol, su
 
 
 
-\noindent\textbf{Packet encryption}
-Recall that the provider holds a set of encrypted rules at the middleboxes which it uses to operate over the client's encrypted traffic.
+\noindent\textbf{Packet encryption.}
+The key idea behind \sys is to encrypt {\it each field} of a packet using the appropriate encryption algorithm such that middleboxes can process each field of data as if it were not encrypted. 
+Plaintext packets are encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
+For example, an encrypted IPv6 packet will contain a source address that is an encryption of the original packet's source address using RangeMatch. This allows, e.g., a firewall to check whether the packet's source belongs to a prefix known to be controlled by a botnet -- but without learning what the actual source IP address is.
+We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to encode an encrypted IP address -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
+This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
+
 \sys uses three encryption schemes to protect data privacy while allowing comparison against encrypted rules at the cloud: 
 \begin{myitemize}
 \item Traditional AES: provides strong security and no computational capabilities)
@@ -181,12 +186,6 @@ Recall that the provider holds a set of encrypted rules at the middleboxes which
 \item RangeMatch: allows the provider to detect whether or not an encrypted value lies in a range of rule values -- e.g. addresses in 128.0.0.0/24 or ports between 80-96.
 \end{myitemize}
 We discuss these cryptographic algorithm in \S\ref{sec:buildingblocks}.
-
-The key idea behind \sys is to encrypt {\it each field} of a packet using the appropriate encryption algorithm such that middleboxes can process each field of data as if it were not encrypted. 
-Plaintext packets are encrypted, field-by-field, to generate a new IPv6 packet that is processed at the cloud.
-For example, an encrypted IPv6 packet will contain a source address that is an encryption of the original packet's source address using RangeMatch. This allows, e.g., a firewall to check whether the packet's source belongs to a prefix known to be controlled by a botnet -- but without learning what the actual source IP address is.
-We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to encode an encrypted IP address -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
-This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
 
 We choose which encryption scheme is appropriate for each field based on a high level classification of middlebox capabilities.
 Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
