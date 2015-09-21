@@ -37,9 +37,9 @@ In this section, we present \sys's architecture, the threat model and applicatio
 
 \sys uses the same  architecture as APLOMB, a system which redirects an enterprise's traffic to the cloud for middlebox processing~\cite{aplomb}. \sys augments this architecture with confidentiality protection.
 
-The benefits of outsourcing are to delegate the burden of managing and configuring
-middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
-and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
+%The benefits of outsourcing are to delegate the burden of managing and configuring
+%middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
+%and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
 
 In the APLOMB setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
 some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
@@ -53,7 +53,7 @@ Nevertheless, for traffic within the same enterprise, where the key is known by 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
 
-\subsection{Threat Model}
+\subsection{Threat Model \& Policy}
 
 Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
   Clients adopt cloud services for compute, storage, and increasingly network processing because they the providers are known and trusted to provide good service (at competitive costs). 
@@ -64,8 +64,8 @@ Before defining our threat model precisely, we first provide context and backgro
   This distinction informs our threat model below. 
 
 {\bf Threat Model.}
-The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
-(cloud employee, or hacker gaining access to cloud machines). 
+%The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
+%cloud employee, or hacker gaining access to cloud machines). 
 We consider a strong  attacker, one that has gained access to {\em all the data at SP}.
 This includes any traffic and communication SP receives from the 
 gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
@@ -73,7 +73,7 @@ SP provides good service and runs middlebox functionality correctly -- but we do
 see the traffic in the process of doing so.  
 
 We assume that the gateways are managed by the enterprise and hence trusted; in particular,  they do not leak information.
-
+The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
 
 Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
 of their own about the client and the server. For example, intrusion detection assumes that 
@@ -85,6 +85,10 @@ on the middlebox to detect attacks in these threat models. Since we assume the m
 its functions correctly and \sys preserves the functionality of these middleboxes, 
 these threat models are irrelevant to the protocols in \sys, and we will not discuss them again. 
 
+{\bf Middlebox Policies.}
+Just as \ldots bedtime.
+
+\eat{
 \textbf{In comparison to BlindBox and APLOMB.}
 APLOMB~\cite{aplomb} assumes that the provider is fully trusted with client data; \sys's threat model allows for a passive attacker with access to the clients' data at the cloud.
 The differences between BlindBox~\cite{blindbox} and \sys are threefold:
@@ -99,7 +103,7 @@ An additional consequence of this shift -- that the client now desires that the 
 \noindent(2) Under \sys, the gateway is trusted by all end hosts at the enterprise network; it performs encryption on their behalf. This gives \sys deployability benefits relative to BlindBox -- only one gateway needs to be upgraded to support the new protocol, not every end host on the network. It also gives performance benefits: where BlindBox incurs a costly setup operation of around 97s for every connection, this setup occurs {\it once} at the gateway under \sys to establish a persistent connection shared by all end hosts. This is only possible because the gateway exists as a trusted intermediary in the network.
 
 \noindent(3) BlindBox provides privacy guarantees comparable to SSL: a middlebox will observe packet headers, but not payload contents. \sys provides stronger privacy coverage, comparable to IPSec in that it obscures all packet headers as well as payloads.
-
+}
 %
 %
 \subsection{Encryption Overview}
