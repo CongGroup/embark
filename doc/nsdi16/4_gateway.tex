@@ -111,8 +111,8 @@ If the client is not permitted to know the rules, we must somehow allow the clou
 As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
 Unlike BlindBox, this rule exchange occurs exactly once -- when the gateway initializes the rule. 
 After this setup, all connections from the enterprise are encrypted with the same key at the gateway.
-This is important because for a typical industry ruleset, a garbled circuit + oblivious transfer exchange takes 97 seconds~\cite{blindbox}; with BlindBox this exchange must be performed for every connection and thus is prohibitive for practicality.
-For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
+%This is important because for a typical industry ruleset, a garbled circuit + oblivious transfer exchange takes 97 seconds~\cite{blindbox}; with BlindBox this exchange must be performed for every connection and thus is prohibitive for practicality.
+%For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
 
 \textbf{Rule Updates.}
 The gateway also handles updates to rules, which we discussed in \S\ref{sec:updates}.
