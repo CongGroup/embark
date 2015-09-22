@@ -116,7 +116,7 @@ For \sys, on the otherhand, this amounts to a relatively cheap one-time setup co
 
 \textbf{Rule Updates.}
 The gateway also handles updates to rules, which we discussed in \S\ref{sec:updates}.
-
+\eat{
 \subsection{Discussion}
 \label{sec:gwimpl}
 We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
@@ -146,3 +146,4 @@ The administrator supplies any rules/policies to the cloud provider and the gate
 \noindent\textbf{Fault Tolerance.}
 When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
 When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenizeation; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
+}
