@@ -276,12 +276,12 @@
   \everypar\markeverypar
   \markeverypar{\the\everypar\looseness=-1\relax}
 \fi
-\if@st@tight@charwidths
-  \st@RequirePackage[stretch=0,shrink=\st@char@shrink]{microtype}
-\fi
-\if@st@tight@tracking
-  \st@RequirePackage[letterspace=\st@cspace@shrink,tracking=all]{microtype}
-\fi
+%\if@st@tight@charwidths
+%  \st@RequirePackage[stretch=0,shrink=\st@char@shrink]{microtype}
+%\fi
+%\if@st@tight@tracking
+%  \st@RequirePackage[letterspace=\st@cspace@shrink,tracking=all]{microtype}
+%\fi
 \if@st@tight@wordspacing
   \g@addto@macro\define@newfont{%
     \fontdimen2\font@name=\st@wspace@factor\fontdimen2\font@name
