@@ -90,9 +90,11 @@ Second, when DPI is enabled, the gateway scans through every byte of data in the
 Once again, by placing the encrypted value in an IP options header, we can avoid conflicts that arise from defining our own protocol.
 We do need to rewrite HTTP parsing devices but, like DPI devices, they are implemented in software and our modifications introduce no overhead (as discussed in \S\ref{sec:eval}).
 
+\eat{
+JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??
 \subsubsection{Optimizing Decryption}
 To reduce bandwidth usage, the gateway temporarily caches the packets destined to the service provider indexed by their hashes for a short time. If the middleboxes on the cloud do not change the packet content, instead of sending the whole packet back, the service provider sends a control packet containing the hash of the original packet. The gateway then retrieves the local packet by looking up the hash in the cache.
-
+}
 
 \subsection{Rule Encryption}
 \label{sec:rulenc}

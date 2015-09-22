@@ -32,7 +32,7 @@ First, BlindBox addresses the scenario in which an arbitrary client connects to 
 \sys's context is an important one as it represents the majority of middlebox usage today~\cite{need-citation}. 
 As we will illustrate, this different in setting allows the enterprise to centralize cryptographic operations at an {\it outsourcing gateway}.
 Where BlindBox requires that every end host install a new encryption protocol, \sys leaves endhosts unmodified and traffic is encrypted by this gateway.
-This very simple change relative to BlindBox gives \sys better deployability, privacy, and performance.
+This very simple change JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??relative to BlindBox gives \sys better deployability, privacy, and performance.
 Most importantly, this difference makes \sys practical for usage today, where BlindBox has prohibitive performance.
 BlindBox imposes a 97 second setup time on {\it every} new connection, where \sys does not.
 
@@ -62,4 +62,4 @@ We implemented and evaluated \sys. We support all applications typically deploye
 Further, \sys imposes very negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  our 8 core server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
 
-Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client. 
+\eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
