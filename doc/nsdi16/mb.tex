@@ -1,6 +1,5 @@
 \documentclass[letterpaper,twocolumn,10pt]{article}
 
-
 \usepackage[moderate]{savetrees-clean}
 \usepackage{usenix}
 \usepackage{times}
@@ -23,8 +22,11 @@
 \usepackage{listings}
 \usepackage[T1]{fontenc}
 
-%more compact than computer modern
+% more compact than computer modern
 \usepackage{times}
+
+% Typewriter Font: Latin Modern Typewriter Proportional
+\renewcommand*{\ttdefault}{lmvtt}
 
 \lstset{
   basicstyle=\footnotesize\ttfamily, 
@@ -35,7 +37,8 @@
 \usepackage{subfigure}
 \usepackage{ifpdf}
 \usepackage[usenames,dvipsnames]{color}
-\usepackage[letterpaper, breaklinks, pdfborder={0 0 0}]{hyperref}
+\usepackage[hyphens]{url}
+\usepackage[breaklinks, pdfborder={0 0 0}]{hyperref}
 \hypersetup{
   backref=true
   bookmarksnumbered,

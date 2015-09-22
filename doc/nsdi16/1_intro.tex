@@ -47,7 +47,7 @@ Further, \sys also required careful systems and protocol design to make sure tha
     We designed RangeMatch in order to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000), which are commonly performed by middleboxes such as firewalls. 
 
     Prior to RangeMatch, no existing system provided the computational expressiveness, performance properties, and the privacy properties we desired for \sys.
-    Of existing cryptographic schemes, OPE~\cite{cryptdb} is the closest relative of {\it RangeMatch}; however, it is four orders of magnitude slower than {\it RangeMatch} and leaks unnecessary information to the cloud provider.
+    Of existing cryptographic schemes, Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb} is the closest relative of {\it RangeMatch}; however, it is four orders of magnitude slower than {\it RangeMatch} and leaks unnecessary information to the cloud provider.
     Where {\em RangeMatch} only reveals whether or not a value lies within a pre-determined range, OPE reveals the total ordering among all values, whether they lie within a range or not.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
@@ -55,7 +55,7 @@ Further, \sys also required careful systems and protocol design to make sure tha
   This ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
   But perhaps more importantly, this choice ensures good performance for middleboxes operating over header fields. 
   \sys's modifications to packet headers require no new fast-path algorithms: they are formatted as standard packets, and RangeMatch ensures that comparisons such as $\leq$ $\geq$ function normally.
-  Middleboxes can continue to  take advantage of highly-efficient packet classification algorithms~\cite{somethingclassification--chang?} as already implemented.
+  Middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented.
   
 
 We implemented and evaluated \sys. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
