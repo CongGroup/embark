@@ -135,7 +135,7 @@ Having discussed the design and implementation of the gateway, we now revisit a 
 
 \noindent\textbf{Scalability.}
 Encryption and decryption are entirely parallel: they require no synchronization or communication between threads. We show in \S\ref{sec:eval} that we achieve almost linear improvements from adding additional processing cores.
-However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instruction~\cite{aes-ni}. 
+However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instructions. 
 Consequently, the gateway can support 10Gbps of traffic with only 8 cores enabled.
 
 \noindent\textbf{Complexity.}
