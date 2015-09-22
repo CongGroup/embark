@@ -19,6 +19,7 @@ For  this, we use a searchable encryption scheme~\cite{song:search, blindbox}.
 Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule $r$ into $\encr$ and SP can detect if there is a match between $v$ an $r$. 
  The security of searchable encryption is well studied~\cite{song:search, blindbox}: at a high level,  given a list of encrypted strings, and an encrypted keyword, SP does not learn anything about the encrypted strings, other than which strings match the keyword. 
  The encryption of the strings is {\em randomized}, so it does not leak whether two encrypted strings are equal to each other, unless, of course, they both match the encrypted keyword. 
+  We use the technique from~\cite{blindbox}.
 
 %!TEX root = mb.tex
 
@@ -83,7 +84,7 @@ For security, we require that the encryption scheme  not leak $v$, $e_1$, $s_1$,
 Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). 
 RangeMatch is the only scheme we know of to provide this security guarantee.
 
-Although RangeMatch is similar to order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope}, neither meets our security requirement (because they leak the ordering between encrypted values, not just their ordering relative to rules), and neither provides the performance necessary for packet processing (which we investigate further in \S\ref{sec:eval}).
+Although RangeMatch is similar to order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope}, neither meets our security requirement (because they leak the ordering between encrypted values, not just their ordering relative to rules), and neither provides the performance necessary for packet processing (as we show in \S\ref{sec:eval}).
 
 \eat{
 \begin{CompactEnumerate}[leftmargin=*]
@@ -120,7 +121,7 @@ For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The enc
   \includegraphics[width=3.25in]{fig/rangeopts.pdf}
   \caption[]{Possible RangeMatch encryption values.\label{fig:rangeopts}}
 \end{figure}
-To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Figure~\ref{fig:rangeopts} illustrates how $v$ is mapped depending on whether it maps to zero, one, or both of two ranges, $R1$ and $R2$; we formalize this as follows. 
+To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Figure~\ref{fig:rangeopts} illustrates how $v$ is mapped depending on whether it maps to zero, one, or both of ranges $R1$ and $R2$; we formalize this as follows. 
 
 To achieve the desired security, the we find interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
 \begin{equation}
