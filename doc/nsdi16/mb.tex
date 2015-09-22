@@ -1,10 +1,13 @@
 \documentclass[letterpaper,twocolumn,10pt]{article}
+
+\usepackage[subtle]{savetrees-clean}
 \usepackage{usenix}
 \usepackage{times}
 \usepackage{amsmath}
 \usepackage{multirow}
 % SOME OF OUR DEFINITIONS
-%\usepackage{savetrees-clean}
+
+
 \usepackage{xspace}
 \newcommand{\sys}{MBArk\xspace}
 %\newcommand{\sys}{Embark\xspace}
@@ -19,8 +22,11 @@
 \usepackage{listings}
 \usepackage[T1]{fontenc}
 
-%more compact than computer modern
+% more compact than computer modern
 \usepackage{times}
+
+% Typewriter Font: Latin Modern Typewriter Proportional
+\renewcommand*{\ttdefault}{lmvtt}
 
 \lstset{
   basicstyle=\footnotesize\ttfamily, 
@@ -31,7 +37,8 @@
 \usepackage{subfigure}
 \usepackage{ifpdf}
 \usepackage[usenames,dvipsnames]{color}
-\usepackage[letterpaper, breaklinks, pdfborder={0 0 0}]{hyperref}
+\usepackage[hyphens]{url}
+\usepackage[breaklinks, pdfborder={0 0 0}]{hyperref}
 \hypersetup{
   backref=true
   bookmarksnumbered,
@@ -233,7 +240,7 @@
 \maketitle
 
 \input{0_abstract}
-\input{1_intro_take4}
+\input{1_intro}
 \input{2_overview}
 \input{3_buildingblocks}
 

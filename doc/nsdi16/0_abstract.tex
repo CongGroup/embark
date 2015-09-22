@@ -8,19 +8,12 @@ However, this poses a threat to enterprise confidentiality because the cloud pro
 We design and build \sys, the first system that enables a cloud provider to offer a wide range of middleboxes while maintaining client confidentiality. \sys encrypts the traffic that reaches the cloud and enables the cloud to process the  traffic {\em without decrypting it}.
 \sys supports a wide-range of middleboxes such as firewalls, NATs, web proxies, load balancers, intrusion prevention systems, and data exfiltration systems. Our evaluation shows that \sys supports these applications with competitive performance: because \sys makes no modifications to the dataplane for most middleboxes, throughput at most middleboxes is unaffected by our changes.
 
-{\bf TODOS.}
+\eat{{\bf TODOS.}
 \begin{myitemize}
-  \item Add discussion of rules to encryption overview for clarity.
-  \item Tone down claims of not changing dataplane -- not changing per-packet algorithms.
-  \item Middlebox design/impl section
-  \item Add a BlindBox section to Related Work, discuss thoroughly.
   \item New graphs/numbers in Eval
-  \item Left Sylvia's draft with comments at home. Re-read for macro-changes I forgot, fix nits.
-  \item Mention gateway in intro so no "letdown" effect.
-  \item Mention rule optimization in \S 4. 
   \item Uh, are those bandwidth numbers correct????
   \item Clean up related work, tighten/shorten as much as possible.
   \item There are gazillions of missing references and citations.
   \item VERY LAST: cut cut cut cut to length.
-\end{myitemize}
+\end{myitemize}}
 \end{abstract}

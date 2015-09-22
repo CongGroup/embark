@@ -52,13 +52,12 @@ Nevertheless, for traffic within the same enterprise, where the key is known by 
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
-
-\subsection{Threat Model \& Policy}
-
-Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
+\subsection{Threat Model}
+%%%I know this may read superfluous to a security reader but two of the SOSP reviewers asked for this specifically -- why is a passive attacker a reasonable choice? We need this background here.
+%Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
   Clients adopt cloud services for compute, storage, and increasingly network processing because they the providers are known and trusted to provide good service (at competitive costs). 
   However, while clients trust cloud providers to perform their services correctly, there is increasing concern that cloud providers may access or leak confidential data in the process of providing service.
-  Reports in the popular press describe companies selling customer data to marketers~\cite{example}, disgruntled employees snooping or exporting data~\cite{something}, and hackers gaining access to clouds~\cite{somethingelse}.
+  Reports in the popular press describe companies selling customer data to marketers~\cite{radioshack}, disgruntled employees snooping or exporting data~\cite{att}, and hackers gaining access to clouds~\cite{somethingelse}.
   The type of threat in this scenario is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver or service it correctly, but who may want to learn more from the data than is strictly necessary or desired.
   Such an attacker differs from a classical, `active' attacker, who seeks to harm the client outright, for example by manipulating data or denying service~\cite{goodrich}.
   This distinction informs our threat model below. 
@@ -71,9 +70,8 @@ This includes any traffic and communication SP receives from the
 gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
 SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
 see the traffic in the process of doing so.  
-
-We assume that the gateways are managed by the enterprise and hence trusted; in particular,  they do not leak information.
-The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
+We assume that the gateways are managed by the enterprise and hence trusted; they do not leak information.
+%The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
 
 Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
 of their own about the client and the server. For example, intrusion detection assumes that 
@@ -85,35 +83,7 @@ on the middlebox to detect attacks in these threat models. Since we assume the m
 its functions correctly and \sys preserves the functionality of these middleboxes, 
 these threat models are irrelevant to the protocols in \sys, and we will not discuss them again. 
 
-%{\bf Middlebox Policies.}
-%Just as \ldots bedtime.
-
-\eat{
-\textbf{In comparison to BlindBox and APLOMB.}
-APLOMB~\cite{aplomb} assumes that the provider is fully trusted with client data; \sys's threat model allows for a passive attacker with access to the clients' data at the cloud.
-The differences between BlindBox~\cite{blindbox} and \sys are threefold:
-
-\justine{todo: Sylvia email}
-%
-\noindent(1) With BlindBox, the middlebox and client are unknown to each other; the middlebox wishes to {\it enforce} a policy over the client's traffic, and the client is not allowed to observe the rules being enforced. With \sys, the policy imposed over a clients traffic is a policy the client {\it wishes to have enforced}. 
-Some rules may come from the client itself -- such as exfiltration policies -- while others may come from a trusted rule provider such as McAfee or Symantec, as in BlindBox. We discuss how rules are generated and exchanged between the gateway and the cloud in \S\ref{sec:gateway}.
-An additional consequence of this shift -- that the client now desires that the policy be enforced properly -- is that BlindBox requires some validation that the client has not attempted to evade proper encryption, whereas our client is trusted to faithfully operate the protocol.
-%
-
-\noindent(2) Under \sys, the gateway is trusted by all end hosts at the enterprise network; it performs encryption on their behalf. This gives \sys deployability benefits relative to BlindBox -- only one gateway needs to be upgraded to support the new protocol, not every end host on the network. It also gives performance benefits: where BlindBox incurs a costly setup operation of around 97s for every connection, this setup occurs {\it once} at the gateway under \sys to establish a persistent connection shared by all end hosts. This is only possible because the gateway exists as a trusted intermediary in the network.
-
-\noindent(3) BlindBox provides privacy guarantees comparable to SSL: a middlebox will observe packet headers, but not payload contents. \sys provides stronger privacy coverage, comparable to IPSec in that it obscures all packet headers as well as payloads.
-}
-%
-%
 \subsection{Encryption Overview}
-\eat{
-\begin{figure}[t!]
-\centering
-  \includegraphics[width=3.0in]{fig/packet.pdf}
-\caption{Packet encryption at the gateway. Patterned squares indicate encrypted data. Only for DPI  middleboxes,  KeywordMatch produces additional encrypted data. \justine{Change fig to say DPI not BA}  \label{fig:packet}}
-\end{figure}
-}
 
 \begin{figure*}[t!]
 \centering
@@ -123,18 +93,23 @@ An additional consequence of this shift -- that the client now desires that the 
 
 
 
-To protect privacy , \sys encrypts all traffic passing through the service provider (SP).
-\sys encrypts IP addresses, ports, and the payload of the packet.
+To protect privacy , \sys \textit{encrypts all traffic} passing through the service provider (SP).
+\sys encrypts the entire packet, including both payloads and headers; the enterprise knows the contents of these packets but the SP does not.
+
+\sys also provides the cloud provider with a set of {\it encrypted rules}.
+Typically, header policies like firewall rules are generated by a local network administrator and {\it private to the enterprise.}
+DPI and filtering policies on the other hand may be private to the enterprise (as in exfiltration policies), known by both parties (as in  public blacklists), or known only by the cloud provider (as in  patented malware signatures).
+We discuss how rules are encrypted rules are generated and distributed given these different trust settings in \S\ref{sec:rules}.
+
 As in Fig.~\ref{fig:sys-overview}, the gateway has a secret key $k$; in the setup with two gateways, they share
-the same secret key. The gateway encrypts all traffic going to the service provider using \sys's encryption schemes.
-The middleboxes at SP process {\em encrypted traffic} using \sys's protocols. 
-To perform detection, the service provider uses a set of {\it encrypted rules} that allow it to perform comparisons against the encrypted values it observes in the traffic.
+the same secret key. 
+At setup time, the gateway generates the set of encrypted rules using $k$ and provides them to SP.
+Afterwards, the gateway encrypts all traffic going to the service provider using \sys's encryption schemes.
+The middleboxes at SP process {\em encrypted traffic} using \sys's protocols, comparing the traffic against the encrypted rules. 
 After the processing, the middleboxes
 will produce encrypted traffic which SP sends back to the gateway. The gateway decrypts the traffic using the key $k$.
 
-Throughout this process, middleboxes at SP handle only encrypted traffic and never access the decryption key. This ensures
-that an attacker that steals all the data from SP will  see only encrypted traffic, which protects the privacy of the 
-traffic. 
+Throughout this process, middleboxes at SP handle only encrypted traffic and never access the decryption key. 
 On top of \sys's encryption, the gateway can use a secure tunneling protocol, such as SSL or IPSec to secure the communication to SP.
 
 \begin{table}
@@ -180,21 +155,40 @@ We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to enco
 This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{6to4,4to6}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
 
 \sys uses three encryption schemes to protect data privacy while allowing comparison against encrypted rules at the cloud: 
+\justine{mention deterministic enc here?}
 \begin{myitemize}
-\item Traditional AES: provides strong security and no computational capabilities)
-\item KeywordMatch:  allows the provider to detect if an encrypted value in the packet is equal to an encrypted rule value
+\item Traditional AES: provides strong security and no computational capabilities
+\item KeywordMatch:  allows the provider to detect if an encrypted value in the packet is equal to an encrypted rule; does not allow two encrypted values to be compared to each other
 \item RangeMatch: allows the provider to detect whether or not an encrypted value lies in a range of rule values -- e.g. addresses in 128.0.0.0/24 or ports between 80-96.
 \end{myitemize}
-We discuss these cryptographic algorithm in \S\ref{sec:buildingblocks}.
+We discuss these cryptographic algorithms in \S\ref{sec:buildingblocks}.
 
 We choose which encryption scheme is appropriate for each field based on a high level classification of middlebox capabilities.
 Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
 We classify these middleboxes as operating only over packet headers, operating only over packet headers and HTTP headers, or operating over all data including arbitrary fields in the connection bytestream (DPI).
 We revisit these middleboxes in detail in \S\ref{sec:mbs}.
 
-
 {\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
+\subsection{Architectural Implications}
+%%%End the discussion wiht BB here. 
+So far, we have decribed the overall architecture of \sys without discussing how the encryption or middleboxes themselves are modified.
+It is worth pausing here to discuss how this architecture itself can improve BlindBox, although it only supports DPI.
 
+Most importantly, this architecture provides practical performance, where the BlindBox context imposed a prohibitive per-connection overhead.
+BlindBox requires 97 seconds to perform the exchange in which rules are encrypted.
+This exchange must be performed for every new connection using BlindBox since each session is between two new endhosts with a per-connection key.
+However, in the \sys context, this exchange can be performed once at the gateway, after which the same rules can be reused for all clients; this key is safe to re-use because it is private to the gateway.
 
+The \sys architecture has two further implications in deployability and security. 
+Deployability improves as the end hosts do not need to be modified.
+
+Security improves in the following way.
+BlindBox has two security models: a stronger one to detect `exact match' substrings in the encrypted traffic, and a weaker one to detect regular expressions.
+In \sys, the rule exchange is a one-time cost we can encrypt more rules during the setup phase without incurring a per-connection overhead.
+Hence, we convert many regular expressions  a set of exact-match strings, for example /hello[1-3]/ is equivalent to exact matches on "hello1", "hello2", "hello3".
+However, many regular expressions remain too complex to do so -- if the set of potential exact matches is large, we must leave it as a regular expression and the weaker security model.
+As we will show in \S\ref{sec:eval}, this approach halves the number of rules that require using the weaker security model.
+
+In the rest of this paper, we focus not on our outsourcing architecture but on new capabilities that will allow us to outsource middleboxes {\it generally.}
