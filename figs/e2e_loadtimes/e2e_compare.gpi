@@ -1,24 +1,19 @@
-set terminal postscript enhanced color eps "Times" 30
+set terminal postscript enhanced color eps "Times" 30 size 5in,2.2in
 set output "e2e_compare.eps"
 set boxwidth 1.0 absolute
 #set key horiz at 105000,450000
 set key bottom right
-set bmargin 1
-set lmargin 7
-set tmargin 1
-set rmargin 1
-set size ratio 0.5
+set bmargin at screen 0.3
+set lmargin at screen 0.15
+set tmargin at screen 0.95
+set rmargin at screen 0.95
+set size ratio 0.3
 #set key bottom left
 #set log y
 set grid 
-#set key top right Right
-#set key top outside
-#set key inside lmargin 0
-#set key width .25
 
 set ytics border in #scale 1,0.5 nomirror offset character -1,0.25,0
 set xtics border in scale 1,0.5 nomirror offset character -1,0.25,0
-#set xtics border in scale 1,0.5 nomirror  offset character 2,0,0
 
 set y2range [2.2:3]
 
