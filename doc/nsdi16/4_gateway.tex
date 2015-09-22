@@ -6,7 +6,7 @@ Having described our cryptographic building blocks, we can now discuss how they 
 \begin{figure}[t]
   \centering
   \includegraphics[width=3.25in]{fig/gateway2cloud}
-  \caption[]{\label{fig:gatewaymeta} Communication between the cloud and gateway services: rule encryption, data encryption, and data decryption. \justine{Need to be consistent: is this a metadata channel or an extension channel}}
+  \caption[]{\label{fig:gatewaymeta} Communication between the cloud and gateway services: rule encryption, data encryption, and data decryption.} 
 \end{figure}
 
 
@@ -130,6 +130,7 @@ The dataflow from the service provider back to the gateway is relatively simple.
 
 Having discussed the design and implementation of the gateway, we now revisit a few of its system properties before moving on to the design and implementation of the middleboxes in \S\ref{sec:mbimpl}.
 }
+
 \noindent\textbf{Scalability.}
 Encryption and decryption are entirely parallel: they require no synchronization or communication between threads. We show in \S\ref{sec:eval} that we achieve almost linear improvements from adding additional processing cores.
 However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instruction~\cite{aes-ni}. 
