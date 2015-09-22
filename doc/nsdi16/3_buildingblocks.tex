@@ -115,12 +115,14 @@ For now, consider that the gateway  maintains a mapping of each interval endpoin
 When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in (we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval. Then, to encrypt $v$, it chooses a random value in this interval.
 For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, SP does not learn their order. Thus, this satisfies the security requirement above.
 
-\justine{Todo: Figure. Three cases: one interval, multiple intervals, and no intervals. Highlight area that range should be mapped to.}
-To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Consider an example in which $v$ fits in no interval at all. Let $v$ be $127.0.0.0$ and the intervals be 18.0.0.0/8 and 172.16.0.0/16 with encryptions [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. 
-Recall that we want SP  to learn only whether $v$ matches an interval or not, but nothing else. 
-Hence, $v$ should be mapped to a random value anywhere in the intervals [0, 51.0.0.0), (102.0.0.0, 153.0.0.0) and (204.0.0.0, 255.255.255.255]. 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=3.25in]{fig/rangeopts.pdf}
+  \caption[]{Possible RangeMatch encryption values.\label{fig:rangeopts}}
+\end{figure}
+To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Figure~\ref{fig:rangeopts} illustrates how $v$ is mapped depending on whether it maps to zero, one, or both of two ranges, $R1$ and $R2$; we formalize this as follows. 
 
-We now consider the general case, where $v$ may map to one interval, no intervals, or many intervals. To achieve the desired security, the idea is to find the interval $I$ (which may consist of many sub-intervals, as in previous example) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
+To achieve the desired security, the we find interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
 \begin{equation}
  I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). \label{eq:randominterval}
  \end{equation}
@@ -152,9 +154,8 @@ The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ a
 The scheme achieves our desired security goal: the only information leaked about a value $v$ encrypted is which ranges it matches. 
 In particular, the scheme is not order preserving because it does not leak the order of two encrypted values that match the same range. It is easy to check that the scheme is secure: since the encryption of $v$ is random in $I$ (Eq.~\ref{eq:randominterval}), the scheme only leaks the fact that $v$ is in $I$. $I$ is chosen in such a way that the only information about $v$ it encodes is which intervals $v$ matches and which it does not match.
 
-\subsubsection{Implementing RangeMatch}
+\subsubsection{Implementing RangeMatch in the Gateway}
 \label{sec:tree}
-The last set of issues to address are the implementation and management of a RangeMatch encrypter. 
 To encrypt using RangeMatch, the gateway must store a tree -- as shown in Figure~\ref{fig:tree} -- mapping the unencrypted intervals to the encrypted address space.
 %Most encryption operations are relatively stateless -- they rely only on the key and the data. Using RangeMatch requires that the Rule Encryption component manage a tree of values for use at encryption time; we discuss how this tree is generated now.
 
@@ -245,19 +246,16 @@ Since we are using a scapegoat tree, the number of nodes that change position du
 
 DeleteRange is similar, except that the result contains only $L$. 
 
-\eat{A natural question is whether there exists a scheme that does not need to adjust already encrypted intervals. For a related setting, Popa et al.~\cite{popa:mope} proved that whenever one supports ``>'' over  encrypted data, there must be some adjustment similar to this; the proof holds for our setting too.  }
+\subsubsection{Rule Updates at the Cloud}
+\label{sec:updates}
+At the cloud, RangeMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update also will change encrypted values within packets.
+The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections. 
+Adding or removing a rule will modify some $\log(n)$ of these values in the RangeMatch tree, and thus to continue correct processing the NAT state must correspondingly be updated.
+The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
+The same problem occurs if packets encrypted under the new tree arrive before the new rulset has been adopted.
 
-
-
-%We discuss how this tree is constructed, how rules can be added to or deleted from this structure with low overhead, and the performance implications of RangeMatch in \S\ref{sec:rangetree}.
-
-\eat{
-The last issue to address is addition and removal of intervals. For example, this can happen when a new rule is added to a firewall. 
-Since we tried to spread out the encryptions of the intervals evenly in the IP space, there is no room for the new interval. We can 
-readjust all the encryptions of these intervals to make space for the new interval. However, this would require the firewall hardware to reconfigure fully which is slow. Ideally, we would only reconfigure the firewall hardware incrementally, for the new interval. For this, we build on the idea from mOPE~\cite{popa:mope} and store the intervals at the gateway in a balanced scapegoat tree as in Fig.~\ref{fig:tree}. This tree is a search tree that has the property that when inserting or deleting a node, the number of other nodes that change encryption is small, namely, $O(\log n)$ amortized worst case where $n$ is the number of nodes. Each node in the tree is now encrypted similarly to before: the root gets the middle of the IP range,  the left node gets the middle of the IP space to the left of the middle, and so on, as in Fig.~\ref{fig:tree}.  Note that, since the tree is balanced, it maintains our desire of having the encryptions of endpoints roughly uniformly distributed.
-We discuss the implementation of this tree in \S\ref{sec:gateway}.
-}
-
-
-%We now explain concretely the API and the implementation of the scheme. 
-
+When the RangeMatch tree is updated, the gateway and cloud provider do the following to avoid these problems. 
+When the gateway updates the RangeMatch tree it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
+The gateway then sends a signal to the cloud provider that it is about to `swap in' the new tree. 
+The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and once all of this is completed it allows the new traffic to flow through the network and receive processing under the new policy.
+Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing.

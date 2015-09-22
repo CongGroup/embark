@@ -111,15 +111,14 @@ This is important because for a typical industry ruleset, a garbled circuit + ob
 For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
 
 \textbf{Rule Updates.}
-The rule encryption component also handles rule updates. 
-Whenever an adjustment is made to the RangeMatch table, it sends an update to the cloud provider with the adjusted mappings/rules.
-If the gateway ever changes its key, the encryption component must also signal to the cloud provider and re-encrypt all rules.
+The gateway also handles updates to rules, which we discussed in \S\ref{sec:updates}.
 
-\justine{We had had a much longer discussion a while back about rule updates. Today, when I update the rules, I say that a packet either receives the old policy or the new one. When updates are done to KWM, the encryption values change too. This means that it is possible for a packet to processed incorrectly -- neither under the old policy, nor the new one, since the encryption values may lag or be ahead of when the rule values are changed at the middlebox. We had discussed a solution, but I can't remember how it works... am going to scan through sosp submission}
-
-\subsection{Implementation}
+\subsection{Discussion}
 \label{sec:gwimpl}
-We built our gateway using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
+We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
+We discuss a few systems properties of our gateway as follows before discussing middlebox implementations in \S\ref{sec:mbimpl}.
+\eat{
+Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
 
 \noindent\textbf{Header Rewrite.} At this stage, the gateway rewrites the header fields in the packets using the RangeMatch scheme using in algorithm in Section \ref{sec:dataenc}. It consists of multiple Click elements: ProtocolTranslator46 that translates an IPv4 packet to an IPv6 packet, AppendIP6Option that populates DET-encrypted header fields into the IPv6 options, HeaderEncrypt that performs the encryption, and SetTCPChecksum that sets the checksum.
 
@@ -130,7 +129,7 @@ We built our gateway using Click over DPDK on an off-the-shelf 16-core server wi
 The dataflow from the service provider back to the gateway is relatively simple. The Packet Cache restores the packets, the Stream Reconstruction component decrypts the streams into plaintext, then the Header Rewrite component decrypts the header fields and performs 6to4 translation (if the client uses IPv4).
 
 Having discussed the design and implementation of the gateway, we now revisit a few of its system properties before moving on to the design and implementation of the middleboxes in \S\ref{sec:mbimpl}.
-
+}
 \noindent\textbf{Scalability.}
 Encryption and decryption are entirely parallel: they require no synchronization or communication between threads. We show in \S\ref{sec:eval} that we achieve almost linear improvements from adding additional processing cores.
 However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instruction~\cite{aes-ni}. 

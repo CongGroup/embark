@@ -105,18 +105,14 @@ that have been honed over decades to meet line speeds.
 
 In this paper, we make the following contributions: 
 
-\begin{itemize} [leftmargin=*] 
-\vspace{-0.8em}
+\begin{itemize} 
 \item We present RangeMatch, a new encryption scheme that supports range-match operations directly on encrypted data. RangeMatch is 
 3 orders of magnitude faster and more secure than existing OPE approaches
-\vspace{-0.4em}
 \item For keyword matching as required by IDS, we adopt the solutions of BlindBox and show how to improve them. For the context of enterprise 
 users, we reduce BlindBox's performance overheads by {\bf X\%} and almost double the number of IDS rules that BlindBox can process without resorting 
 to decryption. 
-\vspace{-0.4em}
 \item We show how to integrate RangeMatch and keyword matching to support processing encrypted traffic for the 
 range of middleboxes shown in Table~\ref{tab:apps-ops}. 
-\vspace{-0.4em}
 \item We design and implement a practical system for middlebox processing on encrypted traffic. Our system, \sys,   
 can be deployed with no change at end users and no change to middlebox fast-path algorithms. 
 \vspace{-0.4em}
