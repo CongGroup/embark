@@ -54,7 +54,6 @@ Further, \sys also required careful systems and protocol design to make sure tha
   We choose which encryption scheme to use for each field based on the processing operations applied by typical middleboxes.
   This ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
   But perhaps more importantly, this choice ensures good performance for middleboxes operating over header fields. 
-  A key challenge in designing BlindBox was designing new fast-path algorithms to process packets over the encrypted DPI data.
   \sys's modifications to packet headers require no new fast-path algorithms: they are formatted as standard packets, and RangeMatch ensures that comparisons such as $\leq$ $\geq$ function normally.
   Middleboxes can continue to  take advantage of highly-efficient packet classification algorithms~\cite{somethingclassification--chang?} as already implemented.
   

@@ -70,9 +70,8 @@ This includes any traffic and communication SP receives from the
 gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
 SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
 see the traffic in the process of doing so.  
-
 We assume that the gateways are managed by the enterprise and hence trusted; in particular,  they do not leak information.
-The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
+%The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
 
 Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
 of their own about the client and the server. For example, intrusion detection assumes that 
@@ -161,7 +160,7 @@ This is a trivial requirement to impose, as it is easy to convert from IPv4 to I
 \item KeywordMatch:  allows the provider to detect if an encrypted value in the packet is equal to an encrypted rule value
 \item RangeMatch: allows the provider to detect whether or not an encrypted value lies in a range of rule values -- e.g. addresses in 128.0.0.0/24 or ports between 80-96.
 \end{myitemize}
-We discuss these cryptographic algorithm in \S\ref{sec:buildingblocks}.
+We discuss these cryptographic algorithms in \S\ref{sec:buildingblocks}.
 
 We choose which encryption scheme is appropriate for each field based on a high level classification of middlebox capabilities.
 Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
@@ -172,7 +171,13 @@ We revisit these middleboxes in detail in \S\ref{sec:mbs}.
 {\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
-\subsection{Implications}
+\subsection{Architectural Implications}
 %%%End the discussion wiht BB here. 
 %% Reviewer comes in thinking, "But what about BlindBox?" We have them know we beat BB on page 2.
 %% Pagees 3-12, they've forgotten all about it now and are enamored with RM. Win!
+
+The architecture we have introduced so far is a conceptually simple change from the deployment scenario for BlindBox.
+BlindBox focuses on an end host communicating directly with a middlebox, but \sys allows many end hosts to push the cost of encryption to a shared gateway.
+This modification alone, if applied directly to BlindBox, takes BlindBox from impractical for deployment to practice.
+
+BlindBox requires 97 seconds to perform the exchange 
