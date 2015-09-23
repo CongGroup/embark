@@ -193,8 +193,7 @@ As throughput for many middleboxes decreases with the number of rules, we were c
 
 \noindent{\bf Proxy/Caching:} The throughput number shown in Table~\ref{tbl:appsxput} is not the typical metric used to measure proxy performance. A better metric for proxies is how many connections the proxy can handle concurrently, and what time-to-service it offers each client. In Figure~\ref{fig:proxygraph}, we plot time-to-service against the number of concurrent connections, and see that it is on average higher for \sys than the unencrypted proxy, by tens to hundreds of milliseconds per page.
 This is not due to computation costs, but instead, due to the fact that the encrypted HTTP header values are transmitted on a different channel than the primary data connection.
-The \sys proxy needs to synchronize between these two flows, reading in HTTP header values from the metadata channel and then determining which connection they belong to; this synchronization cost is what increases the time to service. \clan{Here!}
-The synchronization cost would go down if all of the encrypted header values were stored in the HTTP packets themselves.
+The \sys proxy needs to synchronize between these two flows, reading in HTTP header values from the metadata channel and then determining which connection they belong to; this synchronization cost is what increases the time to service. The synchronization cost would go down if all of the encrypted header values were stored in the HTTP packets themselves.
 
 
 \noindent{\bf Intrusion Detection:}
