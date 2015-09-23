@@ -13,7 +13,7 @@ set size ratio 0.3
 set grid 
 
 set ytics border in #scale 1,0.5 nomirror offset character -1,0.25,0
-set xtics border in scale 1,0.5 nomirror offset character -1,0.25,0
+set xtics border in #scale 1,0.5 nomirror offset character -1,0.25,0
 
 set y2range [2.2:3]
 
