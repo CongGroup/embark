@@ -1,12 +1,15 @@
+%!TEX root = mb.tex 
+
 \section{Introduction}\label{sec:intro}
 
 Middleboxes such as firewalls, NATs, and proxies, have grown to be a vital part of modern networks but are 
-also widely recognized as bringing  with them significant problems including high cost, inflexibility, and complex management.  
+also widely recognized as bringing significant problems including high cost, inflexibility, and complex management.  
 These problems have led both research and industry to explore an alternate approach: moving middlebox functionality out of dedicated boxes and into 
 software applications that run multiplexed on commodity server hardware~\cite{mb-manifesto,comb,aplomb,opennf,clickos,flowtags,nfv,domain20,opnfv}.
-This approach -- termed Network Function Virtualization (NFV) in industry -- promises many advantages including: the cost benefits of commodity infrastructure, 
+This approach -- termed Network Function Virtualization (NFV) in industry -- promises many advantages including the cost benefits of commodity infrastructure, 
 the efficiencies of statistical multiplexing, and the flexibility of software solutions. 
-In a short time, NFV has significant momentum with over 270 industry participants~\cite{etsi-nfv} and a number of emerging product offerings~\cite{brocade,dell,juniper}.
+In a short time, NFV has gained a significant momentum with over 270 industry participants~\cite{etsi-nfv} and a number of emerging product offerings~\cite{brocade,dell,juniper}.
+\todo{wasn't the NFV use case a main complaint of a reviewer?}
 
 Leveraging the above trend, several efforts are exploring a new model for middlebox deployment in which a third-party offers middlebox processing as a  
 \emph{service}.
@@ -20,14 +23,14 @@ Today, in order to process an organization's traffic, the cloud receives the tra
 now has access to potentially sensitive packet payloads,  IP addresses, and ports. This is 
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
-To address this, we design and implement \sys, the first system to allow an enterprise to outsource {\it all} traffic processing to a cloud provider while keeping traffic private. 
-\sys operates directly over {\it encrypted} data without the service provider ever observing the plaintext.
+To address this, we design and implement \sys, the first system to allow an enterprise to outsource {\it a wide range} of middleboxes  to a cloud provider while keeping traffic private. 
+\sys operates directly over {\it encrypted} traffic without the service provider ever observing the plaintext.
 
 
-In recent work, we addressed a similar challenge for one class of middlebox: Deep Packet Inspection~\cite{blindbox}.  
-We developed BlindBox, a system that enables IDS processing directly on an encrypted bytestream. 
-The context for which we designed BlindBox differs from the work in this paper in two principal ways.
-
+In a recent work, BlindBox, we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
+However, BlindBox is far from sufficient for our setting because it does not support a significant set of middleboxes  and has a high setup cost.  
+ 
+ 
 First, BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider.
 \sys's context is an important one as it represents the majority of middlebox usage today~\cite{need-citation}. 
 As we will illustrate, this different in setting allows the enterprise to centralize cryptographic operations at an {\it outsourcing gateway}.
@@ -41,6 +44,7 @@ Achieving generality provided new challenges to \sys, not seen in BlindBox.
 To address new use cases, we had to design a new cryptographic algorithm in addition to the scheme BlindBox already provided. 
 Further, \sys also required careful systems and protocol design to make sure that \sys's encryption would support all middleboxes {\it simultaneously}: it would not have been sufficient to craft {\it n} different designs to support {\it n} classes of middlebox.
 
+\todo{put somewhere the list of MBs \sys supports for concreteness}
 
     \sys achieves generality -- with practical performance -- through a combination of cryptographic and systems innovations.
     \sys relies on two forms of computational encryption: {\it keyword match}, a form of searchable encryption developed by BlindBox,  and {\it RangeMatch}, a new encryption scheme we designed for \sys.
@@ -58,7 +62,7 @@ Further, \sys also required careful systems and protocol design to make sure tha
   Middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented.
   
 
-We implemented and evaluated \sys. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb} -- any appliance which it outsourced today can also be outsourced using \sys.
+We implemented and evaluated \sys. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes very negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  our 8 core server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
 
