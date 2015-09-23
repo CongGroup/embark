@@ -77,7 +77,10 @@ DPI middleboxes which do inspect payloads must be modified to inspect the extens
 
 HTTP Headers are a special case of payload data.
 Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
-We treat these values specially compared to other payload data; we encrypt the HTTP URI using unsalted AES (which is deterministic) and store them in IP options header of the packet containing the request.
+We treat these values specially compared to other payload data.
+First, we encrypt the HTTP URI using a deterministic form of KeywordMatch.
+Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
+We then store the encrypted value in the IP options header of the packet containing the request.
 
 This optimization is useful for two reasons. 
 First, when DPI is not enabled, we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
