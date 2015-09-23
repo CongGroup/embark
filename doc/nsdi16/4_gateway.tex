@@ -104,7 +104,7 @@ To reduce bandwidth usage, the gateway temporarily caches the packets destined t
 
 We now discuss how encrypted rules are generated from plaintext rules at the gateway and how they are updated while the service is running.
 
-\noindent\textbf{Rule generation.} Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
+\noindent\textbf{Rule Generation.} Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
 On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client.
 \sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
@@ -126,6 +126,7 @@ The gateway also handles updates to rules, which we discussed in \S\ref{sec:upda
 \label{sec:gwimpl}
 We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
 We discuss a few systems properties of our gateway as follows before discussing middlebox implementations in \S\ref{sec:mbimpl}.
+
 \eat{
 Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
 
