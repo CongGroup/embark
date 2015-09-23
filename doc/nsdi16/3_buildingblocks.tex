@@ -103,7 +103,7 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
 
 
 \subsubsection{Scheme} 
-
+\label{sec:rmscheme}
 %We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
 
 To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else.
@@ -190,22 +190,20 @@ one point only, namely $s = e$.
 \end{framed}
 
 
-
-EncryptValue encrypts the values to be matched against ranges.
-
-\begin{framed}
-\begin{algorithmic}[1]
-
-\Procedure{EncryptValue}{$v$}
-  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
-  \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
-  \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
-  \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
-\EndProcedure
-
-\end{algorithmic}
-\end{framed}
-
+\eat{
+%EncryptValue encrypts the values to be matched against ranges.
+%\begin{framed}
+%\begin{algorithmic}[1]
+%\Procedure{EncryptValue}{$v$}
+%  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
+%  \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
+%  \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
+%  \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
+%\EndProcedure
+%\end{algorithmic}
+%\end{framed}
+}
+We described how to encrypt values matched against ranges in \S\ref{sec:rmscheme}; it requires identifying set $I$ of possible encryption values for each value.
 Here is how to compute $I$ efficiently. When searching for $v$ in the tree, the gateway
 can identify the tightest enclosing interval [$p_1$, $p_2$] in logarithmic time. 
  If $[p_1, p_2]$ are endpoints of the
@@ -213,8 +211,6 @@ same interval, then I = [$p_1$, $p_2$]. Otherwise, move towards the left in the 
 $\ell_1$
 that belongs to an interval $[\ell_1, \ell_2]$ enclosing $v$. Then, using the tree, scan $[\ell_1, \ell_2]$ and eliminate
 any intervals not containing $v$. The gateway can precompute and store this interval for every two consecutive nodes in the tree.
-
-EncryptValue returns an AES encryption of $v$ too, because $\enc(v)$ is not decryptable. 
 
 We now describe the procedure for AddRange and DeleteRange which add or delete an interval. 
 These will modify the state at the gateway. Besides the interval added or deleted, a small number

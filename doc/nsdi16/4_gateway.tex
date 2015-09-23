@@ -77,21 +77,17 @@ DPI middleboxes which do inspect payloads must be modified to inspect the extens
 
 HTTP Headers are a special case of payload data.
 Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
-We treat these values specially compared to other payload data.
-First, we encrypt the HTTP URI using a deterministic form of KeywordMatch.
+We treat these values specially compared to other payload data: we encrypt the entire (untokenizeed) HTTP URI using a deterministic form of KeywordMatch.
 Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
-We then store the encrypted value in the IP options header of the packet containing the request.
+We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
 
-This optimization is useful for two reasons. 
-First, when DPI is not enabled, we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
-Hence, if DPI is disabled we can avoid reconstructing the TCP bytestream at the middlebox.
-Second, when DPI is enabled, the gateway scans through every byte of data in the connection already;  extracting these headers allows the middlebox to avoid re-doing work which has already been done at the gateway.
+Like other DPI tasks, this requires parsing the entire TCP bytestream.
+However, in some circumstances we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
+%Hence, if DPI is disabled we can avoid reconstructing the TCP bytestream at the middlebox.
+%When DPI is enabled, the gateway scans through every byte of data in the connection already;  extracting these headers allows the middlebox to avoid re-doing work which has already been done at the gateway.
 
 \noindent{\bf Decryption.} The packet is decrypted as normal using the data stored in the payload; options are removed.
 
-\noindent{\bf Format-compatibility.}
-Once again, by placing the encrypted value in an IP options header, we can avoid conflicts that arise from defining our own protocol.
-We do need to rewrite HTTP parsing devices but, like DPI devices, they are implemented in software and our modifications introduce no overhead (as discussed in \S\ref{sec:eval}).
 
 \eat{
 JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??
