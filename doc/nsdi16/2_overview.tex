@@ -157,7 +157,7 @@ We use IPv6 at the cloud because our RangeMatch scheme requires 128 bits to enco
 This is a trivial requirement to impose, as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{siit}; clients may continue using IPv4 and the tunnel connecting the client to the provider may be either v4 or v6.
 
 \sys uses three encryption schemes to protect data privacy while allowing comparison against encrypted rules at the cloud: 
-\justine{mention deterministic enc here?}
+
 \begin{myitemize}
 \item Traditional AES: provides strong security and no computational capabilities
 \item KeywordMatch:  allows the provider to detect if an encrypted value in the packet is equal to an encrypted rule; does not allow two encrypted values to be compared to each other
