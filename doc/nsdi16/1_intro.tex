@@ -10,7 +10,7 @@ In a short time, NFV has significant momentum with over 270 industry participant
 
 Leveraging the above trend, several efforts are exploring a new model for middlebox deployment in which a third-party offers middlebox processing as a  
 \emph{service}.
-Such a middlebox service may be hosted in a public cloud~\cite{aplomb,zscalar,aryaka} or in private clouds embedded within ISP 
+Such a middlebox service may be hosted in a public cloud~\cite{aplomb,zscaler,aryaka} or in private clouds embedded within ISP 
 infrastructure~\cite{domain20, telefonica}.  
 This service model allows customers such as enterprises to ``outsource'' middleboxes from their networks entirely, and hence promises many of the same 
 benefits that outsourcing compute and storage have attained through cloud computing.%: decreased costs, ease of management, \etc{}.
@@ -32,7 +32,7 @@ First, BlindBox addresses the scenario in which an arbitrary client connects to 
 \sys's context is an important one as it represents the majority of middlebox usage today~\cite{need-citation}. 
 As we will illustrate, this different in setting allows the enterprise to centralize cryptographic operations at an {\it outsourcing gateway}.
 Where BlindBox requires that every end host install a new encryption protocol, \sys leaves endhosts unmodified and traffic is encrypted by this gateway.
-This very simple change JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??relative to BlindBox gives \sys better deployability, privacy, and performance.
+This very simple change relative to BlindBox gives \sys better deployability, privacy, and performance.
 Most importantly, this difference makes \sys practical for usage today, where BlindBox has prohibitive performance.
 BlindBox imposes a 97 second setup time on {\it every} new connection, where \sys does not.
 
