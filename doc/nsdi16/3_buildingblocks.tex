@@ -6,7 +6,7 @@
 \label{sec:buildingblocks}
 
 In this section we present the building blocks \sys relies on.
-AES is a well known encryption technique and we do not discuss it here. Instead, we briefly discuss keyword match (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss range match, a new cryptographic scheme we designed for this setting.
+AES is a well known encryption technique and we do not discuss it here. Instead, we briefly discuss keyword match (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss RangeMatch, a new cryptographic scheme we designed for this setting.
 When describing these schemes we refer to the encryptor as the gateway whose secret key is $k$ and to the entity computing on the encrypted data as the service provider (SP).
 
 
@@ -60,7 +60,7 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 %
 %firewall need not change 
 
-\subsection{Range match } \label{sec:range}
+\subsection{RangeMatch } \label{sec:range}
 
 Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by Stanford, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
