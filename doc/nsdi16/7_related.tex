@@ -7,14 +7,16 @@
 APLOMB~\cite{aplomb} is a practical service for outsourcing enterprise's middleboxes to the cloud, which we discussed in detail in \S\ref{sec:overview}.
 
 \noindent{\bf Data Confidentiality:}
-More generally, confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. 
+Confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. 
+CryptDB~\cite{popa:cryptdb} was one of the first practical systems to compute on encrypted data, but none of its encryption schemes or systems techniques apply to our setting. 
 
-mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Middleboxes become no longer transparent, and both middleboxes and end users need to adopt the protocol. CryptDB~\cite{popa:cryptdb} introduced the vision for building practical systems that compute on encrypted data, but none of its encryption schemes or systems techniques apply to our setting. The most closely related work with \sys are BlindBox~\cite{blindbox}. We compared them in \S\ref{sec:overview}.
+Focusing on traffic processing, the most closely related work to \sys is BlindBox~\cite{blindbox}, discussed in \S\ref{sec:overview}.
+mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Unlike \sys, the middlebox  gains access to unencrypted data and is still able to leak that data should it choose to do so. 
 
 \noindent{\bf Trace Anonymization and Inference:}
-A few systems \cite{Vern:Anonymize06, Vern:Anonymize03} anonymize the packet stream for offline auditing in the hope of hiding the identity of the hosts. Unlike \sys, they break middlebox functionality and are not suitable for online processing. 
+Some systems which focus on {\it offline} processing allow some analysis over anonymized data \cite{Vern:Anonymize06, Vern:Anonymize03}; they are not suitable for online processing as is \sys.
 
-Conversely, there are some work for inferring information from encrypted traffic. Yamada et al.\cite{Yamada_IDS} show how one can perform some very limited processing on an SSL-encrypted packet by using only the size of the data and the timing of packets.
+Yamada et al.\cite{Yamada_IDS} show how one can perform some very limited processing on an SSL-encrypted packet by using only the size of the data and the timing of packets, however they cannot perform analysis of the contents of the connection data.
 
 \noindent{\bf Encryption Schemes:}
 Our RangeMatch scheme is similar to order preserving encryption schemes, but no existing scheme provided both the performance and security properties we required.

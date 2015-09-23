@@ -168,7 +168,7 @@ We discuss these cryptographic algorithms in \S\ref{sec:buildingblocks}.
 We choose which encryption scheme is appropriate for each field based on a high level classification of middlebox capabilities.
 Table~\ref{tbl:mbreqs} shows a list of all middleboxes supported by typical outsourcing deployments~\cite{aplomb} and their processing requirements.
 We classify these middleboxes as operating only over packet headers, operating only over packet headers and HTTP headers, or operating over all data including arbitrary fields in the connection bytestream (DPI).
-We revisit these middleboxes in detail in \S\ref{sec:mbs}.
+We revisit them in detail in \S\ref{sec:mbs}.
 
 {\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
