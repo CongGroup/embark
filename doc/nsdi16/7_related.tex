@@ -3,14 +3,24 @@
 \section{Related Work}
 \label{sec:related}
 
-The two most closely related pieces of work to \sys are BlindBox~\cite{blindbox}, and APLOMB~\cite{aplomb}, which we discussed in detail in \S\ref{sec:overview}.
+\noindent{\bf Middlebox outsourcing:}
+APLOMB is a practical service for outsourcing enterprise's middleboxes to the cloud, which we discussed in detail in \S\ref{sec:overview}.
 
+\noindent{\bf Data confidentiality:}
 More generally, confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. 
 
+mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Middleboxes become no longer transparent, and both middleboxes and end users need to adopt the protocol. CryptDB~\cite{popa:cryptdb} introduced the vision for building practical systems that compute on encrypted data, but none of its encryption schemes or systems techniques apply to our setting. The most closely related work with \sys are BlindBox~\cite{blindbox}. We compared them in \S\ref{sec:overview}.
+
+\noindent{\bf Trace Anonymization and Inference:}
+A few systems \cite{Vern:Anonymize06, Vern:Anonymize03} anonymize the packet stream for offline auditing in the hope of hiding the identity of the hosts. Unlike \sys, they break middlebox functionality and are not suitable for online processing. 
+
+Conversely, there are some work for inferring information from encrypted traffic. Yamada et al.\cite{Yamada_IDS} show how one can perform some very limited processing on an SSL-encrypted packet. by using only the size of the data and the timing of packets.
+
+\noindent{\bf Encryption Schemes:}
 Our RangeMatch scheme is similar to order preserving encryption schemes, but no existing scheme provided both the performance and security properties we required.
 The order-preserving encryption~\cite{boldyreva:ope, popa:mope} used in CryptDB is 
  $>3000$ times slower than RangeMatch (\S\ref{sec:eval}) and cannot sustain realistic network throughputs; moreover, it leaks the order of the IP addresses encrypted, while RangeMatch protects this information. 
-The  encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security guarantee to RangeMatch, however, it is orders of magnitude slower than the OPE schemes which are already 3000$\times$ slower than RangeMatch. 
+The encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security guarantee to RangeMatch, however, it is orders of magnitude slower than the OPE schemes which are already 3000$\times$ slower than RangeMatch. 
 
 %  mOPE unfortunately requires that the gateway and the service provider interact for a number of roundtrips (e.g., xxx in our experiments) which is too slow and requires additional setup for this interaction, and violates requirement~\ref{req:sec} or~\ref{req:injective}, and BCLO has weak security (leaking always the top half bits of the values encrypted and the order of IP addresses across different packets, thus violating requirement~\ref{req:sec}), is too slow, and not format-preserving. 
 
