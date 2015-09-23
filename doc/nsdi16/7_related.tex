@@ -3,10 +3,10 @@
 \section{Related Work}
 \label{sec:related}
 
-\noindent{\bf Middlebox outsourcing:}
+\noindent{\bf Middlebox Outsourcing:}
 APLOMB~\cite{aplomb} is a practical service for outsourcing enterprise's middleboxes to the cloud, which we discussed in detail in \S\ref{sec:overview}.
 
-\noindent{\bf Data confidentiality:}
+\noindent{\bf Data Confidentiality:}
 More generally, confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. 
 
 mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Middleboxes become no longer transparent, and both middleboxes and end users need to adopt the protocol. CryptDB~\cite{popa:cryptdb} introduced the vision for building practical systems that compute on encrypted data, but none of its encryption schemes or systems techniques apply to our setting. The most closely related work with \sys are BlindBox~\cite{blindbox}. We compared them in \S\ref{sec:overview}.
