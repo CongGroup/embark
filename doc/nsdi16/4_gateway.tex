@@ -1,7 +1,6 @@
 \section{Enterprise Gateway}
 
 \label{sec:gateway}
-Having described our cryptographic building blocks, we can now discuss how they are used for encryption at the gateway.
 
 \begin{figure}[t]
   \centering
@@ -18,7 +17,7 @@ Having described our cryptographic building blocks, we can now discuss how they 
 \end{figure}
 }
 
-The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of IDS/FW rulesets and updates to the RangeMatch tree.
+The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets and updates to the RangeMatch tree.
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
 All three services share access to the RangeMatch tree and the private key $k$.
@@ -77,7 +76,7 @@ DPI middleboxes which do inspect payloads must be modified to inspect the extens
 
 HTTP Headers are a special case of payload data.
 Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
-We treat these values specially compared to other payload data: we encrypt the entire (untokenizeed) HTTP URI using a deterministic form of KeywordMatch.
+We treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
 Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
 We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
 
@@ -98,9 +97,7 @@ To reduce bandwidth usage, the gateway temporarily caches the packets destined t
 \subsection{Rule Encryption}
 \label{sec:rulenc}
 
-We now discuss how encrypted rules are generated from plaintext rules at the gateway and how they are updated while the service is running.
-
-\noindent\textbf{Rule Generation.} Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
+Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
 On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client.
 \sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
@@ -115,8 +112,6 @@ After this setup, all connections from the enterprise are encrypted with the sam
 %This is important because for a typical industry ruleset, a garbled circuit + oblivious transfer exchange takes 97 seconds~\cite{blindbox}; with BlindBox this exchange must be performed for every connection and thus is prohibitive for practicality.
 %For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
 
-\textbf{Rule Updates.}
-The gateway also handles updates to rules, which we discussed in \S\ref{sec:updates}.
 \eat{
 \subsection{Discussion}
 \label{sec:gwimpl}
@@ -147,5 +142,5 @@ The administrator supplies any rules/policies to the cloud provider and the gate
 
 \noindent\textbf{Fault Tolerance.}
 When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
-When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenizeation; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
+When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenization; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
 }
