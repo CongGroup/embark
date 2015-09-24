@@ -55,7 +55,7 @@ However, these schemes are four orders of magnitude slower than {\it RangeMatch}
   
   Another systems insight is that by {\it combining} standard packet formats with RangeMatch, \sys can retain compatibility with existing classification algorithms and obtain good performance for middleboxes operating over header fields.
   RangeMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
-  Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the most expensive tasks in in software middleboxes~\cite{comb, ethan-paper}.
+  Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
   
  
