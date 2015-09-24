@@ -113,8 +113,7 @@ The gateway inflates the size of traffic due to three encryption costs:
   \item If HTTP IDS is enabled, there is at worst a 5$\times$ overhead on all HTTP payloads~\cite{blindbox}.
 \end{myitemize}
 We used the m57 trace to understand how these overheads would play out in aggregate for an enterprise.
-On the uplink, from the gateway to the middlebox service provider, traffic would increase by 2.5\% due to encryption costs for a Header-Only Gateway. Traffic would increase by 4.3$\times$ on the uplink for a bytestream-aware gateway. 
-
+On the uplink, from the gateway to the middlebox service provider, traffic would increase by 2.5\% due to encryption costs for a header-only gateway. Traffic would increase by 4.3$\times$ on the uplink for a gateway that supports DPI middleboxes. 
 
 \noindent{\it How much does bandwidth increase between the gateway and the cloud from using \sys? How much would this bandwidth increase an enterprises networking costs?}
 \sys sends all network traffic to and from the middlebox service provider for processing, before sending that traffic out to the Internet at large. 
