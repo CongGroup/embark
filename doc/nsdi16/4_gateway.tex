@@ -50,7 +50,7 @@ We use RangeMatch for these fields because many middleboxes perform analysis ove
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted range match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
-This ensures backwards-compatibility with existing software {\it and hardware} dataplane operations.
+This ensures backwards-compatibility with existing software {\it and hardware} fast-path operations.
 Because per-packet operations are tightly optimized in production middleboxes, this compatibility ensures good performance at the cloud despite our changes.
 
 An additional challenge for format compatibility is where to place the decryptable AES data; one option would be to define our own packet format, but this could potentially lead to incompatibilities with existing middlebox software. By placing it in the IPv6 options header, middleboxes can be configured to ignore this data using standard configuration.\footnote{It is a common misconception that middleboxes are incompatible with IP options. Commercial middleboxes are usually aware of IP options but many administrators {\it configure} the devices to filter or drop packets with certain kinds of options enabled.}
