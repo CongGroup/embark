@@ -62,7 +62,7 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 
 \subsection{RangeMatch } \label{sec:range}
 
-Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
+Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether an IP address $v$ lines in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
 
 One might ask whether RangeMatch is  necessary, or one can instead employ KeywordMatch. To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
@@ -108,7 +108,7 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
 \label{sec:rmscheme}
 %We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
 
-To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else.
+To encrypt the endpoints of intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of intervals but does not leak anything else.
 
 For now, consider that the gateway  maintains a mapping of each interval endpoint  to its encryption, called the {\em interval map}.  The interval map also contains the points $- \infty$ and $+ \infty$, encrypted with 0.0.0.0 and 255.255.255.255. 
 
@@ -137,7 +137,7 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 \begin{equation}
 \mathsf{index}(v) = \prf_{q}^{|I|}(v) 
 \end{equation}
-  Note that, in the systems setup with two gateways, the gateways generate the same encryption because they share $k$. 
+  Note that, in the system setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
 When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6.  The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time, so RangeMatch requires IPv6.
 
@@ -150,7 +150,7 @@ When encrypting IP addresses, we do not want two different IP addresses to map t
 The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted range endpoint $\enc(s)$ or $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
 
 
-\noindent\textbf{Adding new ranges.} Adding a new range could cause all the other ranges to shift. This might require an entire firewall middlebox to be reconfigured, which can be expensive. To avoid this, instead of assigning endpoints to evenly distributed encrypted values, we insert endpoints in a balanced search tree and assign encryptions based on the position in the tree as in Fig.~\ref{fig:tree}. When a new range is added, a tree rebalance operation may happen, which changes the encrypted values of a few endpoints. By using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
+\noindent\textbf{Adding new ranges.} Adding a new range could cause all the other ranges to shift. This might require an entire firewall middlebox to be reconfigured, which can be expensive. To avoid this, instead of assigning endpoints to evenly distributed encrypted values, we insert endpoints in a balanced search tree and assign encryptions based on the position in the tree as in Fig.~\ref{fig:tree}. When a new range is added, a tree rebalance operation may happen, which changes the encrypted values of a few endpoints. By using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst-case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
 
 
 
@@ -219,7 +219,7 @@ any intervals not containing $v$. The gateway can precompute and store this inte
 We now describe the procedure for AddRange which adds an interval (deleting an interval is similar).
 These procedures modify the state at the gateway.
 To add a range [$s$, $e$], the gateway inserts these values in the tree. If the tree needs to be rebalanced, for each endpoint that changed location in the tree, the gateway records the old and new encrypted value based
-on the tree in a list $L$. Note that  the number of endpoints that change encryption is $O(\log n)$ amortized worst case. 
+on the tree in a list $L$. Note that  the number of endpoints that change encryption is $O(\log n)$ amortized worst-case. 
 The gateway then computes the encryption of $s$ and $e$ based on their location in the tree. 
 It sends to SP $\enc(s)$ and $\enc(e)$ along with $L$. 
 
