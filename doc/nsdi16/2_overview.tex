@@ -184,9 +184,9 @@ As mentioned, when compared to BlindBox, \sys provides new cryptography and syst
 %So far, we have described the overall architecture of \sys without discussing how the encryption or middleboxes themselves are implemented.
 %It is worth pausing here to discuss how this architecture itself can improve BlindBox, although it only supports DPI.
 %
-The first benefit is increased performance. In BlindBox, two arbitrary user endpoints communicate over a modified version of https. BlindBox requires 97 seconds to perform the initial handshake, which results in the encryption of the rules. 
+The first benefit is increased performance. In BlindBox, two arbitrary user endpoints communicate over a modified version of HTTPS. BlindBox requires 97 seconds to perform the initial handshake, which results in the encryption of the rules. 
 This exchange must be performed for every new connection in BlindBox because each session is between two new endhosts with a per-connection key.
-However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Moreover, there is no overhead per user connection. 
+However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Consequently, there is no overhead per user connection. 
 %, after which the same encrypted rules can be reused for all clients; this key is safe to re-use because it is private to the gateway.
 %Most importantly, this architecture provides practical performance, where the BlindBox context imposed a prohibitive per-connection overhead.
 
