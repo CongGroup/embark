@@ -65,7 +65,8 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether an IP address $v$ lines in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
 
-One might ask whether RangeMatch is  necessary, or one can instead employ KeywordMatch. To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
+One might ask whether RangeMatch is  necessary, or one can instead employ KeywordMatch using the same expansion technique we used for some (but not all) regexps in \S\ref{sec:bbarch}. 
+To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
 For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match only rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
 Hence, to perform typical middlebox behaviors {\it in practice}, we require a RangeMatch scheme which is more efficient.
 
@@ -114,7 +115,7 @@ For now, consider that the gateway  maintains a mapping of each interval endpoin
 
 
 When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in (we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval. Then, to encrypt $v$, it chooses a random value in this interval.
-For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, this satisfies the security requirement above.
+For example, if $v$ is 127.0.0.1, a possible encryption given the ranges encrypted above is 78.124.24.85. The encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, this satisfies the security requirement above.
 
 \begin{figure}[t]
   \centering
@@ -123,14 +124,14 @@ For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The enc
 \end{figure}
 To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Figure~\ref{fig:rangeopts} illustrates how $v$ is mapped depending on whether it maps to zero, one, or both of ranges $R1$ and $R2$; we formalize this as follows. 
 
-To achieve the desired security, we find the interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
+To achieve the desired security, we find the interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
 \begin{equation}
  I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). \label{eq:randominterval}
  \end{equation}
 
  
 
-To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it returns the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across different connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{n}(v)$, mapping $v$ to a random value in the interval 1, \dots, n. 
+To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it returns the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across unique connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{n}(v)$, mapping $v$ to a random value in the interval 1\ldots n. 
 
 We seed $\prf$  in $q$, a function of both the key and hash of the 5-tuple connection header ($q = \prf_k(\text{conn})$).  Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
@@ -150,7 +151,7 @@ When encrypting IP addresses, we do not want two different IP addresses to map t
 The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted range endpoint $\enc(s)$ or $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
 
 
-\noindent\textbf{Adding new ranges.} Adding a new range could cause all the other ranges to shift. This might require an entire firewall middlebox to be reconfigured, which can be expensive. To avoid this, instead of assigning endpoints to evenly distributed encrypted values, we insert endpoints in a balanced search tree and assign encryptions based on the position in the tree as in Fig.~\ref{fig:tree}. When a new range is added, a tree rebalance operation may happen, which changes the encrypted values of a few endpoints. By using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst-case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
+\noindent\textbf{Adding new ranges.} Adding a new range could cause all the other ranges to shift. This might require middlebox rulesets to be entirely reconfigured. To avoid this, instead of assigning endpoints to evenly distributed encrypted values, we insert endpoints in a balanced search tree and assign encryptions based on the position in the tree as in Fig.~\ref{fig:tree}. When a new range is added, a tree rebalance operation may happen, which changes the encrypted values of a few endpoints. By using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst-case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
 
 
 
