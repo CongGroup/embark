@@ -81,7 +81,7 @@ HTTP Headers are a special case of payload data.
 Middleboxes such as web proxies do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
 We treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
 Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well because of the lack of randomization.
-We place this encrypted value in the options channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
+We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
 
 \todo{need to explain why deterministic is not too bad in security for web proxies -- this is the functionality we want; also the 
 pages at the proxy will be distinct, but of course you can tell which packets contain this URL; I would add that this is
