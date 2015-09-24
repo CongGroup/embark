@@ -27,10 +27,11 @@ To address this, we design and implement \sys, the first system to allow an ente
 \sys operates directly over {\it encrypted} traffic without the service provider ever observing the plaintext.
 
 
-In a recent work called BlindBox we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of the packets. 
-However, BlindBox is far from sufficient for our setting because (1) it does not support a significant set of middleboxes  and (2) it has a high setup cost.  
+
+In a recent work, BlindBox, we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
+However, BlindBox is far from sufficient for our setting because (1) it has prohibitive overheads -- a 97s setup time per-connection -- and  (2) it  does not support a comprehensive set of enterprise middleboxes.
  
- 
+ \todo{seems the para below no longer exists}
 First, BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider.
 \sys's context is an important one as it represents the majority of middlebox usage today~\cite{need-citation}. \clan{How to justify this?}
 As we will illustrate, this different in setting allows the enterprise to centralize cryptographic operations at an {\it outsourcing gateway}.
@@ -39,7 +40,10 @@ This very simple change relative to BlindBox gives \sys better deployability, pr
 Most importantly, this difference makes \sys practical for usage today, where BlindBox has prohibitive performance.
 BlindBox imposes a 97 second setup time on {\it every} new connection, where \sys does not.
 
-The second difference is in generality: where BlindBox only addresses DPI devices, \sys is general, supporting the full range of middleboxes used in enterprises today, from firewalls, to proxies, to the DPI devices that BlindBox targets.
+BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider. 
+As we will discuss in \S\ref{sec:bbarch}, this simple change in setting is sufficient for \sys to completely remove this per-connection overhead, while providing improved deployability and privacy benefits.
+
+More importantly, where BlindBox only addresses DPI devices, \sys is general, supporting the full range of middleboxes used in enterprises today, from firewalls, to proxies, to the DPI devices that BlindBox targets.
 Achieving generality provided new challenges to \sys, not seen in BlindBox. 
 To address new use cases, we had to design a new cryptographic algorithm in addition to the scheme BlindBox already provided. 
 Further, \sys also required careful systems and protocol design to make sure that \sys's encryption would support all middleboxes {\it simultaneously}: it would not have been sufficient to craft {\it n} different designs to support {\it n} classes of middlebox.
@@ -55,7 +59,7 @@ Further, \sys also required careful systems and protocol design to make sure tha
     Where {\em RangeMatch} only reveals whether or not a value lies within a pre-determined range, OPE reveals the total ordering among all values, whether they lie within a range or not.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
-  We choose which encryption scheme to use for each field based on the processing operations applied by typical middleboxes.
+  %We choose which encryption scheme to use for each field based on the processing operations applied by typical middleboxes.
   This ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
   But perhaps more importantly, this choice ensures good performance for middleboxes operating over header fields. 
   \sys's modifications to packet headers require no new fast-path algorithms: they are formatted as standard packets, and RangeMatch ensures that comparisons such as $\leq$ $\geq$ function normally.
@@ -64,6 +68,6 @@ Further, \sys also required careful systems and protocol design to make sure tha
 
 We implemented and evaluated \sys. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes very negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
-Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  our 8 core server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
+Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
 
 \eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 

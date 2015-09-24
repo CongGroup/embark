@@ -6,7 +6,7 @@
 \label{sec:buildingblocks}
 
 In this section we present the building blocks \sys relies on.
-AES is a well known encryption technique and we do not discuss it here. Instead, we briefly discuss keyword match (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss RangeMatch, a new cryptographic scheme we designed for this setting.
+AES is a well known encryption technique and we do not discuss it here. Instead, we briefly discuss KeywordMatch (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss RangeMatch, a new cryptographic scheme we designed for this setting.
 When describing these schemes we refer to the encryptor as the gateway whose secret key is $k$ and to the entity computing on the encrypted data as the service provider (SP).
 
 
@@ -62,11 +62,12 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 
 \subsection{RangeMatch } \label{sec:range}
 
-Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by Stanford, in which case the administrator would block access to the network prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between such a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
+Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
 
 One might ask whether RangeMatch is strictly necessary. To detect whether or not a port number lies in the range 80-83 is the same as asking whether the port number is equal to anything in the set \{80,81,82,83\} -- hence, one could use KeywordMatch to implement all range detection operations by converting each range to a set of exact-match values.
-However, in practice, the overhead of doing this is prohibitive.
+This is conceptually the same as the technique we apply to convert regular expressions to exact-match strings.
+However, just as we cannot use this technique for all regular expressions, the overhead of using this techniques for typical range queries like firewall rules is prohibitive.
 For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match only rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
 Hence, to perform typical middlebox behaviors {\it in practice}, we require a RangeMatch scheme which is more efficient.
 
@@ -103,7 +104,7 @@ Ideally, SP does not learn anything about $v$ other than what interval it matche
 
 
 \subsubsection{Scheme} 
-
+\label{sec:rmscheme}
 %We explain the scheme based on encryption IP addresses for a firewall and source IP addresses in packets, although the scheme is used in encryption other fields too, as explained in Sec.~\ref{xx}.
 
 To encrypt the endpoints of the intervals, we sort them, and choose as their encryptions values equally distributed in the domain space in a way that preserves the order of the endpoints. For example, the encryption of the intervals 127.0.0.0/8 and 172.16.0.0/16, is [51.0.0.0, 102.0.0.0] and [153.0.0.0, 204.0.0.0]. This preserves the order of the intervals but does not leak anything else.
@@ -132,8 +133,9 @@ To support middleboxes like NATs -- which require that every time a value for th
 
 We seed $\prf$  in $q$, a function of both the key and hash of the 5-tuple connection header ($q = \prf_k(\text{conn})$).  Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
-%\[ \mathsf{index}(v) = \prf_k(v)\ \mod\ |I|. \] 
-\[ \mathsf{index}(v) = \prf_{q}^{|I|}(v) \] 
+\begin{equation}
+\mathsf{index}(v) = \prf_{q}^{|I|}(v) 
+\end{equation}
   Note that, in the systems setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
 When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time. The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
@@ -190,22 +192,20 @@ one point only, namely $s = e$.
 \end{framed}
 
 
-
-EncryptValue encrypts the values to be matched against ranges.
-
-\begin{framed}
-\begin{algorithmic}[1]
-
-\Procedure{EncryptValue}{$v$}
-  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
-  \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
-  \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
-  \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
-\EndProcedure
-
-\end{algorithmic}
-\end{framed}
-
+\eat{
+%EncryptValue encrypts the values to be matched against ranges.
+%\begin{framed}
+%\begin{algorithmic}[1]
+%\Procedure{EncryptValue}{$v$}
+%  \State Search the tree for $v$ to compute efficiently I as in Eq.~\ref{eq:randominterval}.
+%  \State Compute $\mathsf{index}(v) = \prf_k(v)\ \mod\ |I|.$ 
+%  \State Let $\enc(v)$ to be the $\mathsf{index}$-th element of $I$. 
+%  \State \Return $\left(\enc(v), \IV, \aes_k(\IV, v)\right)$ for random $\IV$. 
+%\EndProcedure
+%\end{algorithmic}
+%\end{framed}
+}
+We described how to encrypt values matched against ranges in \S\ref{sec:rmscheme}; it requires identifying set $I$ of possible encryption values for each value.
 Here is how to compute $I$ efficiently. When searching for $v$ in the tree, the gateway
 can identify the tightest enclosing interval [$p_1$, $p_2$] in logarithmic time. 
  If $[p_1, p_2]$ are endpoints of the
@@ -213,8 +213,6 @@ same interval, then I = [$p_1$, $p_2$]. Otherwise, move towards the left in the 
 $\ell_1$
 that belongs to an interval $[\ell_1, \ell_2]$ enclosing $v$. Then, using the tree, scan $[\ell_1, \ell_2]$ and eliminate
 any intervals not containing $v$. The gateway can precompute and store this interval for every two consecutive nodes in the tree.
-
-EncryptValue returns an AES encryption of $v$ too, because $\enc(v)$ is not decryptable. 
 
 We now describe the procedure for AddRange and DeleteRange which add or delete an interval. 
 These will modify the state at the gateway. Besides the interval added or deleted, a small number
@@ -248,13 +246,13 @@ DeleteRange is similar, except that the result contains only $L$.
 \subsubsection{Rule Updates at the Cloud}
 \label{sec:updates}
 At the cloud, RangeMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update also will change encrypted values within packets.
-The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections. 
+The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections
 Adding or removing a rule will modify some $\log(n)$ of these values in the RangeMatch tree, and thus to continue correct processing the NAT state must correspondingly be updated.
 The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
-The same problem occurs if packets encrypted under the new tree arrive before the new rulset has been adopted.
+The same problem occurs if packets encrypted under the new tree arrive before the new ruleset has been adopted.
 
 When the RangeMatch tree is updated, the gateway and cloud provider do the following to avoid these problems. 
 When the gateway updates the RangeMatch tree it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
 The gateway then sends a signal to the cloud provider that it is about to `swap in' the new tree. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and once all of this is completed it allows the new traffic to flow through the network and receive processing under the new policy.
+The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and ginally it releases the new traffic.
 Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing.

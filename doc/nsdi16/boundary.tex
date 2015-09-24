@@ -21,7 +21,7 @@ Another protocol I had relied on composite order groups (hopefully on elliptic c
 
 
 \paragraph{Proof sketch for our scheme.}
-Ways to prove secure our boundary scheme. First create a hybrid that replaces the random oracle $\salt, H(\salt, a)$ with an entiry that gets the question ``do you have $a$''. The entity answers yes or no. 
+Ways to prove secure our boundary scheme. First create a hybrid that replaces the random oracle $\salt, H(\salt, a)$ with an entity that gets the question ``do you have $a$''. The entity answers yes or no. 
 
 The second hybrid tries to get rid of the random oracles completely for rules that do not match.
 Basically, we need to show that one cannot compute $g^{a_1 r_1}$ without getting both of $g^{a_1 b_1}$ and $b_1^{-1} r_1$ for some $b_1$.
