@@ -56,14 +56,15 @@ On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
 \noindent{\it Is range encryption faster than existing order preserving algorithms?}
-RangeMatch is the only encryption scheme that has low enough latency for packet processing while preserving the ordering information required for middleboxes.
+RangeMatch is the only encryption scheme that has low latency and the ordering property needed for packet processing.
 We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
 \begin{table}[h]
+\vspace{-10pt}
 \centering
 \small
 \begin{tabular}{c|c|c|c}
-{\bf Operation}&{\bf BCLO~\cite{boldyreva:ope}}&{\bf mOPE~\cite{popa:mope}}&{\bf \sys}\\
+{\bf Operation}&{\bf BCLO}&{\bf mOPE}&{\bf \sys}\\
 \hline
 \hline
 Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1.95$\mu$s\\
@@ -73,6 +74,7 @@ Encrypt, 100K rules&9333$\mu$s&8300$\mu$s&3$\mu$s\\
 Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
 \end{tabular}
+\vspace{-10pt}
 \end{table}
 
 \noindent{\it What is the memory overhead of the stateful range map encryption scheme?}

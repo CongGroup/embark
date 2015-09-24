@@ -9,7 +9,6 @@ software applications that run multiplexed on commodity server hardware~\cite{mb
 This approach -- termed Network Function Virtualization (NFV) in industry -- promises many advantages including the cost benefits of commodity infrastructure, 
 the efficiencies of statistical multiplexing, and the flexibility of software solutions. 
 In a short time, NFV has gained a significant momentum with over 270 industry participants~\cite{etsi-nfv} and a number of emerging product offerings~\cite{brocade,dell,juniper}.
-\todo{wasn't the NFV use case a main complaint of a reviewer?}
 
 Leveraging the above trend, several efforts are exploring a new model for middlebox deployment in which a third-party offers middlebox processing as a  
 \emph{service}.
@@ -28,18 +27,12 @@ To address this, we design and implement \sys, the first system to allow an ente
 
 
 In a recent work, BlindBox, we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
-However, BlindBox is far from sufficient for our setting because it does not support a significant set of middleboxes  and has a high setup cost.  
- 
- 
-First, BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider.
-\sys's context is an important one as it represents the majority of middlebox usage today~\cite{need-citation}. \clan{How to justify this?}
-As we will illustrate, this different in setting allows the enterprise to centralize cryptographic operations at an {\it outsourcing gateway}.
-Where BlindBox requires that every end host install a new encryption protocol, \sys leaves endhosts unmodified and traffic is encrypted by this gateway.
-This very simple change relative to BlindBox gives \sys better deployability, privacy, and performance.
-Most importantly, this difference makes \sys practical for usage today, where BlindBox has prohibitive performance.
-BlindBox imposes a 97 second setup time on {\it every} new connection, where \sys does not.
+However, BlindBox is far from sufficient for our setting because it has prohibitive overheads -- a 97s setup time per-connection -- and it  does not support a comprehensive set of enterprise middleboxes.
 
-The second difference is in generality: where BlindBox only addresses DPI devices, \sys is general, supporting the full range of middleboxes used in enterprises today, from firewalls, to proxies, to the DPI devices that BlindBox targets.
+BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider. 
+As we will discuss in \S\ref{sec:bbarch}, this simple change in setting is sufficient for \sys to completely remove this per-connection overhead, while providing improved deployability and privacy benefits.
+
+More importantly, where BlindBox only addresses DPI devices, \sys is general, supporting the full range of middleboxes used in enterprises today, from firewalls, to proxies, to the DPI devices that BlindBox targets.
 Achieving generality provided new challenges to \sys, not seen in BlindBox. 
 To address new use cases, we had to design a new cryptographic algorithm in addition to the scheme BlindBox already provided. 
 Further, \sys also required careful systems and protocol design to make sure that \sys's encryption would support all middleboxes {\it simultaneously}: it would not have been sufficient to craft {\it n} different designs to support {\it n} classes of middlebox.
