@@ -130,7 +130,7 @@ To achieve the desired security, we find the interval $I$ (which may consist of 
 
  
 
-To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it return the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across different connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{x}(n) \rightarrow {1 \ldots x}$, mapping $n$ to a random value between $1$ and $x$ inclusive. 
+To support middleboxes like NATs -- which require that every time a value for the same connection is encrypted, it returns the same value -- we need to generate the random encryptions using a deterministic function. Importantly, this value should always be the same {\it within} the same connection, but across different connections it should be different. For this, we use a pseudorandom function~\cite{GoldreichVol1}, $\prf$. Let $\prf$ be a function $\prf^{n}(v)$, mapping $v$ to a random value in the interval 1, \dots, n. 
 
 We seed $\prf$  in $q$, a function of both the key and hash of the 5-tuple connection header ($q = \prf_k(\text{conn})$).  Let $|I|$ be the size of the interval $I$. 
 Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\mathsf{index}$ is 
@@ -139,30 +139,31 @@ Then, the encryption of $v$ is the $\mathsf{index}$-th element in $I$, where $\m
 \end{equation}
   Note that, in the systems setup with two gateways, the gateways generate the same encryption because they share $k$. 
 
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time. The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
+When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6.  The reason is that each interval of encryptions is large because we distributed the endpoint encryptions evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, the probability of getting collision is approximately $1-e^\frac{-m^2 (n+1)}{2^{w+1}}$. Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. This probability is very low for IPv4, but not low enough that a collision will not happen in a large interval of time, so RangeMatch requires IPv6.
+
 \begin{figure}
   \includegraphics[width=3.45in]{fig/tree}
   \caption{\label{fig:tree} Range match tree. The values of nodes in the tree are the unencrypted IP addresses, and the blue values on the horizontal axis are their encryptions. }
 \end{figure}
 
-\textbf{Comparing Encrypted Values against Rules.}
-The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted endpoint $\enc(s)$ and $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
+\noindent \textbf{Comparing Encrypted Values against Rules.}
+The cloud can run ``$\ge$'' and ``$\le$" between any encrypted value $\enc(v)$ and an encrypted range endpoint $\enc(s)$ or $\enc(e)$, and will obtain a correct answer. Computing $\enc(v_1) < \enc(v_2)$  between two encrypted values in the same range is meaningless, and returns a random value.
+
+
+\noindent\textbf{Adding new ranges.} Adding a new range could cause all the other ranges to shift. This might require an entire firewall middlebox to be reconfigured, which can be expensive. To avoid this, instead of assigning endpoints to evenly distributed encrypted values, we insert endpoints in a balanced search tree and assign encryptions based on the position in the tree as in Fig.~\ref{fig:tree}. When a new range is added, a tree rebalance operation may happen, which changes the encrypted values of a few endpoints. By using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
 
 
 
-
-
-\textbf{Security Guarantees.}
-The scheme achieves our desired security goal: the only information leaked about a value $v$ encrypted is which ranges it matches. 
-In particular, the scheme is not order preserving because it does not leak the order of two encrypted values that match the same range. It is easy to check that the scheme is secure: since the encryption of $v$ is random in $I$ (Eq.~\ref{eq:randominterval}), the scheme only leaks the fact that $v$ is in $I$. $I$ is chosen in such a way that the only information about $v$ it encodes is which intervals $v$ matches and which it does not match.
 
 \subsubsection{Implementing RangeMatch in the Gateway}
 \label{sec:tree}
-To encrypt using RangeMatch, the gateway must store a tree -- as shown in Figure~\ref{fig:tree} -- mapping the unencrypted intervals to the encrypted address space.
+
+
 %Most encryption operations are relatively stateless -- they rely only on the key and the data. Using RangeMatch requires that the Rule Encryption component manage a tree of values for use at encryption time; we discuss how this tree is generated now.
-
-The gateway keeps a small amount of state (in our implementation, about 200 bytes/range) encryption the intervals, but maintains no state per IP address encrypted or per connection. The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
-
+%
+ The gateway stores the tree in Fig.~\ref{fig:tree}: for each node, it stores the unencrypted endpoint, whether it is the left or  right margin of an interval, and the other endpoint of the interval it is part of. It does not need to store the encryption of the endpoint because this is easy to derive from the position in the tree. 
+The gateway keeps a small amount of state (in our implementation, about 200 bytes/range), %encryption the intervals
+and it maintains no state per IP address encrypted or per connection.
 
 The gateway can use the following functions. EncryptRanges encrypts the initial ranges. Note that some ranges could consist of
 one point only, namely $s = e$. 
@@ -215,7 +216,7 @@ $\ell_1$
 that belongs to an interval $[\ell_1, \ell_2]$ enclosing $v$. Then, using the tree, scan $[\ell_1, \ell_2]$ and eliminate
 any intervals not containing $v$. The gateway can precompute and store this interval for every two consecutive nodes in the tree.
 
-We now describe the procedure for AddRange and DeleteRange which add or delete an interval. 
+We now describe the procedure for AddRange which adds an interval (deleting an interval is similar).
 These will modify the state at the gateway. Besides the interval added or deleted, a small number
 of other intervals may be moved -- at worst, $O(\log n)$. For these, the algorithm returns the old and new encryption of the interval. 
 
@@ -240,20 +241,27 @@ of other intervals may be moved -- at worst, $O(\log n)$. For these, the algorit
 
 %  \State Determing the smallest and the largest encryption in the values $[\enc(s), \enc(e)]$ and $L$, and call this $\dirtyrange$.
 
-Since we are using a scapegoat tree, the number of nodes that change position during rebalancing is amortized worst case $O(\log n)$ where $n$ is the total number of nodes in the scapegoat tree. 
 
-DeleteRange is similar, except that the result contains only $L$. 
 
 \subsubsection{Rule Updates at the Cloud}
 \label{sec:updates}
-At the cloud, RangeMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update also will change encrypted values within packets.
+At the cloud, RangeMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update can also change encrypted values within packets.
 The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections
 Adding or removing a rule will modify some $\log(n)$ of these values in the RangeMatch tree, and thus to continue correct processing the NAT state must correspondingly be updated.
 The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
 The same problem occurs if packets encrypted under the new tree arrive before the new ruleset has been adopted.
 
-When the RangeMatch tree is updated, the gateway and cloud provider do the following to avoid these problems. 
-When the gateway updates the RangeMatch tree it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
+To avoid these problems, when the RangeMatch tree is updated, the gateway and cloud provider do the following. 
+When the gateway updates the RangeMatch tree, it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
 The gateway then sends a signal to the cloud provider that it is about to `swap in' the new tree. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and ginally it releases the new traffic.
-Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing.
+The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it releases the new traffic.
+Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing. 
+
+
+
+\subsubsection{Security Guarantees.}
+The scheme achieves our desired security goal: the only information leaked about a value $v$ encrypted is which ranges it matches. 
+In particular, the scheme is not order preserving because it does not leak the order of two encrypted values that match the same range. It is easy to check that the scheme is secure: since the encryption of $v$ is random in $I$ (Eq.~\ref{eq:randominterval}), the scheme only leaks the fact that $v$ is in $I$. $I$ is chosen in such a way that the only information about $v$ it encodes is which intervals $v$ matches and which it does not match. 
+%
+Since the encryption is seeded in a per-connection identifier, correlation attacks between different flows are not possible. 
+
