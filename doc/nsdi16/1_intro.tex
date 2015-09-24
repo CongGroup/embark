@@ -14,8 +14,7 @@ Leveraging the above trend, several efforts are exploring a new model for middle
 \emph{service}.
 Such a middlebox service may be hosted in a public cloud~\cite{aplomb,zscaler,aryaka} or in private clouds embedded within an ISP 
 infrastructure~\cite{domain20, telefonica}.  
-This service model allows customers such as enterprises to ``outsource'' middleboxes from their networks entirely, and hence promises many of the same 
-benefits that outsourcing compute and storage have attained through cloud computing such as decreased costs and management complexity.%: decreased costs, ease of management, \etc{}.
+This service model allows customers such as enterprises to ``outsource'' middleboxes from their networks entirely, and hence promises many of the known benefits of cloud computing  such as decreased costs and ease of management.%: decreased costs, ease of management, \etc{}.
 
 However, outsourcing middleboxes brings a new challenge: the confidentiality of the traffic. 
 Today, in order to process an organization's traffic, the cloud sees the traffic {\em unencrypted}.  This means that the cloud 
@@ -23,16 +22,15 @@ now has access to potentially sensitive packet payloads,  IP addresses, and port
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
 
-To address this, we design and implement \sys, the first system to allow an enterprise to outsource {\it a wide range} of middleboxes  to a cloud provider while keeping traffic private. 
-\sys operates directly over {\it encrypted} traffic without the service provider ever observing the plaintext.
-
+To address this question, we designed and implemented \sys, the first system to allow an enterprise to outsource {\it a wide range} of middleboxes  to a cloud provider, while keeping its traffic confidential and not visible to the cloud provider. 
+Middleboxes in \sys operate directly over {\it encrypted} traffic without decrypting the traffic. 
 
 
 In a recent work, BlindBox, we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for our setting because
  (1) it has a restricted functionality that does not support a wide range of enterprise middleboxes, and (2) it has prohibitive performance overheads.
  
- Regarding functionality, BlindBox enables equality-based operations on the encrypted traffic which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, NAT, load balancers, and DPI devices that make decisions based on the packet header too, because these need the ability to perform range queries. Achieving such generality provided new challenges to \sys. 
+ Regarding functionality, BlindBox enables equality-based operations on the encrypted traffic which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, NAT, load balancers, and DPI devices that also examine packet headers, because these need the ability to perform range queries. Achieving such generality provided new challenges to \sys. 
 As we discuss below, such middleboxes require a new cryptographic scheme as well as a system design that supports all middleboxes {\it simultaneously}: to avoid multiplying the traffic, it does not suffice to craft {\it n} different designs to support {\it n} classes of middlebox. 
 
  
@@ -41,30 +39,22 @@ As we discuss  in \S\ref{sec:bbarch}, \sys's system setting is different than Bl
 not only allows us to remove this setup overhead, but also to achieve better deployability and higher security. 
 
 
-\todo{not generality because it is too strong}
-   \sys achieves generality -- with practical performance -- through a combination of cryptographic and systems innovations.
-    \sys relies on two forms of computational encryption: {\it keyword match}, a form of searchable encryption developed by BlindBox,  and {\it RangeMatch}, a new encryption scheme we designed for \sys.
-    We designed RangeMatch in order to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000), which are commonly performed by middleboxes such as firewalls. 
-
-    Prior to RangeMatch, no existing system provided the computational expressiveness, performance properties, and the privacy properties we desired for \sys.
-    Of existing cryptographic schemes, Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb} is the closest relative of {\it RangeMatch}; however, it is four orders of magnitude slower than {\it RangeMatch} and leaks unnecessary information to the cloud provider.
-    Where {\em RangeMatch} only reveals whether or not a value lies within a pre-determined range, OPE reveals the total ordering among all values, whether they lie within a range or not.
+   \sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\label{tbl:mbreqs} lists these applications. 
+   \sys achieves these contributions through a combination of systems and cryptography innovations.
+   
+   From a cryptographic perspective, \sys provides a new and fast encryption scheme RangeMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000) on encrypted traffic.
+ Prior to RangeMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE) schemes~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
+However, we show that these schemes are four orders of magnitude slower than {\it RangeMatch} making them unusable for our network setting. At the same time, RangeMatch provides stronger security guarantees than these schemes, which leak unncessary information to the provider: {\em RangeMatch} reveals only the needed functionality of whether a value lies within a range or not, whereas OPE reveals the total ordering among all values in addition to whether the value lies in the range.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
   %We choose which encryption scheme to use for each field based on the processing operations applied by typical middleboxes.
   This ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
-  But perhaps more importantly, this choice ensures good performance for middleboxes operating over header fields. 
-  \sys's modifications to packet headers require no new fast-path algorithms: they are formatted as standard packets, and RangeMatch ensures that comparisons such as $\leq$ $\geq$ function normally.
-  Middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented.
-  
-  \todo{put the below somewehre; it is a good systems property}
-Further, \sys also required careful systems and protocol design to make sure that \sys's encryption would support all middleboxes {\it simultaneously}: it would not have been sufficient to craft {\it n} different designs to support {\it n} classes of middlebox.
- 
- 
- 
-  
+  But perhaps more importantly, this choice ensures good performance for middleboxes operating over header fields, as follows.
+  Another systems contribution  is that \sys preserves {\em unchanged} the algorithms the middlebox runs on the {\em fast-path}:  middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented. The insights here are that RangeMatch ensures that comparisons such as $\leq$ and $\geq$ function normally and  all design changes \sys makes  are outside of the fast path. These techniques enabled \sys to provide a system design that supports various middleboxes {\em simultaneously}.
+   
 
-We implemented and evaluated \sys. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
+ 
+We implemented and evaluated \sys on EC2. We support all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes very negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
 

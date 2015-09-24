@@ -52,6 +52,40 @@ For traffic within the same enterprise, where the key is known by two gateways o
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
+\begin{table}
+\centering
+\small
+\hspace{-2pt}
+\begin{tabular}{l|l|p{.45in}|p{.45in}|p{.45in}}
+&{\bf MB}&{\bf TCP/IP Header}&{\bf HTTP Headers}&{\bf Byte Stream}\\
+
+\hline
+
+\parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Header}}}
+&IP Firewall&Range&-&-\\
+&L4 LB&Range&-&-\\
+&NAT&Exact&-&-\\
+\hline
+
+
+\parbox[t]{1mm}{\multirow{2}{*}{\rotatebox[origin=c]{90}{DPI}}}
+&IPS&Range&Exact&Exact\\
+&Exfiltration&Range&Exact&Exact\\
+\hline
+
+\parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{HTTP}}}
+&Proxy&Exact&Exact&-\\
+&Parent Filter&-&Exact&-\\
+&L7 LB&Exact&Exact&-\\
+\hline
+*&VPN&-&-&-\\
+
+\end{tabular}
+\caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}}
+
+\end{table}
+
+
 \subsection{Threat Model}
 %%%I know this may read superfluous to a security reader but two of the SOSP reviewers asked for this specifically -- why is a passive attacker a reasonable choice? We need this background here.
 %Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
@@ -112,38 +146,6 @@ will produce encrypted traffic which SP sends back to the gateway. The gateway d
 Throughout this process, middleboxes at SP handle only encrypted traffic and never access the decryption key. 
 On top of \sys's encryption, the gateway can use a secure tunneling protocol, such as SSL or IPSec to secure the communication to SP.
 
-\begin{table}
-\centering
-\small
-\hspace{-2pt}
-\begin{tabular}{l|l|p{.45in}|p{.45in}|p{.45in}}
-&{\bf MB}&{\bf TCP/IP Header}&{\bf HTTP Headers}&{\bf Byte Stream}\\
-
-\hline
-
-\parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Header}}}
-&IP Firewall&Range&-&-\\
-&L4 LB&Range&-&-\\
-&NAT&Exact&-&-\\
-\hline
-
-
-\parbox[t]{1mm}{\multirow{2}{*}{\rotatebox[origin=c]{90}{DPI}}}
-&IPS&Range&Exact&Exact\\
-&Exfiltration&Range&Exact&Exact\\
-\hline
-
-\parbox[t]{1mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{HTTP}}}
-&Proxy&Exact&Exact&-\\
-&Parent Filter&-&Exact&-\\
-&L7 LB&Exact&Exact&-\\
-\hline
-*&VPN&-&-&-\\
-
-\end{tabular}
-\caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}}
-
-\end{table}
 
 
 
