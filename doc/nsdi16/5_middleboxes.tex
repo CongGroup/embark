@@ -31,7 +31,7 @@ When a client opens a new HTTP connection, a typical proxy will capture the clie
 When a client sends a request for new content, if the content is in the proxy's cache, the proxy will serve it from there. Otherwise, the proxy will forward this request to the web server and cache the new content. 
 
 The proxy has a map of encrypted file path to encrypted file content. When the proxy receives a packet, the proxy extracts the encrypted URI from the options header and looks it up in the cache. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two cases: there is a hit or a miss. For hit, the proxy assembles a packet header for reverse traffic and attaches to it the encrypted file content from the cache. Even without being able to encrypt IP addresses or ports, the proxy can create the header by reversing the encrypted information in the original header.
-For a miss, the proxy forwards the request to the web server. When receiving the response, the proxy caches it to serve future requests.
+For a miss, the proxy forwards the request to the web server, once again copying the IP address, ports, and options. When receiving the response, the proxy caches it to serve future requests.
 
 
 
