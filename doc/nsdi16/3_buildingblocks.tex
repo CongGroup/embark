@@ -6,7 +6,7 @@
 \label{sec:buildingblocks}
 
 In this section we present the building blocks \sys relies on.
-AES is a well known encryption technique and we do not discuss it here. Instead, we briefly discuss KeywordMatch (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss RangeMatch, a new cryptographic scheme we designed for this setting.
+Symmetric-key encryption (based on AES) is well known, and we do not discuss it here. Instead, we briefly discuss KeywordMatch (introduced by~\cite{blindbox}, to which we refer the reader for details) and more extensively discuss RangeMatch, a new cryptographic scheme we designed for this setting.
 When describing these schemes we refer to the encryptor as the gateway whose secret key is $k$ and to the entity computing on the encrypted data as the service provider (SP).
 
 
@@ -65,9 +65,7 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 Many middleboxes perform detection over a {\it range} of port numbers or IP addresses. For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. RangeMatch enables a middlebox to tell whether or not an IP address $v$ lines in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 Unlike KeywordMatch (or AES), RangeMatch is a new scheme we designed specifically for our setting.
 
-One might ask whether RangeMatch is strictly necessary. To detect whether or not a port number lies in the range 80-83 is the same as asking whether the port number is equal to anything in the set \{80,81,82,83\} -- hence, one could use KeywordMatch to implement all range detection operations by converting each range to a set of exact-match values.
-This is conceptually the same as the technique we apply to convert regular expressions to exact-match strings.
-However, just as we cannot use this technique for all regular expressions, the overhead of using this techniques for typical range queries like firewall rules is prohibitive.
+One might ask whether RangeMatch is  necessary, or one can instead employ KeywordMatch. To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
 For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match only rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
 Hence, to perform typical middlebox behaviors {\it in practice}, we require a RangeMatch scheme which is more efficient.
 
@@ -75,17 +73,20 @@ Hence, to perform typical middlebox behaviors {\it in practice}, we require a Ra
 The functionality of our RangeMatch scheme is to encrypt a set of ranges $[s_1, e_1]$, $\dots$, $[s_n, e_n]$ into  $[\Enc(s_1)$, $\Enc(e_1)]$, $\dots$, $[\Enc(s_n)$,  $\Enc(e_n)]$, and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
 For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses (although it can be used for encrypting ports too).
 
-Our goal in designing RangeMatch was for it to be both efficient/fast {\em and} provides strong security.
+Our goal in designing RangeMatch was for it to be both efficient/fast {\em and} to provide strong security.
 
 In terms of performance, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
 Our RangeMatch encrypts in $< 3\mu$s per value (we evaluate in \S\ref{sec:eval}).
 Our design performs comparison between encrypted values and an encrypted rule (performed at the middlebox) using only on normal $\leq$/$\geq$ operators; hence it is compatible with existing classification algorithms such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.
 
-For security, we require that the encryption scheme  not leak $v$, $e_1$, $s_1$, $\dots$, $e_n$, $s_n$ to SP.
-Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). 
-RangeMatch is the only scheme we know of to provide this security guarantee.
+For security, we require that the encryption scheme  not leak $v$ to SP.
+SP must not learn anything about $v$ other than what interval it matches to, which is the desired functionality. 
+In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order.
+RangeMatch also provides a level of security for the endpoints of a range:
+ $e_1$, $s_1$, $\dots$, $e_n$, $s_n$. SP should not learn their values, but  SP is allowed to learn the order relation of the intervals (in fact, in many setups, the intervals are public information such as blacklists, or provided by the SP). 
+To the best of our knowledge, RangeMatch is the only practical encryption scheme that achieves these security guarantees.
 
-Although RangeMatch is similar to order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope}, neither meets our security requirement (because they leak the ordering between encrypted values, not just their ordering relative to rules), and neither provides the performance necessary for packet processing (as we show in \S\ref{sec:eval}).
+Although RangeMatch has a similar functionality to order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope}, neither meets our security requirement (because they leak the ordering between encrypted values, not just whether they match a range) or provides the performance necessary for packet processing (as we show in \S\ref{sec:eval}).
 
 \eat{
 \begin{CompactEnumerate}[leftmargin=*]
@@ -113,16 +114,16 @@ For now, consider that the gateway  maintains a mapping of each interval endpoin
 
 
 When the gateway needs to encrypt an IP address $v$, the gateway first determines what  is the interval  $v$ falls in (we discuss below what happens when more than one interval matches). It uses the interval map to determine the encryptions of the endpoints of this interval. Then, to encrypt $v$, it chooses a random value in this interval.
-For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, SP does not learn their order. Thus, this satisfies the security requirement above.
+For example, if $v$ is 127.0.0.1, a possible encryption is 48.124.24.85. The encryption does not retain any information about $v$ other than the range it is in. In particular, for two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, this satisfies the security requirement above.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=3.25in]{fig/rangeopts.pdf}
-  \caption[]{Possible RangeMatch encryption values.\label{fig:rangeopts}}
+  \caption[]{Possible RangeMatch encryption values: the yellow areas indicate the intervals from which $v$ is sampled at random.\label{fig:rangeopts}}
 \end{figure}
 To generalize this insight, we need to specify how to encrypt $v$ when $v$ fits in multiple intervals or in no interval at all. Figure~\ref{fig:rangeopts} illustrates how $v$ is mapped depending on whether it maps to zero, one, or both of ranges $R1$ and $R2$; we formalize this as follows. 
 
-To achieve the desired security, the we find interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
+To achieve the desired security, we find the interval $I$ (which may consist of many sub-intervals, \eg{} when $v$ matches neither $R1$ or $R2$ in Fig.~\ref{fig:rangeopts}) inside which $v$ should be mapped at random. The equation for $I$ is as follows. Consider the intervals {\em inside} which $v$ falls, and let $I_0, I_1, \dots, I_{n_I}$ be their encryptions. We always include the total interval $I_0 = [0.0.0.0, 255.255.255.255]$. Now consider the intervals {\em outside} of which $v$ falls and let $O_1, \dots, O_{n_O}$ be their encryptions. Then, to provide our desired security goal, $v$ should be chosen at random from the interval  
 \begin{equation}
  I = I_0 \cap I_1 \cap ... \cap I_{n_I} - (O_1 \cup \dots \cup O_2). \label{eq:randominterval}
  \end{equation}
