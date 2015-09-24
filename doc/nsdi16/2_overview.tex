@@ -42,13 +42,13 @@ In this section, we present \sys's architecture, the threat model and applicatio
 %and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
 
 In the APLOMB setup, there are three parties: enterprise(s), the service provider (SP), and an external site providing
-some service. The enterprise runs a gateway (GW) which sends traffic to a middlebox (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
+some service. The enterprise runs a gateway (GW) which sends traffic to middlebox (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
 The service provider -- ISP or cloud-based -- runs a set of middleboxes. 
 
-We illustrate two redirection setups in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
+We illustrate the two redirection setups from APLOMB in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
 It is worth mentioning that APLOMB allows an optimization that saves on bandwidth and latency relative to Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. 
 For traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
-
+\todo{for Justine: add here an explanation and reference to eval why this is not a big deal}
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
@@ -81,7 +81,7 @@ We do not delve further into the details, motivation, and gains of APLOMB's setu
 *&VPN&-&-&-\\
 
 \end{tabular}
-\caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}}
+\caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}} 
 
 \end{table}
 
@@ -89,22 +89,23 @@ We do not delve further into the details, motivation, and gains of APLOMB's setu
 \subsection{Threat Model}
 %%%I know this may read superfluous to a security reader but two of the SOSP reviewers asked for this specifically -- why is a passive attacker a reasonable choice? We need this background here.
 %Before defining our threat model precisely, we first provide context and background on the concerns clients have about cloud providers today.
-  Clients adopt cloud services for compute, storage, and increasingly network processing because they the providers are known and trusted to provide good service (at competitive costs). 
-  However, while clients trust cloud providers to perform their services correctly, there is increasing concern that cloud providers may access or leak confidential data in the process of providing service.
-  Reports in the popular press describe companies selling customer data to marketers~\cite{radioshack}, disgruntled employees snooping or exporting data~\cite{att}, and hackers gaining access to clouds~\cite{databreach,PrivacyRecords}.
-  The type of threat in this scenario is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver or service it correctly, but who may want to learn more from the data than is strictly necessary or desired.
-  Such an attacker differs from a classical, `active' attacker, who seeks to harm the client outright, for example by manipulating data or denying service~\cite{goodrich}.
-  This distinction informs our threat model below. 
+  Clients adopt cloud services for decreased cost and ease of management  because the providers are known and trusted to provide good service. 
+  However, while clients trust cloud providers to perform their services correctly, there is an increasing concern that cloud providers may access or leak confidential data in the process of providing service.
+  Reports in the popular press describe companies selling customer data to marketers~\cite{radioshack}, disgruntled employees snooping or exporting data~\cite{att}, and hackers gaining access to data on clouds~\cite{databreach,PrivacyRecords}.
+ Hence, \sys aims to stop these attackers.  This type of threat is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver service correctly, but who may want to learn more from the data than is strictly necessary or desired.
+  Such an attacker differs from the `active' attacker, who manipulated data or deviates from the protocol it is supposed to run~\cite{goodrich}.
 
-{\bf Threat Model.}
-%The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
-%cloud employee, or hacker gaining access to cloud machines). 
-We consider a strong  attacker, one that has gained access to {\em all the data at SP}.
+Hence, we consider that such a passive attacker has gained access 
+to {\em all the data at SP}.
 This includes any traffic and communication SP receives from the 
 gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
 SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
-see the traffic in the process of doing so.  
+see the traffic in the process of doing so. 
+ 
 We assume that the gateways are managed by the enterprise and hence trusted; they do not leak information.
+%The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
+%cloud employee, or hacker gaining access to cloud machines). 
+
 %The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
 
 Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
