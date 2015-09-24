@@ -22,7 +22,7 @@ now has access to potentially sensitive packet payloads,  IP addresses, and port
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords,databreach}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
 
-To address this question, we designed and implemented \sys, the first system to allow an enterprise to outsource {\it a wide range} of middleboxes  to a cloud provider, while keeping its traffic confidential and not visible to the cloud provider. 
+To address this, we designed and implemented \sys, the first system to allow an enterprise to outsource {\it a comprehensive set} of middleboxes  to a cloud provider, while keeping its traffic confidential and not visible to the cloud provider. 
 Middleboxes in \sys operate directly over {\it encrypted} traffic without decrypting the traffic. 
 
 
@@ -41,7 +41,7 @@ Regarding performance, BlindBox has a prohibitive connection setup time of 97s p
 \sys's system setting is different from BlindBox's setting and it turns out that this difference brings new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security. 
 
-   \sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. 
+   \sys supports a comprehensive set of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. 
    \sys achieves these contributions through a combination of systems and cryptography innovations, as follows.
    
    From a cryptographic perspective, \sys provides a new and fast encryption scheme RangeMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000) on encrypted traffic.
