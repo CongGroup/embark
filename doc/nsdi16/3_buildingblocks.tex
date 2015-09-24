@@ -80,7 +80,7 @@ Our RangeMatch encrypts in $< 3\mu$s per value (we evaluate in \S\ref{sec:eval})
 Our design performs comparison between encrypted values and an encrypted rule (performed at the middlebox) using only on normal $\leq$/$\geq$ operators; hence it is compatible with existing classification algorithms such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.
 
 For security, we require that the encryption scheme  not leak $v$ to SP.
-SP must not learn anything about $v$ other than what interval it matches to, which is the desired functionality. 
+SP must not learn anything about $v$ other than what interval it matches to. 
 In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order.
 RangeMatch also provides a level of security for the endpoints of a range:
  $e_1$, $s_1$, $\dots$, $e_n$, $s_n$. SP should not learn their values, but  SP is allowed to learn the order relation of the intervals (in fact, in many setups, the intervals are public information such as blacklists, or provided by the SP). 

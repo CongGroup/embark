@@ -191,7 +191,7 @@ However, in the \sys context, this exchange can be performed just once at the ga
 %Most importantly, this architecture provides practical performance, where the BlindBox context imposed a prohibitive per-connection overhead.
 
 
-The second benefit is increased deployability. In \sys, the gateway does the encryption, so deployability improves because the end hosts do not need to be modified.
+The second benefit is increased deployability. In \sys, the gateway performs the encrtyption rather than the endhosts, as in BlindBox. Hence, deployability improves because the end hosts do not need to be modified.
 
 Finally, security improves in the following way.
 BlindBox has two security models: a stronger one to detect rules that are `exact match' substrings, and a weaker one to detect rules that are regular expressions. The more rules there are, the higher the per-connection setup cost is. 

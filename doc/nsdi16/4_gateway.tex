@@ -30,7 +30,7 @@ Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they
 
 We design the gateway with two goals in mind: 
 
-\noindent{\bf Format-compatibility}: in converting plaintext traffic to encrypted traffic, the encrypted data should be structured in such a way that the traffic {\it appears as normal IPv6 traffic} to middleboxes performing the processing. This allows us to leave many middleboxes completely unmodified in how they perform per-packet operations, ensuring compatibility with optimizations including those in hardware (and hence good performance at the cloud). 
+\noindent{\bf Format-compatibility}: in converting plaintext traffic to encrypted traffic, the encrypted data should be structured in such a way that the traffic {\it appears as normal IPv6 traffic} to middleboxes performing the processing. This allows us to leave many middleboxes completely unmodified in how they perform per-packet operations, ensuring compatibility with software and hardware optimizations.
 
 \noindent{\bf Scalability and Low Complexity}: the gateway should perform only inexpensive per-packet operations and should be parallelizable. The gateway should not require configuration other than to generate a key and establish a session with the cloud provider. If the gateway were as expensive and complex as the middleboxes themselves, the client would have no cost or management benefits from outsourcing. 
 
