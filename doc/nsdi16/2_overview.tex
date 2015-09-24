@@ -47,8 +47,8 @@ The service provider -- ISP or cloud-based -- runs a set of middleboxes.
 
 We illustrate the two redirection setups from APLOMB in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
 It is worth mentioning that APLOMB allows an optimization that saves on bandwidth and latency relative to Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. 
+Nonetheless, as we demonstrate in \S\ref{sec:eval}, for ISP-based deployments this overhead is negligible.
 For traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
-\todo{for Justine: add here an explanation and reference to eval why this is not a big deal}
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
@@ -184,9 +184,9 @@ As mentioned, when compared to BlindBox, \sys provides new cryptography and syst
 %So far, we have described the overall architecture of \sys without discussing how the encryption or middleboxes themselves are implemented.
 %It is worth pausing here to discuss how this architecture itself can improve BlindBox, although it only supports DPI.
 %
-The first benefit is increased performance. In BlindBox, two arbitrary user endpoints communicate over a modified version of https. BlindBox requires 97 seconds to perform the initial handshake, which results in the encryption of the rules. 
+The first benefit is increased performance. In BlindBox, two arbitrary user endpoints communicate over a modified version of HTTPS. BlindBox requires 97 seconds to perform the initial handshake, which results in the encryption of the rules. 
 This exchange must be performed for every new connection in BlindBox because each session is between two new endhosts with a per-connection key.
-However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Moreover, there is no overhead per user connection. 
+However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Consequently, there is no overhead per user connection. 
 %, after which the same encrypted rules can be reused for all clients; this key is safe to re-use because it is private to the gateway.
 %Most importantly, this architecture provides practical performance, where the BlindBox context imposed a prohibitive per-connection overhead.
 
