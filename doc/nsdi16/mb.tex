@@ -25,6 +25,8 @@
 \usepackage{listings}
 \usepackage[T1]{fontenc}
 
+
+
 % more compact than computer modern
 \usepackage{times}
 
@@ -33,8 +35,8 @@
 
 \lstset{
   basicstyle=\footnotesize\ttfamily, 
-  columns=fullflexible,
-  keepspaces=true,
+    columns=fullflexible,
+    keepspaces=true,
 }
 
 \usepackage{subfigure}
@@ -44,14 +46,14 @@
 \usepackage[breaklinks, pdfborder={0 0 0}]{hyperref}
 \hypersetup{
   backref=true
-  bookmarksnumbered,
-  colorlinks=true,
-  pdfstartview={FitH},
-  citecolor={blue},
-  linkcolor={blue},
-  urlcolor={blue},
-  citecolor={blue},
-  pdfpagemode={UseOutlines}
+    bookmarksnumbered,
+    colorlinks=true,
+    pdfstartview={FitH},
+    citecolor={blue},
+    linkcolor={blue},
+    urlcolor={blue},
+    citecolor={blue},
+    pdfpagemode={UseOutlines}
 }
 
 \usepackage[noend]{algpseudocode}
@@ -101,9 +103,9 @@
 
 \newenvironment{myitemize}
 { \begin{itemize}[nolistsep,leftmargin=0.15in]
-    \setlength{\itemsep}{0.5pt}
-    \setlength{\parskip}{0.9pt}
-    \setlength{\parsep}{0.1pt}     }
+  \setlength{\itemsep}{0.5pt}
+  \setlength{\parskip}{0.9pt}
+  \setlength{\parsep}{0.1pt}     }
 { \end{itemize}                  } 
 
 \newcommand{\simplequote}[1]{\\\noindent{\it``{#1}''}\linebreak[3]}
@@ -154,21 +156,21 @@
 \newcommand{\mf}[1]{ {\fontfamily{cmtt}\selectfont#1}}
 
 \newcommand{\ALGORITHM}[4]{%  name, llabel, intro, \items    
-\let\oldi\labelenumi
-\let\oldii\labelenumii
-\let\oldiii\labelenumiii
-\renewcommand{\labelenumi}{\arabic{enumi}: }
-\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}: }
-\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}: }                                     
-\noindent \textbf{#1:} \label{#2} 
+  \let\oldi\labelenumi
+    \let\oldii\labelenumii
+    \let\oldiii\labelenumiii
+    \renewcommand{\labelenumi}{\arabic{enumi}: }
+  \renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}: }
+  \renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}: }                                     
+  \noindent \textbf{#1:} \label{#2} 
 #3
- \vspace{0.13\baselineskip}
- \begin{enumerate}[noitemsep,nolistsep]\itemsep=0.1\baselineskip
- #4
- \end{enumerate}
- \let\labelenumi\oldi
-\let\labelenumii\oldii
-\let\labelenumiii\oldii  
+  \vspace{0.13\baselineskip}
+  \begin{enumerate}[noitemsep,nolistsep]\itemsep=0.1\baselineskip
+#4
+    \end{enumerate}
+  \let\labelenumi\oldi
+    \let\labelenumii\oldii
+    \let\labelenumiii\oldii  
 }
 
 %\newcommand{\subparagraph}{\paragraph}
@@ -180,7 +182,8 @@
 \newcommand{\clan}[1]{{\color{SkyBlue} CL: {#1}}} % :)
 \newcommand{\qu}[1]{{\color{Magenta}  {\bf Question:} {#1}}} 
 \newcommand{\warning}[1]{{\color{Red}{\bf Warning: #1}}}
-\newcommand{\todo}[1]{{\color{Red}{\bf TODO: #1}}}
+%\newcommand{\todo}[1]{{\color{Red}{\bf TODO: #1}}}
+\newcommand{\todo}[1]{}
 \newcommand{\justine}[1]{{\color{Green}{\bf JS: #1}}}
 
 \newcommand{\aes}{\mathsf{AES}}
@@ -191,22 +194,22 @@
 % symbols as the usual itemize and enumerate environments.                                         
 \makeatletter
 \def\compactify{\itemsep=3pt plus3pt \topsep=3pt plus3pt \partopsep=0pt
-\parsep=0pt \leftmargin=1.3em}
-\let\latexusecounter=\usecounter
-\def\CompactItemize{%                                                                              
-  \ifnum \@itemdepth >\thr@@\@toodeep\else
-    \advance\@itemdepth\@ne
-    \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%                                        
-    \expandafter
-    \list
+  \parsep=0pt \leftmargin=1.3em}
+  \let\latexusecounter=\usecounter
+  \def\CompactItemize{%                                                                              
+    \ifnum \@itemdepth >\thr@@\@toodeep\else
+      \advance\@itemdepth\@ne
+      \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%                                        
+      \expandafter
+      \list
       \csname\@itemitem\endcsname
       {\compactify\def\makelabel##1{\hss\llap{##1}}}%                                              
-  \fi}
-\let\endCompactItemize\endlist
-\newenvironment{CompactEnumerate}
-  {\def\usecounter{\compactify\latexusecounter}
-   \begin{enumerate}}
-  {\end{enumerate}\let\usecounter=\latexusecounter}
+    \fi}
+    \let\endCompactItemize\endlist
+    \newenvironment{CompactEnumerate}
+{\def\usecounter{\compactify\latexusecounter}
+  \begin{enumerate}}
+{\end{enumerate}\let\usecounter=\latexusecounter}
 \makeatother
 
 
@@ -214,13 +217,21 @@
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{-12pt}
 \frenchspacing
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{2pt}
+  \setlength\belowdisplayskip{2pt}
+  \setlength\abovedisplayshortskip{2pt}
+  \setlength\belowdisplayshortskip{2pt}
+}
+\makeatother
 
 % Title, authors
 \date{}
 
 \title{
-\vspace{-0.6in}
-\sys: Securely outsourcing middleboxes to the cloud
+  \vspace{-0.6in}
+  \sys: Securely outsourcing middleboxes to the cloud
 }
 
 \newcommand{\superscript}[1]{\ensuremath{^{\textrm{#1}}}}
@@ -229,12 +240,12 @@
 \newcommand{\affilc}{\superscript{\ddag}}
 
 \author{
-{\rm Chang Lan} \qquad 
-{\rm Justine Sherry} \qquad 
-{\rm Raluca Ada Popa} \qquad 
-{\rm Sylvia Ratnasamy} \qquad 
-{\rm Zhi Liu\affila} \\
- UC Berkeley \qquad \affila Tsinghua University
+  {\rm Chang Lan} \qquad 
+  {\rm Justine Sherry} \qquad 
+  {\rm Raluca Ada Popa} \qquad 
+  {\rm Sylvia Ratnasamy} \qquad 
+  {\rm Zhi Liu\affila} \\
+  UC Berkeley \qquad \affila Tsinghua University
 }
 
 \begin{document}
@@ -259,7 +270,7 @@
 %\input{8_conclusion}
 
 {\bibliographystyle{abbrv}
-\bibliography{related_work,cryptobib,rp,rp-str,rp-conf}}
+  \bibliography{related_work,cryptobib,rp,rp-str,rp-conf}}
 
-% That's all folks!
-\end{document}
+  % That's all folks!
+  \end{document}

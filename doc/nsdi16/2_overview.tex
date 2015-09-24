@@ -174,7 +174,9 @@ We revisit them in detail in \S\ref{sec:mbs}.
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet  to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
 
 \subsection{Architectural Implications}
-%%%End the discussion wiht BB here. 
+\label{sec:bbarch}
+%%%End the discussion wiht BB here.
+%%% DO NOT DELETE.
 So far, we have decribed the overall architecture of \sys without discussing how the encryption or middleboxes themselves are modified.
 It is worth pausing here to discuss how this architecture itself can improve BlindBox, although it only supports DPI.
 
