@@ -61,10 +61,11 @@ RangeMatch is the only encryption scheme that has low latency and the ordering p
 We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
 \begin{table}[h]
+\vspace{-10pt}
 \centering
 \small
 \begin{tabular}{c|c|c|c}
-{\bf Operation}&{\bf BCLO~\cite{boldyreva:ope}}&{\bf mOPE~\cite{popa:mope}}&{\bf \sys}\\
+{\bf Operation}&{\bf BCLO}&{\bf mOPE}&{\bf \sys}\\
 \hline
 \hline
 Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&1.95$\mu$s\\
@@ -74,6 +75,7 @@ Encrypt, 100K rules&9333$\mu$s&8300$\mu$s&3$\mu$s\\
 Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
 \end{tabular}
+\vspace{-10pt}
 \end{table}
 
 \noindent{\it What is the memory overhead of the stateful range map encryption scheme?}
