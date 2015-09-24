@@ -11,13 +11,13 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=3in]{fig/gateway_scale}
+  \includegraphics[width=2.8in]{fig/gateway_scale}
   \caption[]{\label{fig:gwscale} Gateway throughput with increasing parallelism.}
 \end{figure}
  
 \section{Evaluation} \label{sec:eval}
 
-As we showed in \S\ref{sec:mbs}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,etsi-nfv}. Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  strongly in the affirmative.
+As we showed in \S\ref{sec:mbs}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,etsi-nfv}. Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  in the affirmative.
 
 We now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption and redirection. 
 We built our gateway using Click~\cite{click} over DPDK~\cite{dpdk} on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 

@@ -21,7 +21,7 @@ For read operations, the firewall receives a set of encrypted rules from the gat
 
 For write operations, the middleboxes assign values from an address pool; it receives these encrypted pool values from the gateway during the rule generation phase.
 These encrypted rules are marked with a special suffix reserved for rewritten values.
-When the gateway receives a packet with such a rewritten value, it restores the plaintext value from the pool rather than decrypting the value from the options header for decryption.
+When the gateway receives a packet with such a rewritten value, it restores the plaintext value from the pool rather than decrypting the value from the options header.
 
 \subsection{DPI Middleboxes}
 We modify middleboxes which perform DPI operations as described by BlindBox~\cite{blindbox}; unlike header middleboxes these devices must be rewritten in per-packet behavior to support encrypted traffic.
@@ -30,7 +30,7 @@ The middleboxes search through the encrypted extension channel -- not the packet
 \subsection{HTTP Middleboxes}
 Parental filters and L7 Load Balancers read the HTTP URI from the options header. 
 If the parental filter observes a blacklisted URI, it drops the connection.
-The L7 load balancer uses the URI to rewrite the IP header, and operates exactly like a NAT or L4 LB, except that it uses the URI to select which destination address to assign new connections to.
+The L7 load balancer uses the URI to rewrite the IP header, and operates exactly like a NAT or L4 LB, except that it uses the URI to select which destination address to assign new connections.
 
 The proxy required the most modification of any middlebox \sys supports; nonetheless, our proxy achieves good performance as we will discuss in \S\ref{sec:eval}.
 The proxy  caches HTTP static content (e.g., images) in order to improve client-side performance. 

@@ -246,7 +246,7 @@ DeleteRange is similar, except that the result contains only $L$.
 \subsubsection{Rule Updates at the Cloud}
 \label{sec:updates}
 At the cloud, RangeMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update also will change encrypted values within packets.
-The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections. 
+The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections
 Adding or removing a rule will modify some $\log(n)$ of these values in the RangeMatch tree, and thus to continue correct processing the NAT state must correspondingly be updated.
 The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
 The same problem occurs if packets encrypted under the new tree arrive before the new ruleset has been adopted.
@@ -254,5 +254,5 @@ The same problem occurs if packets encrypted under the new tree arrive before th
 When the RangeMatch tree is updated, the gateway and cloud provider do the following to avoid these problems. 
 When the gateway updates the RangeMatch tree it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
 The gateway then sends a signal to the cloud provider that it is about to `swap in' the new tree. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and once all of this is completed it allows the new traffic to flow through the network and receive processing under the new policy.
+The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and ginally it releases the new traffic.
 Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing.
