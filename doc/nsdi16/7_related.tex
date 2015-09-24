@@ -8,7 +8,7 @@ APLOMB~\cite{aplomb} is a practical service for outsourcing enterprise's middleb
 
 \noindent{\bf Data Confidentiality:}
 Confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb},  and virtual machines~\cite{Zhang:CloudVisor}. 
-CryptDB~\cite{popa:cryptdb} was one of the first practical systems to compute on encrypted data, but none of its encryption schemes or systems techniques apply to our setting. \todo{fix}
+CryptDB~\cite{popa:cryptdb} was one of the first practical systems to compute on encrypted data, but none of its encryption schemes or database system design apply to our network setting. 
 
 Focusing on traffic processing, the most closely related work to \sys is BlindBox~\cite{blindbox}, discussed in \S\ref{sec:overview}.
 mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Unlike \sys, the middlebox  gains access to unencrypted data and is still able to leak that data should it choose to do so. 

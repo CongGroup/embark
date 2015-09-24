@@ -1,3 +1,5 @@
+%!TEX root = mb.tex
+
 \section{Enterprise Gateway}
 
 \label{sec:gateway}
@@ -44,7 +46,7 @@ We discuss how each category of data is encrypted/decrypted in order to meet mid
 IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
 We use RangeMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
 
-\noindent{\bf Decryption.} RangeMatch is not reversible. To enable packet decryption, We store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header restores them.% to the IP or transport header.
+\noindent{\bf Decryption.} RangeMatch is not reversible. To enable packet decryption, we store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header restores them.% to the IP or transport header.
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted range match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
@@ -55,7 +57,7 @@ An additional challenge for format compatibility is where to place the decryptab
 
 
 \subsubsection{Payload Data} 
-The connection bytestream is encrypted with KeywordMatch using a searchable encryption approach.
+The connection bytestream is encrypted with KeywordMatch.
 This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
 These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
 Because this encrypted payload data is over the {\it bytestream}, we need to generate encrypted values which span `between' packet payloads. 
@@ -78,10 +80,14 @@ DPI middleboxes which do inspect payloads must be modified to inspect the extens
 \subsubsection{HTTP Headers} 
 
 HTTP Headers are a special case of payload data.
-Middleboxes such as proxies, L7 load balancers, and parental filters do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
+Middleboxes such as web proxies do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
 We treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
-Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
-We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
+Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well because of the lack of randomization.
+We place this encrypted value in the options channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
+
+\todo{need to explain why deterministic is not too bad in security for web proxies -- this is the functionality we want; also the 
+pages at the proxy will be distinct, but of course you can tell which packets contain this URL; I would add that this is
+the only place where we use this enc schemes}
 
 Like other DPI tasks, this requires parsing the entire TCP bytestream.
 However, in some circumstances we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
