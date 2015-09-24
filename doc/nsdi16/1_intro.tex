@@ -30,7 +30,10 @@ In a recent work, BlindBox, we showed how to operate on encrypted traffic for a 
 However, BlindBox is far from sufficient for this setting because
  (1) it has a restricted functionality that does not support a wide range of enterprise middleboxes, and (2) it has prohibitive performance overheads.
  
- Regarding functionality, BlindBox enables equality-based operations on the encrypted traffic which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, NAT, load balancers, and DPI devices that also examine packet headers, because these need the ability to perform range queries. Achieving such generality provided new challenges to \sys. 
+ Regarding functionality, BlindBox enables equality-based operations on  encrypted payloads of packets, which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, load balancers, NAT,  and those DPI devices that also examine packet headers, because these need the ability to examine packet headers and/or perform range queries. 
+ % I added this packet header thing due to NAT
+ % even though some of these MB only do exact, the architecture that puts them all together is new
+ Achieving such generality provided new challenges to \sys. 
 As we discuss below, such middleboxes require a new encryption scheme and, moreover, a system design that supports all middleboxes {\it simultaneously}: for performance, adoption and extensibility, it does not suffice to craft {\it n} different designs to support {\it n} classes of middleboxes. 
 
  
