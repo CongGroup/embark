@@ -18,7 +18,7 @@ This service model allows customers such as enterprises to ``outsource'' middleb
 
 However, outsourcing middleboxes brings a new challenge: the confidentiality of the traffic. 
 Today, in order to process an organization's traffic, the cloud sees the traffic {\em unencrypted}.  This means that the cloud 
-now has access to potentially sensitive packet payloads,  IP addresses, and ports. This is 
+now has access to potentially sensitive packet payloads and headers. This is 
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords,databreach}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
 
@@ -28,7 +28,7 @@ Middleboxes in \sys operate directly over {\it encrypted} traffic without decryp
 
 In recent work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for this setting because
- (1) it has a restricted functionality that does not support all middleboxes required for outsourcing, and (2) it has prohibitive performance overheads.
+ (1) it has restricted functionality that does not support all middleboxes required for outsourcing, and (2) it has prohibitive performance overheads.
  
  Regarding functionality, BlindBox enables equality-based operations on  encrypted payloads of packets, which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, load balancers, NAT,  and those DPI devices that also examine packet headers, because these need the ability to examine packet headers and/or perform range queries. 
  % I added this packet header thing due to NAT
@@ -38,15 +38,15 @@ As we discuss below, such middleboxes require a new encryption scheme and, moreo
 
  
 Regarding performance, BlindBox has a prohibitive connection setup time of 97s per-connection. 
-\sys's system setting is different from BlindBox's setting and this difference brings \sys new opportunities: it
-not only allows us to remove the setup overhead, but also to achieve better deployability and higher security. 
+\sys's setting targets enterprise outsourcing where BlindBox targets independent users connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
+not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
    \sys supports a comprehensive set of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. 
-   \sys achieves these contributions through a combination of systems and cryptographic innovations, as follows.
+   \sys achieves this through a combination of systems and cryptographic innovations, as follows.
    
    From a cryptographic perspective, \sys provides a new and fast encryption scheme called RangeMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). The design of RangeMatch is highly inspired from the network setting.
  Prior to RangeMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
-However, we show that these schemes are four orders of magnitude slower than {\it RangeMatch} making them unusable for our network setting. At the same time, RangeMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em RangeMatch} reveals only the needed functionality of whether the value lies within a range or not, whereas OPE reveals the total ordering among all values in addition to whether the value lies in the range.
+However, these schemes are four orders of magnitude slower than {\it RangeMatch} making them unusable for our network setting. At the same time, RangeMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em RangeMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
   This strategy ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
@@ -60,6 +60,6 @@ However, we show that these schemes are four orders of magnitude slower than {\i
  
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
-Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can transmit \sys encrypted data at up to the full 10Gbps line rate of its network interface.
+Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
 \eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 

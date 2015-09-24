@@ -65,9 +65,7 @@ Searchable Encryption schemes, which we use for encrypted DPI, require that traf
 If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
 The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
-Other middleboxes ignore this extra data.
-
-
+This channel is not routed to other middleboxes.
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like RangeMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.
