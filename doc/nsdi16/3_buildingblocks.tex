@@ -217,27 +217,34 @@ that belongs to an interval $[\ell_1, \ell_2]$ enclosing $v$. Then, using the tr
 any intervals not containing $v$. The gateway can precompute and store this interval for every two consecutive nodes in the tree.
 
 We now describe the procedure for AddRange which adds an interval (deleting an interval is similar).
-These will modify the state at the gateway. Besides the interval added or deleted, a small number
-of other intervals may be moved -- at worst, $O(\log n)$. For these, the algorithm returns the old and new encryption of the interval. 
+These procedures modify the state at the gateway.
+To add a range [$s$, $e$], the gateway inserts these values in the tree. If the tree needs to be rebalanced, for each endpoint that changed location in the tree, the gateway records the old and new encrypted value based
+on the tree in a list $L$. Note that  the number of endpoints that change encryption is $O(\log n)$ amortized worst case. 
+The gateway then computes the encryption of $s$ and $e$ based on their location in the tree. 
+It sends to SP $\enc(s)$ and $\enc(e)$ along with $L$. 
 
+%Besides the interval added or deleted, a small number
+%of other intervals may be moved -- at worst, $O(\log n)$. 
+%For these, the algorithm returns the old and new encryption of the interval. 
 
-\begin{framed}
-\begin{algorithmic}[1]
-
-\Procedure{AddRange}{$[s, e]$}
-  \State Insert $s$ and $e$ into the scapegoat tree. If $s=e$, insert the value only once.
-  %	
-  \State Initialize $L$ to be the empty list.
-  \If{tree needs to be rebalanced}
-  	\State Record which nodes change position in the tree during rebalancing, together with 
-	their old and new encryptions. Namely, record	\[L = \{ \en_1 \leftarrow \en^*_1, \dots, \en_m \rightarrow \en^*_m\},\] where $m$ is the number of nodes who changed position in the tree, and $\en_i$ and $\en^*_i$ are the old and new encryption of the $i$-th node that changed position. 
-  \EndIf
-  \State Compute  $\enc(s)$ and $\enc(e)$, the encryptions of $s$ and $e$, as in EncryptRanges.
-   \State \Return{$[\enc(s), \enc(e)], L$}
-\EndProcedure
-
-\end{algorithmic}
-\end{framed}
+%
+%\begin{framed}
+%\begin{algorithmic}[1]
+%
+%\Procedure{AddRange}{$[s, e]$}
+%  \State Insert $s$ and $e$ into the scapegoat tree. If $s=e$, insert the value only once.
+%  %	
+%  \State Initialize $L$ to be the empty list.
+%  \If{tree needs to be rebalanced}
+%  	\State Record which nodes change position in the tree during rebalancing, together with 
+%	their old and new encryptions. Namely, record	\[L = \{ \en_1 \leftarrow \en^*_1, \dots, \en_m \rightarrow \en^*_m\},\] where $m$ is the number of nodes who changed position in the tree, and $\en_i$ and $\en^*_i$ are the old and new encryption of the $i$-th node that changed position. 
+%  \EndIf
+%  \State Compute  $\enc(s)$ and $\enc(e)$, the encryptions of $s$ and $e$, as in EncryptRanges.
+%   \State \Return{$[\enc(s), \enc(e)], L$}
+%\EndProcedure
+%
+%\end{algorithmic}
+%\end{framed}
 
 %  \State Determing the smallest and the largest encryption in the values $[\enc(s), \enc(e)]$ and $L$, and call this $\dirtyrange$.
 
