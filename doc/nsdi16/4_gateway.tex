@@ -82,7 +82,9 @@ Middleboxes such as web proxies do not read arbitrary values from packet payload
 We treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
 
 Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
-Although this is a weaker security guarantee relative to KeywordMatch, it is necessary to support web caching which chooses which data to cache based on the popularity of different URIs. This is the only field which we encrypt in the weaker setting.
+Although this is a weaker security guarantee relative to KeywordMatch, it is necessary to support web caching which requires comparisons between different URIs.
+The cache hence learns the frequency of different URIs, but cannot immediately learn the URI values.
+ This is the only field which we encrypt in the weaker setting.
 We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
 
 Like other DPI tasks, this requires parsing the entire TCP bytestream.

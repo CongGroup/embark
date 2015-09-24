@@ -49,14 +49,14 @@ With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting
   \caption[]{\label{fig:xputrange} Throughput as \# of RangeMatch rules increases.}
 \end{figure}
 
-\noindent{\it How do throughput and latency at the gateway scale with the number of rules for range encryption?} 
-In \S\ref{sec:range}, we discussed how our range encryption scheme stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
+\noindent{\it How do throughput and latency at the gateway scale with the number of rules for RangeMatch?} 
+In \S\ref{sec:range}, we discussed how RangeMatch stores encrypted values in a tree; every packet encryption requires a traversal of this tree.
 Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease.
 We measure this effect in Figure~\ref{fig:xputrange}. 
 On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 670Kpps to 480Kpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 400Kpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
-\noindent{\it Is range encryption faster than existing order preserving algorithms?}
+\noindent{\it Is RangeMatch faster than existing order preserving algorithms?}
 RangeMatch is the only encryption scheme that has low latency and the ordering property needed for packet processing.
 We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
 
@@ -78,9 +78,9 @@ Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \vspace{-10pt}
 \end{table}
 
-\noindent{\it What is the memory overhead of the stateful range map encryption scheme?}
+\noindent{\it What is the memory overhead of RangeMatch?}
 Storing 10k rules in memory requires 1.6MB, and storing 100k rules in memory requires 28.5MB -- using unoptimized C++ objects.
-This state overhead is negligible on any modern server.
+This overhead is negligible.% on any modern server.
 
 \subsubsection{Client Performance}
 
@@ -173,8 +173,8 @@ In what follows, we provide some further middlebox-specific benchmarks for the f
 We tested our firewall with three rulesets provided to us by a network administrator at our institution.
 We were able to encode all rules using range and keyword match encryptions.
 
-We also investigated how much the ruleset increased due to range encryption. Rules are typically encoded in the firewall as prefixes, hence a rule over the range [4.0.0.0, 4.255.255.255] is in practice implemented as a bit-mask over the first 8 bits of every packet.
-Using range encryption, the same prefix might be mapped to 9.128.0.0-10.128.0.0.0, resulting in two /9 prefix ranges in the final rule encoding: 9.128.0.0/9 or 10.128.0.0/9.
+We also investigated how much the ruleset increased due to RangeMatch. Rules are typically encoded in the firewall as prefixes, hence a rule over the range [4.0.0.0, 4.255.255.255] is in practice implemented as a bit-mask over the first 8 bits of every packet.
+Using RangeMatch, the same prefix might be mapped to 9.128.0.0-10.128.0.0.0, resulting in two /9 prefix ranges in the final rule encoding: 9.128.0.0/9 or 10.128.0.0/9.
 As throughput for many middleboxes decreases with the number of rules, we were concerned that these mappings might degrade performance. However, in practice rules increased modestly, by between 5.8\% and 10.2\%.
 
 \begin{figure}[t]
