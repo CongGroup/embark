@@ -2,33 +2,33 @@
 
 \section{Introduction}\label{sec:intro}
 
-Middleboxes such as firewalls, NATs, and proxies, have grown to be a vital part of modern networks but are 
+Middleboxes such as firewalls, NATs, and proxies, have grown to be a vital part of modern networks, but are 
 also widely recognized as bringing significant problems including high cost, inflexibility, and complex management.  
 These problems have led both research and industry to explore an alternate approach: moving middlebox functionality out of dedicated boxes and into 
 software applications that run multiplexed on commodity server hardware~\cite{mb-manifesto,comb,aplomb,opennf,clickos,flowtags,etsi-nfv,domain20,opnfv}.
 This approach -- termed Network Function Virtualization (NFV) in industry -- promises many advantages including the cost benefits of commodity infrastructure, 
 the efficiencies of statistical multiplexing, and the flexibility of software solutions. 
 In a short time, NFV has gained a significant momentum with over 270 industry participants~\cite{etsi-nfv} and a number of emerging product offerings~\cite{brocade,dell,juniper}.
-\todo{wasn't the NFV use case a main complaint of a reviewer?}
 
 Leveraging the above trend, several efforts are exploring a new model for middlebox deployment in which a third-party offers middlebox processing as a  
 \emph{service}.
-Such a middlebox service may be hosted in a public cloud~\cite{aplomb,zscaler,aryaka} or in private clouds embedded within ISP 
+Such a middlebox service may be hosted in a public cloud~\cite{aplomb,zscaler,aryaka} or in private clouds embedded within an ISP 
 infrastructure~\cite{domain20, telefonica}.  
 This service model allows customers such as enterprises to ``outsource'' middleboxes from their networks entirely, and hence promises many of the same 
 benefits that outsourcing compute and storage have attained through cloud computing such as decreased costs and management complexity.%: decreased costs, ease of management, \etc{}.
 
 However, outsourcing middleboxes brings a new challenge: the confidentiality of the traffic. 
-Today, in order to process an organization's traffic, the cloud receives the traffic {\em unencrypted}.  This means that the cloud 
+Today, in order to process an organization's traffic, the cloud sees the traffic {\em unencrypted}.  This means that the cloud 
 now has access to potentially sensitive packet payloads,  IP addresses, and ports. This is 
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
+
 To address this, we design and implement \sys, the first system to allow an enterprise to outsource {\it a wide range} of middleboxes  to a cloud provider while keeping traffic private. 
 \sys operates directly over {\it encrypted} traffic without the service provider ever observing the plaintext.
 
 
-In a recent work, BlindBox, we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
-However, BlindBox is far from sufficient for our setting because it does not support a significant set of middleboxes  and has a high setup cost.  
+In a recent work called BlindBox we showed how to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of the packets. 
+However, BlindBox is far from sufficient for our setting because (1) it does not support a significant set of middleboxes  and (2) it has a high setup cost.  
  
  
 First, BlindBox addresses the scenario in which an arbitrary client connects to a network with an unknown middlebox, whereas \sys targets the enterprise setting where an entire companies traffic is outsourced to a known service provider.
