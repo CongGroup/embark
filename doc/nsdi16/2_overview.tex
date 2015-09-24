@@ -92,15 +92,13 @@ We do not delve further into the details, motivation, and gains of APLOMB's setu
   Clients adopt cloud services for decreased cost and ease of management  because the providers are known and trusted to provide good service. 
   However, while clients trust cloud providers to perform their services correctly, there is an increasing concern that cloud providers may access or leak confidential data in the process of providing service.
   Reports in the popular press describe companies selling customer data to marketers~\cite{radioshack}, disgruntled employees snooping or exporting data~\cite{att}, and hackers gaining access to data on clouds~\cite{databreach,PrivacyRecords}.
- Hence, \sys aims to stop these attackers.  This type of threat is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver service correctly, but who may want to learn more from the data than is strictly necessary or desired.
-  Such an attacker differs from the `active' attacker, who manipulated data or deviates from the protocol it is supposed to run~\cite{goodrich}.
-
+  This type of threat is referred to as an `honest but curious' or `passive'~\cite{goodrich} attacker: a party who is trusted to handle the data and deliver service correctly, but who looks at the data, and steals or exports it.  Hence, \sys aims to stop these attackers.
+  Such an attacker differs from the `active' attacker, who manipulates data or deviates from the protocol it is supposed to run~\cite{goodrich}.
+%
 Hence, we consider that such a passive attacker has gained access 
 to {\em all the data at SP}.
 This includes any traffic and communication SP receives from the 
-gateway, any logged information, cloud state, and so on. Nevertheless, we assume that 
-SP provides good service and runs middlebox functionality correctly -- but we do not want SP to 
-see the traffic in the process of doing so. 
+gateway, any logged information, cloud state, and so on.  
  
 We assume that the gateways are managed by the enterprise and hence trusted; they do not leak information.
 %The goal of \sys is to protect the privacy of the traffic against an attacker at the service provider  
@@ -108,9 +106,9 @@ We assume that the gateways are managed by the enterprise and hence trusted; the
 
 %The existence of this gateway is they key difference between BlindBox and \sys and not only changes our trust model, but also allows us to improve performance, privacy, and deployability relative to BlindBox, as we will discuss lated in this paper.
 
-Some middlebox functionalities (such as intrusion or exfiltration detection) have a threat model
-of their own about the client and the server. For example, intrusion detection assumes that 
-the client or the server could misbehave, but at most one of them misbehaves~\cite{Bro}.  
+Some middleboxes (such as intrusion or exfiltration detection) have a threat model
+of their own about the two endpoints communicating. For example, intrusion detection assumes that 
+one of the endpoints could misbehave, but at most one of them misbehaves~\cite{Bro}.  
 %(indeed, if both misbehave, they can send attack traffic to each other encrypted with a shared symmetric key and fundamentally
 %no one can detect such an attack).  
 We preserve these threat models unchanged. These applications rely
