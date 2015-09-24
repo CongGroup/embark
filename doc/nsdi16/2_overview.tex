@@ -47,8 +47,8 @@ The service provider -- ISP or cloud-based -- runs a set of middleboxes.
 
 We illustrate the two redirection setups from APLOMB in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
 It is worth mentioning that APLOMB allows an optimization that saves on bandwidth and latency relative to Fig.~\ref{fig:model1}: the traffic from SP can go directly to the external site and does not have to go back through the gateway. \sys does not allow this optimization fundamentally: the traffic from SP is encrypted and cannot be understood by an external site. 
+Nonetheless, as we demonstrate in \S\ref{sec:eval}, for ISP-based deployments this overhead is negligible.
 For traffic within the same enterprise, where the key is known by two gateways owned by the same company, we can support this optimization as shown in Fig.~\ref{fig:model2}.
-\todo{for Justine: add here an explanation and reference to eval why this is not a big deal}
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
