@@ -1,0 +1,47 @@
+%!TEX root = mb.tex
+
+
+
+\subsection{Middlebox: IDS}\label{sec:ids}
+\eat{Unlike the previously presented middleboxes, devices which perform Intrusion Detection/Prevention (IDS/IPS) operate over the TCP bytestream, not just over packets and headers independently.
+Hence, deploying an IDS at the cloud requires a stateful gateway at the enterprise.
+}
+\sys's IDS is based on BlindBox~\cite{blindbox}, an IDS which uses searchable encryption to detect malicious signatures within encrypted HTTPS connections. We highlight the functionality of BlindBox as follows, but exclude many important details all of which are presented in~\cite{blindbox}. \sys improves on BlindBox by resolving its costly 97 second per-connection setup time, and by making it more secure.
+
+We use BlindBox as follows.
+BlindBox leaves HTTPS unmodified, but augments it with a secondary channel which transmits encrypted {\it exact match tokens}.
+In it's simplest implementation, for every byte transmitted over HTTPS, the sender transmits an encrypted token using using the same approach as our keyword match algorithm.
+The encrypted token encodes that byte, and the next 8 bytes; \eg{}, a sender transmitting the word `maliciously' would transmit the encrypted tokens for [$\enc$(`maliciou'), $\enc$(`alicious')].
+An IDS looking for the word `malicious' would declare a match if it observed both these tokens consecutively.
+In practice, the sender does not send encrypted tokens for {\it every} byte, but optimizes out some which are redundant or unnecessary.
+For IDS signatures which consist {\it only} of exact match rules, keyword match is sufficient to detect attacks.
+The security guarantee it gives is as follows: the IDS will learn what a byte in the flow is if it is {\it suspicious}, \ie{}, it matches a substring of a known attack.
+  However, for IDS signatures which include regular expressions, keyword match is not sufficient to completely perform signature detection.
+  Hence, to support regular expressions, BlindBox provides secondary protocol with a weaker security guarantee than for exact match detection (due to space reasons we do not describe this secondary protocol here).
+
+  Everything we have described to this point is identical between BlindBox and \sys. We now describe how they are different, and how this improves performance and security.
+
+The key difference between BlindBox and how \sys implements IDS comes in how rules are given the IDS.
+With \sys, the gateway can simply encrypt rules with its key $k$ and transmit them to the IDS, who then applies them over the enterprises traffic.
+With BlindBox, this is not appropriate.
+BlindBox aims to allow a client (\eg{} laptop) connecting to {\em any} network to receive IDS processing over their HTTP traffic, even if the IDS is unknown or untrusted to them.
+In this scenario, the IDS wants to {\it enforce} that all traffic be scanned for malicious behavior, but the client wants to maintain {\it privacy} from the untrusted IDS.
+The middlebox will not give its rules to the client, and the client will not give its key to the middlebox.
+ To generate the encrypted rules that the IDS can use for detection requires BlindBox to perform
+a sophisticated computation at the start of each connection, which makes the connection
+startup time be slow. 
+Further, this computation scales with the number of exact-match rules the IDS needs to learn: the more rules, the longer the startup time.
+\sys has no such overhead.
+
+The first implication of this is performance: this startup time is eliminated, as the rules are generated once, at the gateway, and transmitted to the IDS. After this there is no more setup cost.
+
+The second implication is improved security security. We showed how BlindBox has a stronger security guarantee for exact matches than it does for regular expressions. However, many regular expressions can be converted to exact matches. 
+For example, the regular expression 'alice[1-3]' is equivalent to any of the exact matches [`alice1', `alice2', `alice3'].
+To do this expansion with BlindBox would be prohibitively expensive, as each additional exact match rules increases the already lengthy setup time.
+However, as \sys has no such cost, we can expand many regular expressions and thus detect them using the stronger security model.
+Not all rules are amenable to this -- \eg{} `bob[a-z]+' would result in a prohibitively large (and also far too general) number of expansions, even for \sys. 
+In \S\ref{sec:eval}, we find for some rulesets regular expression expansion almost doubles the number of rules that can be detected using the stronger security model.
+
+\justine{SOLVE BOUNDARY PROBLEM.}
+
+

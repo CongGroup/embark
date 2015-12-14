@@ -1,0 +1,276 @@
+\documentclass[letterpaper,twocolumn,10pt]{article}
+
+\usepackage[subtle]{savetrees-clean}
+\usepackage{usenix}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{multirow}
+% SOME OF OUR DEFINITIONS
+\usepackage[keeplastbox]{flushend}
+
+
+\usepackage{xspace}
+\newcommand{\sys}{MBArk\xspace}
+\newcommand{\RM}{RM\xspace}
+
+% MBArk
+% EMBArk
+
+\usepackage[compact]{titlesec}
+\titlespacing*{\section}{0pt}{4pt}{0pt}
+\titlespacing*{\subsection}{0pt}{4pt}{0pt}
+\titlespacing*{\subsubsection}{0pt}{4pt}{0pt}
+\usepackage[small]{caption}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+
+
+
+% more compact than computer modern
+\usepackage{times}
+
+% Typewriter Font: Latin Modern Typewriter Proportional
+\renewcommand*{\ttdefault}{lmvtt}
+
+\lstset{
+  basicstyle=\footnotesize\ttfamily, 
+    columns=fullflexible,
+    keepspaces=true,
+}
+
+\usepackage{subfigure}
+\usepackage{ifpdf}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[hyphens]{url}
+\usepackage[breaklinks, pdfborder={0 0 0}]{hyperref}
+\hypersetup{
+  backref=true
+    bookmarksnumbered,
+    colorlinks=true,
+    pdfstartview={FitH},
+    citecolor={blue},
+    linkcolor={blue},
+    urlcolor={blue},
+    citecolor={blue},
+    pdfpagemode={UseOutlines}
+}
+
+\usepackage[noend]{algpseudocode}
+
+% edit the comments 
+\usepackage{eqparbox}
+\renewcommand{\algorithmiccomment}[1]{\eqparbox{COMMENT}{// {\emph #1}}}
+
+\usepackage{enumitem}
+
+\newcommand{\tbd}[1]{}
+\newcommand{\ie}{{\it i.e.}}
+\newcommand{\eg}{{\it e.g.}}
+\newcommand{\etc}{{\it etc.}}
+\newcommand{\eat}[1]{}
+
+
+\newcommand{\mypara}[1]{\medskip\noindent{\bf {#1}.}~}
+\newcommand{\bpara}[1]{\noindent{\bf {#1}.}~}
+\newcommand{\submypara}[1]{\medskip\noindent{\it {#1}.}~}
+\newcommand{\chk}{$\checkmark$}
+\newcommand{\dsh}{{\bf --}}
+\newcommand{\til}{{\bf\large \textasciitilde}}
+\usepackage{rotating}
+
+\usepackage{framed}
+\FrameSep4pt
+\setlength{\topsep}{0pt}
+
+\newcommand{\CTE}{CTE\xspace}
+\newcommand{\Name}{APLOMB\xspace}
+\newcommand{\Nameplus}{{APLOMB+}\xspace}
+\newcommand{\NameArch}{{\sc APLOMB}\xspace}
+
+% RESULTS
+
+\newcommand{\generalFHEslowdown}{9\xspace}
+\newcommand{\squaregeneralFHEslowdown}{18}
+\newcommand{\strawmanslowdown}{10^6}
+\newcommand{\setuptime}{414 s}
+\newcommand{\strawmansetuptimesslower}{1.8 \cdot 10^3}
+
+\usepackage{enumitem}
+\setlist[itemize]{itemsep=0.00cm}
+\setlist[itemize]{parsep=0.01cm}
+%\setlist[itemize]{parskip=0.01cm}
+
+\newenvironment{myitemize}
+{ \begin{itemize}[nolistsep,leftmargin=0.15in]
+  \setlength{\itemsep}{0.5pt}
+  \setlength{\parskip}{0.9pt}
+  \setlength{\parsep}{0.1pt}     }
+{ \end{itemize}                  } 
+
+\newcommand{\simplequote}[1]{\\\noindent{\it``{#1}''}\linebreak[3]}
+\newcommand{\green}[1]{{\color{ForestGreen}{#1}}}
+
+
+% our encryption scheme
+\newcommand{\bbenc}{DPIEnc\xspace}
+\newcommand{\bbdetect}{\sys Detect\xspace}
+
+\newcommand{\RG}{RG\xspace}
+\newcommand{\MB}{MB\xspace}
+
+\newcommand{\sslk}{k_{\mathsf{SSL}}}
+\newcommand{\bbG}{\mathbb{G}}
+
+\newcommand{\garble}{\mathsf{Garble}}
+\newcommand{\eval}{\mathsf{Eval}}
+\newcommand{\keygen}{\mathsf{KeyGen}}
+\newcommand{\Enc}{\mathsf{Enc}}
+\newcommand{\kwenc}{\mathsf{KWEnc}}
+\newcommand{\enc}{\Enc}
+\newcommand{\en}{\mathsf{enc}}
+\newcommand{\encleft}{\mathsf{EncLeft}}
+\newcommand{\encright}{\mathsf{EncRight}}
+\newcommand{\match}{\mathsf{Match}}
+
+\newcommand{\sig}{\mathsf{sig}}
+\newcommand{\ct}{\mathsf{ct}}
+\newcommand{\sno}{\mathsf{serial\_no}}
+\newcommand{\dirtyrange}{\mathsf{dirtyrange}}
+
+\renewcommand{\mod}{\mathsf{mod}\xspace}
+
+\newcommand{\low}{\mathsf{low}\xspace}
+\newcommand{\high}{\mathsf{high}\xspace}
+\newcommand{\prf}{\mathsf{prf}\xspace}
+\newcommand{\IV}{\mathsf{IV}}
+
+\newcommand{\twosnortcom}{67\%}
+\newcommand{\twosnortemerge}{42\%}
+
+
+\newcommand{\SSL}{\mathsf{SSL}}
+\newcommand{\rand}{\mathsf{rand}}
+\newcommand{\salt}{\mathsf{salt}}
+
+\newcommand{\mf}[1]{ {\fontfamily{cmtt}\selectfont#1}}
+
+\newcommand{\ALGORITHM}[4]{%  name, llabel, intro, \items    
+  \let\oldi\labelenumi
+    \let\oldii\labelenumii
+    \let\oldiii\labelenumiii
+    \renewcommand{\labelenumi}{\arabic{enumi}: }
+  \renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}: }
+  \renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}: }                                     
+  \noindent \textbf{#1:} \label{#2} 
+#3
+  \vspace{0.13\baselineskip}
+  \begin{enumerate}[noitemsep,nolistsep]\itemsep=0.1\baselineskip
+#4
+    \end{enumerate}
+  \let\labelenumi\oldi
+    \let\labelenumii\oldii
+    \let\labelenumiii\oldii  
+}
+
+%\newcommand{\subparagraph}{\paragraph}
+%\usepackage[compact]{titlesec}
+
+\newcommand{\tickYes}{\checkmark}
+\newcommand{\raluca}[1]{}
+\newcommand{\sr}[1]{{\color{CarnationPink} SR: {#1}}} % :)
+\newcommand{\clan}[1]{{\color{SkyBlue} CL: {#1}}} % :)
+\newcommand{\qu}[1]{{\color{Magenta}  {\bf Question:} {#1}}} 
+\newcommand{\warning}[1]{{\color{Red}{\bf Warning: #1}}}
+%\newcommand{\todo}[1]{{\color{Red}{\bf TODO: #1}}}
+\newcommand{\todo}[1]{}
+\newcommand{\justine}[1]{{\color{Green}{\bf JS: #1}}}
+
+\newcommand{\aes}{\mathsf{AES}}
+\newcommand{\encr}{\mathsf{enc\_r}}
+
+
+% Compact itemize and enumerate.  Note that they use the same counters and                         
+% symbols as the usual itemize and enumerate environments.                                         
+\makeatletter
+\def\compactify{\itemsep=3pt plus3pt \topsep=3pt plus3pt \partopsep=0pt
+  \parsep=0pt \leftmargin=1.3em}
+  \let\latexusecounter=\usecounter
+  \def\CompactItemize{%                                                                              
+    \ifnum \@itemdepth >\thr@@\@toodeep\else
+      \advance\@itemdepth\@ne
+      \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%                                        
+      \expandafter
+      \list
+      \csname\@itemitem\endcsname
+      {\compactify\def\makelabel##1{\hss\llap{##1}}}%                                              
+    \fi}
+    \let\endCompactItemize\endlist
+    \newenvironment{CompactEnumerate}
+{\def\usecounter{\compactify\latexusecounter}
+  \begin{enumerate}}
+{\end{enumerate}\let\usecounter=\latexusecounter}
+\makeatother
+
+
+% Tweaks
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{-15pt}
+\frenchspacing
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{2pt}
+  \setlength\belowdisplayskip{2pt}
+  \setlength\abovedisplayshortskip{2pt}
+  \setlength\belowdisplayshortskip{2pt}
+}
+\makeatother
+
+% Title, authors
+\date{}
+
+\title{
+  %American capitalization structure.
+  \sys: Securely Outsourcing Middleboxes to the Cloud
+}
+
+\newcommand{\superscript}[1]{\ensuremath{^{\textrm{#1}}}}
+\newcommand{\affila}{\superscript{*}}
+\newcommand{\affilb}{\superscript{\dag}}
+\newcommand{\affilc}{\superscript{\ddag}}
+
+\author{
+  {\rm Chang Lan} \qquad 
+  {\rm Justine Sherry} \qquad 
+  {\rm Raluca Ada Popa} \qquad 
+  {\rm Sylvia Ratnasamy} \qquad 
+  {\rm Zhi Liu\affila} \\
+  UC Berkeley \qquad \affila Tsinghua University
+}
+
+\begin{document}
+
+\maketitle
+
+\input{0_abstract}
+\input{1_intro}
+\input{2_overview}
+\input{3_buildingblocks}
+
+\input{4_gateway}
+\input{5_middleboxes}
+
+%input{headerMB}
+%\input{payloadMB}
+%\input{otherapps}
+%\input{impl}
+
+\input{6_evaluation}
+\input{7_related}
+%\input{8_conclusion}
+\newpage
+{\bibliographystyle{abbrv}
+  \bibliography{related_work,cryptobib,rp,rp-str,rp-conf}}
+
+  % That's all folks!
+  \end{document}
