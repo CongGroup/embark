@@ -44,18 +44,18 @@ not only allows us to remove the setup overhead, but also to achieve better depl
    \sys supports a comprehensive set of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. 
    \sys achieves this through a combination of systems and cryptographic innovations, as follows.
    
-   From a cryptographic perspective, \sys provides a new and fast encryption scheme called RangeMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). 
-   %The design of RangeMatch is highly inspired from the network setting.
- Prior to RangeMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
-However, these schemes are four orders of magnitude slower than {\it RangeMatch} making them unusable for our network setting. At the same time, RangeMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em RangeMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
+   From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). 
+   %The design of PrefixMatch is highly inspired from the network setting.
+ Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
+However, these schemes are four orders of magnitude slower than {\it PrefixMatch} making them unusable for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em PrefixMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
   This strategy ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
   We choose which encryption scheme to use for each field based on the processing operations applied by typical middleboxes; this results in an encrypted packet that simultaneously supports {\it all} of the wide range of middleboxes we outsource.
   
-  Another systems insight is that by {\it combining} standard packet formats with RangeMatch, \sys can retain compatibility with existing classification algorithms and obtain good performance for middleboxes operating over header fields.
-  RangeMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
-  Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in in software middleboxes~\cite{comb, ethan-paper}.
+  Another systems insight is that by {\it combining} standard packet formats with PrefixMatch, \sys can retain compatibility with existing classification algorithms and obtain good performance for middleboxes operating over header fields.
+  PrefixMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
+  Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
   
  

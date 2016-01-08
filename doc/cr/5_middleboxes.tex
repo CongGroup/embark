@@ -9,7 +9,7 @@ Middleboxes which operate on IP and transport headers only include firewalls, NA
 Firewalls are read-only, but NATs and L4 load balancers may rewrite IP addresses or port values. 
 For header middleboxes, per-packet operations remain unchanged for both read and write operations.
 
-For read operations, the firewall receives a set of encrypted rules from the gateway and compares them directly against the encrypted packets just as normal traffic. Because RangeMatch supports $\leq$ and $\geq$, the firewall may use any of the standard classification algorithms~\cite{packet_classif}.
+For read operations, the firewall receives a set of encrypted rules from the gateway and compares them directly against the encrypted packets just as normal traffic. Because PrefixMatch supports $\leq$ and $\geq$, the firewall may use any of the standard classification algorithms~\cite{packet_classif}.
 
 For write operations, the middleboxes assign values from an address pool; it receives these encrypted pool values from the gateway during the rule generation phase.
 These encrypted rules are marked with a special suffix reserved for rewritten values.

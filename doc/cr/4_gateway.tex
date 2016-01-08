@@ -22,10 +22,10 @@
 
 
 
-The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets and updates to the RangeMatch tree.
+The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets and updates to the PrefixMatch tree.
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
-All three services share access to the RangeMatch tree and the private key $k$.
+All three services share access to the PrefixMatch tree and the private key $k$.
 Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 We design the gateway with two goals in mind: 
@@ -43,10 +43,10 @@ As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middlebo
 We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
 
 \subsubsection{IP and Transport Headers}
-IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with RangeMatch.
-We use RangeMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
+IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with PrefixMatch.
+We use PrefixMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
 
-\noindent{\bf Decryption.} RangeMatch is not reversible. To enable packet decryption, we store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header and restores them.% to the IP or transport header.
+\noindent{\bf Decryption.} PrefixMatch is not reversible. To enable packet decryption, we store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header and restores them.% to the IP or transport header.
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted range match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
@@ -67,7 +67,7 @@ If the term 'malicious' is divided across two packets, we may not be able to tok
 The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 This channel is not routed to other middleboxes.
 
-\noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like RangeMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
+\noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like PrefixMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.
 
 \noindent{\bf Format-compatibility.} To middleboxes which only inspect/modify packet headers, encrypting payloads has no impact. 
@@ -108,9 +108,9 @@ Rules for firewalls and DPI services come from a variety of sources and can have
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
 On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client.
 \sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
-RangeMatch rules only supports (a) and (c) -- the gateway who maintains the rule tree {\it must} know the rules to perform encryption properly.
+PrefixMatch rules only supports (a) and (c) -- the gateway who maintains the rule tree {\it must} know the rules to perform encryption properly.
 
-If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or RangeMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
+If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or PrefixMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
 
 If the client is not permitted to know the rules, we must somehow allow the cloud provider to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
 As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
@@ -128,7 +128,7 @@ We discuss a few systems properties of our gateway as follows before discussing 
 \eat{
 Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
 
-\noindent\textbf{Header Rewrite.} At this stage, the gateway rewrites the header fields in the packets using the RangeMatch scheme using in algorithm in Section \ref{sec:dataenc}. It consists of multiple Click elements: ProtocolTranslator46 that translates an IPv4 packet to an IPv6 packet, AppendIP6Option that populates DET-encrypted header fields into the IPv6 options, HeaderEncrypt that performs the encryption, and SetTCPChecksum that sets the checksum.
+\noindent\textbf{Header Rewrite.} At this stage, the gateway rewrites the header fields in the packets using the PrefixMatch scheme using in algorithm in Section \ref{sec:dataenc}. It consists of multiple Click elements: ProtocolTranslator46 that translates an IPv4 packet to an IPv6 packet, AppendIP6Option that populates DET-encrypted header fields into the IPv6 options, HeaderEncrypt that performs the encryption, and SetTCPChecksum that sets the checksum.
 
 \noindent\textbf{Stream Reconstruction.} This component acts as a TCP transparent proxy by terminating incoming TCP connections from clients. It encrypts the reconstructed bytestreams using the stream cipher, and relays them in new connections. Note that the IP options are preserved during this phase. It also pushes bytestreams into the secondary channel, where middleboxes can perform DPI operations. Meanwhile, it extracts HTTP headers from the stream and puts the deterministically encrypted HTTP header fields into the IP options.
 
@@ -148,6 +148,6 @@ The administrator places the gateway at the border of their enterprise network t
 The administrator supplies any rules/policies to the cloud provider and the gateway is then configured by the cloud provider.
 
 \noindent\textbf{Fault Tolerance.}
-When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
+When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the PrefixMatch tree, key $k$, and IP address of SP.
 When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenization; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
 }
