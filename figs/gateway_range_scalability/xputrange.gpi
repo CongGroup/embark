@@ -12,10 +12,10 @@ set grid
 #set key inside lmargin 0
 #set key width .25
 
-  set style line 4 lc rgb "#003f7f" lt -1
-  set style line 3 lc rgb "#005fbf" lt -1
-  set style line 2 lc rgb "#56aaff" lt -1
-  set style line 1 lc rgb "#aad4ff" lt -1
+set style line 4 lc rgb "#003f7f" lt -1
+set style line 3 lc rgb "#005fbf" lt -1
+set style line 2 lc rgb "#56aaff" lt -1
+set style line 1 lc rgb "#aad4ff" lt -1
 set xtics border in scale 1,0.5 nomirror rotate by -30  offset character -1,0.25,0
 #set xtics border in scale 1,0.5 nomirror  offset character 2,0,0
 
@@ -27,6 +27,7 @@ fit f(x) 'data.latency.plot' via a,b
 
 
 set ylabel "Throughput (pps)"
+set ytics 500000
 set y2label "Processing Time (us)"
 set y2tics
 
