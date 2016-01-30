@@ -2,6 +2,77 @@
 
 \section{Introduction}\label{sec:intro}
 
+\begin{table*}[t]
+\centering
+\small
+\hspace{-2pt}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Middlebox} & {\bf Requirements} & {\bf Scheme} \\ \hline
+IP Firewall & 
+\parbox {10cm}{
+\begin{flalign*}
+(SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ action\ a \quad \Rightarrow \quad (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ action\ a &
+\end{flalign*}
+} & PrefixMatch \\ \hline
+
+NAT (NAPT) & 
+\parbox {10cm}{
+\begin{flalign*}
+\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
+\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
+\end{flalign*}
+} 
+& PrefixMatch \\ \hline
+
+L3 Load Balancer (ECMP) &
+\parbox {10cm}{
+\begin{flalign*}
+\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+& (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2') 
+\end{flalign*}
+}
+& PrefixMatch \\ \hline
+
+L4 Load Balancer &
+\parbox {10cm}{
+\begin{flalign*}
+    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ \neq\ (SIP_2', DIP_2', SP_2', DP_2', P_2') \\
+    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\ 
+    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2')
+\end{flalign*}
+}
+& PrefixMatch \\ \hline
+
+Deep Packet Inspection &
+\parbox {10cm}{
+\begin{flalign*}
+& keyword \in stream \quad \Rightarrow \quad keyword' \in stream'
+\end{flalign*}
+} &
+KeywordMatch \\ \hline
+
+Parental Filter &
+\parbox {10cm}{
+\begin{flalign*}
+& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
+\end{flalign*}
+} &
+KeywordMatch \\ \hline
+
+HTTP Proxy / Cache &
+\parbox {10cm}{
+\begin{flalign*}
+& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
+\end{flalign*}
+} &
+KeywordMatch \\ \hline
+
+\end{tabular}
+\caption[]{Middleboxes supported by \sys. Middleboxes are also labeled with their requirement on the encryption schemes. $(SIP, DIP, SP, DP, P)$ denotes the 5-tuple of a connection. $x'$ is the encryption of $x$.\label{tbl:mbreqs}} 
+\end{table*}
+
 Middleboxes such as firewalls, NATs, and proxies, have grown to be a vital part of modern networks, but are 
 also widely recognized as bringing significant problems including high cost, inflexibility, and complex management.  
 These problems have led both research and industry to explore an alternate approach: moving middlebox functionality out of dedicated boxes and into 
@@ -41,12 +112,9 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-   \sys supports a comprehensive set of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. 
-   \sys achieves this through a combination of systems and cryptographic innovations, as follows.
+\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
    
-   From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). 
-   %The design of PrefixMatch is highly inspired from the network setting.
- Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
+From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
 However, these schemes are four orders of magnitude slower than {\it PrefixMatch} making them unusable for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em PrefixMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats unchanged: an encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
@@ -64,3 +132,5 @@ Further, \sys imposes  negligible throughput overheads at the service provider: 
 Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
 \eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
+
+

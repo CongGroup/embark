@@ -74,10 +74,12 @@ Hence, to perform typical middlebox behaviors {\it in practice}, we require a Pr
 The functionality of our PrefixMatch scheme is to encrypt a set of ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$ into a set of prefixes $\Enc(s_1, e_1)$, $\dots$, $\Enc(s_m, e_m)$ ($m \geq n$), and a value $v$ into $\Enc(v)$, such that anyone with access to these encryptions can determine in which range $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
 For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses, although the scheme supports ports as well.
 
+\raluca{what happens to the security of ports, do we still need IPv6?}
+
 Our goal in designing PrefixMatch was for it to be both efficient/fast {\em and} to provide strong security.
 
 In terms of performance, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
-Our PrefixMatch encrypts in $< 3\mu$s per value \clan{Update the value} (we evaluate in \S\ref{sec:eval}).
+Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eval}).
 Our design performs comparison between encrypted values and an encrypted rule (performed at the middlebox) using only on normal $\leq$/$\geq$ operators; hence it is compatible with existing classification algorithms such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.
 
 For security, we require that the encryption scheme  not leak $v$ to SP.
@@ -94,11 +96,12 @@ Although PrefixMatch has a similar functionality to order-preserving encryption 
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=3in]{fig/rangeopts2.pdf}
-  \caption[]{Interval map: R2 has higher priority than R1, and the prefixes for intervals are randomly assigned.\label{fig:rangeopts2}}
+  \includegraphics[width=3in]{fig/rangeopts3.pdf}
+  \caption[]{Interval map: R2 has higher priority than R1, and the prefixes for intervals are randomly assigned.\label{fig:rangeopts3}}
 \end{figure}
 
-To encrypt the ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$ with different priorities, what we want to do is equivalent to solving the following problem: given a set of overlapping 1-D line segments of different colors situated at different heights, draw the lines as seen from the top. Hence, PrefixMatch solves this problem by the Bentley-Ottmann algorithm: it sort the endpoints (including 0.0.0.0 and hypothetical 256.0.0.0) into $\mu_1, \mu_2, \dots, \mu_{2n}$ and sweep from left to right. As it sweeps, it maintain a list of ranges that intersect the current position as well as the range with the highest priority. For example, in Fig.~\ref{fig:rangeopts2}, we obtain 4 intervals from 2 ranges R1 and R2. The interval marked with blue refers to R1, while the one marked with yellow refers to R2. We then map intervals to a random permutation of prefixes.
+To encrypt the ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$ with different priorities, what we want to do is equivalent to solving the following problem: given a set of overlapping 1-D line segments of different colors situated at different heights, draw the lines as seen from the top. Hence, PrefixMatch solves this problem by the Bentley-Ottmann algorithm~\cite{bentley}. First, it maps ranges to a random permutation of prefixes. Then, it sorts the endpoints (including 0.0.0.0 and hypothetical 256.0.0.0) into $\mu_1, \mu_2, \dots, \mu_{2n}$ and 
+sweeps from left to right. As it sweeps, it maintain a list of ranges that intersect the current position as well as the range with the highest priority. For example, in Fig.~\ref{fig:rangeopts3}, we obtain 4 intervals from 2 ranges R1 and R2. The interval marked with blue refers to R1, while the one marked with yellow refers to R2. Therefore, we have the mapping from intervals to original ranges. Given the mapping from ranges to the random permutation of prefixes that we obtained at the beginning, we then map the intervals to prefixes.
 
 For now, consider that the gateway maintains a mapping of each interval to its assigned prefix, called the {\em interval map}. When the gateway needs to encrypt an IP address $v$, the gateway first determines what is the interval $v$ falls in. It uses the interval map to determine the prefix of the encryption. Then, to obtain the remaining part of the encryption, it uses a pseudorandom function $\prf^n(v)$, mapping $v$ to a random value in the interval 0..n-1. We seed $\prf$ in $q$, a function of both the key and hash of the 5-tuple connection header ($q = \prf_k(\text{conn})$). Note that, in the system setup with two gateways, the gateways generate the same encryption because they share $k$. Let $N$ be $2^{w-m}$, where the value is $w$-bit and the prefix is $m$-bit. The encryption of $v$ is
 
@@ -145,36 +148,38 @@ one point only, namely $s + 1 = e$.
 \begin{algorithmic}[1]
 
 \Procedure{EncryptRanges}{$R_1$, $\dots$, $R_n$}
+  \State Let $R_{\infty}$ = ($-\infty$, $\infty$).
+  \State Map $R_1$, $\dots$, $R_n$, $R_{\infty}$ to a random permutation of prefixes $P_i$, $\dots$, $P_n$, $P_{\infty}$
+  
   \State Let $R_i$ = [$s_i$, $e_i$), sort the values 
-              $\{s_1, \dots, s_n\}$ 
-              $\cup$ $\{e_1, \dots, e_n\}$ 
-              $\cup$ $\{-\infty, \infty\}$.
-  \State Ranges := \{\}, 
+              $V = \{s_1, \dots, s_n\}$ 
+              $\cup$ $\{e_1, \dots, e_n\}$.
+  \State Ranges := \{\}
   \State TopRange := Null, 
   \State Intervals := \{\}
-  \State Prev := $-\infty$
+  \State LastEndpoint := $-\infty$
     
-  \ForAll{sorted values}
-    \If{current value is $s_i$}
-      \State Ranges.Add($R_i$) 
-      \If{$R_i$.priority > TopRange.priority}
-        \State P := NextRandomPrefix()
-        \State I := ([Prev, $s_i$), TopRange, P)
-        \State Add I into Intervals
-        \State Prev := $s_i$
-        \State TopRange := $R_i$
+  \ForAll{$v_i \in V$}
+    \If{$v_i$ is $s_j$ for some $j$}
+      \State $R_{top}$ := TopPriority(Ranges)
+      \If{$R_j$.priority > $R_{top}$.priority}
+        \State $I$ := ((LastEndpoint, $v_i$), $R_{top}$, $P_{top}$)
+        \State Intervals.Add($I$)
+        \State LastEndpoint := $v_i$
       \EndIf
+      \State Ranges.Add($R_j$) 
     \Else
-      \State Ranges.Remove($R_i$) 
-      \If{TopRange == $R_i$}
-        \State P := NextRandomPrefix()
-        \State I := ([Prev, $e_i$), TopRange, P)
-        \State Add I into Intervals
-        \State Prev := $e_i$
-        \State TopRange := MaxPriority(Ranges)
+      \State $R_{top}$ := TopPriority(Ranges)
+      \If{$R_{top}$ is $R_j$}
+        \State $I$ := ((LastEndpoint, $v_i$), $R_{top}$, $P_{top}$)
+        \State Intervals.Add($I$)
+        \State LastEndpoint := $v_i$
       \EndIf
+      \State Ranges.Remove($R_j$)
     \EndIf
   \EndFor
+  \State $I$ := ((LastEndpoint, $\infty$), $R_{\infty}$, $P_{\infty}$)
+  \State Intervals.Add($I$)
   \State \Return{Intervals}
 \EndProcedure
 

@@ -16,19 +16,8 @@
      %
 \caption{System architecture. APLOMB and NFV system setup with \sys encryption  at the gateway. The arrows indicate traffic from the client to the server; the response traffic follows the reverse direction. \label{fig:sys-overview}}
 \end{figure*}
-
-
-
-
      
 \section{Overview}\label{sec:overview}
-
-
-
-
-
-
-
 
 In this section, we present \sys's architecture, the threat model and applications supported.
 
@@ -53,6 +42,7 @@ For traffic within the same enterprise, where the key is known by two gateways o
 
 We do not delve further into the details, motivation, and gains of APLOMB's setup, and refer the reader to~\cite{aplomb} for details. 
 
+\eat{
 \begin{table}
 \centering
 \small
@@ -83,9 +73,8 @@ We do not delve further into the details, motivation, and gains of APLOMB's setu
 
 \end{tabular}
 \caption[]{Middleboxes supported by \sys and categorized as Header, DPI, or HTTP middleboxes depending on what fields they access. Middleboxes are also labeled whether they perform `exact match' comparisons against rules, or `range match' comparisons against rules.\label{tbl:mbreqs}} 
-
 \end{table}
-
+}
 
 \subsection{Threat Model}
 %%%I know this may read superfluous to a security reader but two of the SOSP reviewers asked for this specifically -- why is a passive attacker a reasonable choice? We need this background here.
