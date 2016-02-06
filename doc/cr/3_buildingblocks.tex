@@ -133,53 +133,67 @@ Adding a new range or removing an existing range would affect the intervals it c
 \subsubsection{Implementing PrefixMatch in the Gateway}
 \label{sec:tree}
 
-The gateway stores the intervals and the mapping from intervals to random prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
+The gateway stores the intervals and the mapping from intervals to prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
 
-The gateway can use the following functions. EncryptRanges encrypts the initial rules. 
+The gateway can use the following functions. EncryptRules encrypts the initial rules. EncryptTuple encrypts packet header fields which are represented as a tuple; it requires identifying the interval $I$ for each field. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
 
 \begin{framed}
 \begin{algorithmic}[1]
 
-\Procedure{EncryptRanges}{$R_1$, $\dots$, $R_n$}
-  \State Let $R_{\infty}$ = ($-\infty$, $\infty$).
-  \State Map $R_1$, $\dots$, $R_n$, $R_{\infty}$ to a random permutation of prefixes $P_i$, $\dots$, $P_n$, $P_{\infty}$
-  
-  \State Let $R_i$ = [$s_i$, $e_i$), sort the values 
-              $V = \{s_1, \dots, s_n\}$ 
-              $\cup$ $\{e_1, \dots, e_n\}$.
-  \State Ranges := \{\}
-  \State TopRange := Null, 
-  \State Intervals := \{\}
-  \State LastEndpoint := $-\infty$
-    
-  \ForAll{$v_i \in V$}
-    \If{$v_i$ is $s_j$ for some $j$}
-      \State $R_{top}$ := TopPriority(Ranges)
-      \If{$R_j$.priority > $R_{top}$.priority}
-        \State $I$ := ((LastEndpoint, $v_i$), $R_{top}$, $P_{top}$)
-        \State Intervals.Add($I$)
-        \State LastEndpoint := $v_i$
+\Procedure{EncryptRules}{$R_1$, $\dots$, $R_n$}
+  \State Each rule has $m$ fields. Let $R_i = (s_{i1}, e_{i1}, \dots, s_{im}, e_{im})$
+  \State $Prefix$ := an $m \times n$ array of prefixes 
+  \State $Interval$ := an array of $m$ arrays of interval and rule
+  \For{$j \gets 1$ to $m$}
+    \State $Prefix[j] \gets$ a random permutation of prefixes
+    \State $Temp$ := an array of $2n$ endpoints
+    \State $Temp \gets Sort(s_{1j}, \dots, s_{nj}, e_{1j}, \dots, e_{nj})$
+    \State $Active$ := an empty set of rules
+    \For{$k \gets 1$ to $2n-1$}
+      \If{$Temp[k] = s_{ij}$ for some $i$}
+        \State $Active.Add(R_i)$
+      \Else
+        \State ($Temp[k] = e_{ij}$ for some $i$)
+        \State $Active.Remove(R_i)$
       \EndIf
-      \State Ranges.Add($R_j$) 
-    \Else
-      \State $R_{top}$ := TopPriority(Ranges)
-      \If{$R_{top}$ is $R_j$}
-        \State $I$ := ((LastEndpoint, $v_i$), $R_{top}$, $P_{top}$)
-        \State Intervals.Add($I$)
-        \State LastEndpoint := $v_i$
-      \EndIf
-      \State Ranges.Remove($R_j$)
-    \EndIf
+      \State $Range := [Temp[k], Temp[k+1])$
+      \ForAll{$R_i \in Active$}
+        \State $Interval[j].Append(Range, R_i)$
+      \EndFor
+    \EndFor
   \EndFor
-  \State $I$ := ((LastEndpoint, $\infty$), $R_{\infty}$, $P_{\infty}$)
-  \State Intervals.Add($I$)
-  \State \Return{Intervals}
+  \For{$i \gets 1$ to $n$}
+    \For{$j \gets 1$ to $m$}
+      \State $s_{ij}' \gets Prefix[j][i]$
+      \State $e_{ij}' \gets s_{ij}' | (\lnot mask) + 1$
+    \EndFor
+    \State Let $R_i' = (s_{i1}', e_{i1}', \dots, s_{im}', e_{im}')$
+  \EndFor
+  \State \Return{$R_1'$, $\dots$, $R_n'$, $Interval$, $Prefix$}
+\EndProcedure
+
+\Procedure{EncryptTuple}{$v = (v_1, \dots, v_m)$}
+  \State $Result$ := universe of rules
+  \For{$j \gets 1$ to $m$}
+    \State $Temp$ := an empty set of rules
+    \ForAll{$(I, R) \in Interval[j]$ where $v_j \in I$}
+      \State $Temp.Add(R)$
+    \EndFor
+    \State $Result \gets Result \cap Temp$
+  \EndFor
+  \State Pick a rule $R_i$ from $Result$ 
+  \For{$j \gets 1$ to $m$}
+    \State $P \gets Prefix[j][i]$
+    \State $Q \gets Prf(v_j, v, key)$
+    \State $v_j' \gets P | Q $ 
+  \EndFor
+  \State \Return{$v' = (v_1', \dots, v_m')$}
 \EndProcedure
 
 \end{algorithmic}
 \end{framed}
 
-We described how to encrypt values matched against ranges in \S\ref{sec:rmscheme}; it requires identifying the interval $I$ for each value. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
+
 
 % We now describe the procedure for AddRange which adds an interval (deleting an interval is similar). These procedures modify the state at the gateway. To add a range [$s$, $e$], the gateway inserts these values in the tree. If the tree needs to be rebalanced, for each endpoint that changed location in the tree, the gateway records the old and new encrypted value based on the tree in a list $L$. Note that  the number of endpoints that change encryption is $O(\log n)$ amortized worst-case. The gateway then computes the encryption of $s$ and $e$ based on their location in the tree. It sends to SP $\enc(s)$ and $\enc(e)$ along with $L$. 
 
