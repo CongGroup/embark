@@ -71,8 +71,8 @@ For our own department network, doing so would convert our IPv6 and IPv4 firewal
 Hence, to perform typical middlebox behaviors {\it in practice}, we require a PrefixMatch scheme which is more efficient.
 
 \subsubsection{Requirements}
-We are given a set of ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$. Each range has its priority value. This is essential because middleboxes need to decide which rule will the packet ultimately match when a packet matches multiple rules. The functionality of our PrefixMatch scheme is to encrypt a set of ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$ into a set of prefixes $\Enc(s_1, e_1)$, $\dots$, $\Enc(s_m, e_m)$ ($m \geq n$), and a value $v$ into $\Enc(v)$. Anyone with access to these encryptions can determine in which range with highest priority $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
-For concreteness, we explain our scheme by considering $v$, $e_i$ and $s_i$ as IP addresses, although the scheme supports ports as well.
+We are given a set of ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$. Each range has its priority value. This is essential because middleboxes need to decide which rule will the packet ultimately match when a packet matches multiple rules. The functionality of our PrefixMatch scheme is to encrypt a set of ranges $[s_1, e_1)$, $\dots$, $[s_n, e_n)$ into a set of prefixes $\Enc(s_1, e_1)$, $\dots$, $\Enc(s_m, e_m)$ ($m \geq n$), and a value $v$ into $\Enc(v)$. Anyone with access to these encryptions can determine the range with the highest in which $v$ lies, while not learning the values of $s_1$, $e_1$, $\dots$, $s_n$, $e_n$, and $v$. 
+For concreteness, we explain our scheme by considering  $e_i$ and $s_i$ as IP addresses, although the scheme supports ports as well.
 
 \raluca{what happens to the security of ports, do we still need IPv6?}
 
@@ -120,6 +120,8 @@ When encrypting IP addresses, we do not want two different IP addresses to map t
 \end{equation}
 
 Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. When encrypting ports, it is possible to get collisions since the port field is only 16-bit. However, this will not cause problem as long as the IP address does not collide, because NATs (and other middleboxes that require injectivity) considers both IP addresses and ports.
+
+\todo{make clear that it is seeded in this so IPs do not collide}
 
 %\begin{figure}
 %  \includegraphics[width=3.25in]{fig/tree}
