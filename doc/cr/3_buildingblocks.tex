@@ -71,6 +71,12 @@ Hence, to perform typical middlebox behaviors {\it in practice}, we require a Pr
 
 \subsubsection{Requirements}
 
+\todo{we might want to put all requirements in a separate place; is this section really requirements}
+
+\textbf{Functionality.}
+PrefixMatch can encrypt a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes $\ov{P_1}, \dots, \ov{P_n}$. Then, it can encrypt a value such that the encrypted value matches an encrypted prefix if and only if the unencrypted value matched that prefix.
+
+
 We are given a set of rules $R_i$ (e.g. firewall rules). The rule contains one range for each field of the tuple that it matches against. For example, a firewall rule matching against 5-tuple contains 5 ranges. We denote the $j$-th range of $R_i$ by $[s_{ij}, e_{ij})$. The functionality of PrefixMatch is to encrypt a set of rules $R_1, \dots, R_n$ into another set of rules $\bar{R_1}, \dots, \bar{R_n}$, and a tuple $v$ into $\Enc(v)$. Anyone with access to these encryptions can determine which rule(s) $v$ matches,  while not learning the values of $R_1$, $\dots$, $R_n$, and $v$. 
 
 \raluca{what happens to the security of ports, do we still need IPv6?}
@@ -97,6 +103,8 @@ Although PrefixMatch has a similar functionality to order-preserving encryption 
   \includegraphics[width=3in]{fig/rangeopts3.pdf}
   \caption[]{PrefixMatch example for 2-field rules. Values in red are assigned prefixes. \label{fig:rangeopts3}}
 \end{figure}
+
+\textbf{Functionality.}
 
 To encrypt the rules $R_1, \dots, R_n$, PrefixMatch first maps $n$ ranges $[s_{1j}, e_{1j}), \dots, [s_{nj}, e_{nj})$ into a random permutation of prefixes for each field $j$. Then it sorts the endpoints of those ranges into an ordered array $x_1, ..., x_{2n}$ for each $j$. Therefore, for the $j$-th field of a tuple, we can determine which interval $[x_i, x_{i+1}), (1 \leq i \leq n-1)$ it is in, and consequently determine which rule(s) is matched to this particular field. If a tuple has multiple fields, we take the intersection of resulting sets of rules. For example, in Fig.~\ref{fig:rangeopts3}, we obtain 5 intervals for the first field and 4 intervals for the second field from 3 rules $R_0, R_1, R_2$. Each interval refers to different set of ranges. Given the mapping from ranges to the random permutation of prefixes that PrefixMatch obtained at the beginning, $R_0, R_1, R_2$ have new representations: $(123.0.0.0/8, 123.0/8)$, $(84.0.0.0/8, 17.0/8)$, $(14.0.0.0/8, 89.0/8)$. They become the new rules that are deployed in the remote service provider.
 
@@ -133,6 +141,9 @@ The assigned prefixes for different fields are deployed as new rules on the serv
 \noindent \textbf{Updating ranges.}
 Adding a new range or removing an existing range would affect the intervals it covers. Therefore, in the worst case $O(N)$ rules needs to be updated. 
 
+\todo{Somewhere it has to be clear that with this prefix match, the firewall will match with simple inequality}
+\todo{ and it has to be clear that to encrypt firewall rules at the gateway using the Prefix match, you need to go through each part of the rule and encrypt that}
+\todo{and need to discuss the prefix part}
 \subsubsection{Implementing PrefixMatch in the Gateway}
 \label{sec:tree}
 
