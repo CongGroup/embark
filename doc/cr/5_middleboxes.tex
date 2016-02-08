@@ -1,11 +1,10 @@
 \section{Middleboxes: Design \& Implementation}
 \label{sec:mbs}
 
-In Table~\ref{tbl:mbreqs}, we introduced the set of middleboxes typically supported by outsourcing approaches and divided them in to Header, HTTP, and DPI middleboxes. 
-We now revisit these middleboxes individually. %and discuss how they operate over the encrypted data.
+In Table~\ref{tbl:mbreqs}, we introduced the set of middleboxes typically supported by outsourcing approaches. We now revisit these middleboxes individually. %and discuss how they operate over the encrypted data.
 
 \subsection{Header Middleboxes}
-Middleboxes which operate on IP and transport headers only include firewalls, NATs, and L4 load balancers.
+Middleboxes which operate on IP and transport headers only include firewalls, NATs, and L3/L4 load balancers.
 Firewalls are read-only, but NATs and L4 load balancers may rewrite IP addresses or port values. 
 For header middleboxes, per-packet operations remain unchanged for both read and write operations.
 
@@ -15,18 +14,20 @@ For write operations, the middleboxes assign values from an address pool; it rec
 These encrypted rules are marked with a special suffix reserved for rewritten values.
 When the gateway receives a packet with such a rewritten value, it restores the plaintext value from the pool rather than decrypting the value from the options header.
 
+Middleboxes can recompute checksums as usual after they write.
+
 \subsection{DPI Middleboxes}
 We modify middleboxes which perform DPI operations as described by BlindBox~\cite{blindbox}. 
-The middleboxes search through the encrypted extension channel -- not the packet payloads themselves -- and block the connection if a blacklisted term is observed in the extension.
+The middleboxes search through the encrypted extension channel -- not the packet payloads themselves -- and block or log the connection if a blacklisted term is observed in the extension.
 Much of the BlindBox paper is devoted to designing new fast-path algorithms which provide high throughput and cryptographic compatibility; as we showed \sys sidesteps this problem for header middleboxes since it can re-use existing algorithms.
 
 \subsection{HTTP Middleboxes}
-Parental filters and L7 Load Balancers read the HTTP URI from the options header. 
-If the parental filter observes a blacklisted URI, it drops the connection.
-The L7 load balancer uses the URI to rewrite the IP header, and operates exactly like a NAT or L4 LB, except that it uses the URI to select which destination address to assign new connections.
+Parental filters and HTTP proxies read the HTTP URI from the options header. 
+If the parental filter observes a blacklisted URI, it drops packets that belong to the connection.
+%The L7 load balancer uses the URI to rewrite the IP header, and operates exactly like a NAT or L4 LB, except that it uses the URI to select which destination address to assign new connections.
 
 The web proxy required the most modification of any middlebox \sys supports; nonetheless, our proxy achieves good performance as we will discuss in \S\ref{sec:eval}.
-The proxy  caches HTTP static content (e.g., images) in order to improve client-side performance. 
+The proxy caches HTTP static content (e.g., images) in order to improve client-side performance. 
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if the proxy were the web server. The proxy then opens a second connection in the background to the original web server, as if it were the client. 
 When a client sends a request for new content, if the content is in the proxy's cache, the proxy will serve it from there. Otherwise, the proxy will forward this request to the web server and cache the new content. 
 

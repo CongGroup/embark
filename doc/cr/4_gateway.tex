@@ -39,14 +39,13 @@ We design the gateway with two goals in mind:
 \subsection{Data Encryption and Decryption}
 \label{sec:dataenc}
 
-As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middleboxes, which operate only on IP and transport headers; HTTP middleboxes, which operate on HTTP headers and may operate on IP and transport headers; and DPI middleboxes, which operate on arbitrary fields in a connection bytestream. 
-We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
+As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middleboxes, which operate only on IP and transport headers; and DPI middleboxes, which operate on arbitrary fields in a connection bytestream. We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
 
 \subsubsection{IP and Transport Headers}
 IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with PrefixMatch.
 We use PrefixMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
 
-\noindent{\bf Decryption.} PrefixMatch is not reversible. To enable packet decryption, we store the AES encrypted values for the header fields in the IP options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header and restores them.% to the IP or transport header.
+\noindent{\bf Decryption.} PrefixMatch is not reversible. To enable packet decryption, we store the AES-encrypted values for the header fields in the IPv6 options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header and restores them.% to the IP or transport header.
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted range match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
@@ -64,22 +63,21 @@ Because this encrypted payload data is over the {\it bytestream}, we need to gen
 Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {'malici', 'alicio', 'liciou', 'icious'}.
 If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
-The gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
-This channel is not routed to other middleboxes.
+After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection between the gateway and middleboxes. The bytestream in transmission is associated with its flow identifier, so that the DPI middleboxes can distinguish between bytestreams in different flows.
+
+Besides, the gateway still forward the packets to the cloud, with the payload data encrypted with AES and checksums recomputed. The DPI middleboxes handle the packets based on the bytestream received from the extension channel.
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like PrefixMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.
 
 \noindent{\bf Format-compatibility.} To middleboxes which only inspect/modify packet headers, encrypting payloads has no impact. 
-By placing this data in the extension channel, the extra traffic can be routed past and ignored by middleboxes which do not need this data. % hence it will not interfere with normal processing. 
+By placing the encrypted bytestreams in the extension channel, the extra traffic can be routed past and ignored by middleboxes which do not need this data. % hence it will not interfere with normal processing. 
 
 DPI middleboxes which do inspect payloads must be modified to inspect the extension channel alongside the primary channel, as described in~\cite{blindbox}; DPI devices are typically implemented in software and and these modifications are both straightforward and introduce limited overhead (as we will see in \S\ref{sec:eval}). 
 
 \subsubsection{HTTP Headers} 
 
-HTTP Headers are a special case of payload data.
-Middleboxes such as web proxies do not read arbitrary values from packet payloads: the only values they read are the HTTP headers.
-We treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
+HTTP Headers are a special case of payload data. Middleboxes such as web proxies do not read arbitrary values from packet payloads: the only values they read are the HTTP headers. They can be categorized as DPI middleboxes since they need to examine the TCP bytesteam. However, due to the limitation of full DPI support, we treat these values specially compared to other payload data: we encrypt the entire (untokenized) HTTP URI using a deterministic form of KeywordMatch.
 
 Normal KeywordMatch permits comparison between encrypted values and rules, but not between one value and another value; deterministic KeywordMatch permits two values to be compared as well.
 Although this is a weaker security guarantee relative to KeywordMatch, it is necessary to support web caching which requires comparisons between different URIs.
@@ -122,7 +120,7 @@ After this setup, all connections from the enterprise are encrypted with the sam
 \eat{
 \subsection{Discussion}
 \label{sec:gwimpl}
-We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
+We built our gateway as described above using BESS~\cite{bess} on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
 We discuss a few systems properties of our gateway as follows before discussing middlebox implementations in \S\ref{sec:mbimpl}.
 
 \eat{
