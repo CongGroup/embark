@@ -85,7 +85,23 @@
 \newcommand{\Name}{APLOMB\xspace}
 \newcommand{\Nameplus}{{APLOMB+}\xspace}
 \newcommand{\NameArch}{{\sc APLOMB}\xspace}
+
+% ENCRYPTION NOTATION
+
 \newcommand{\ov}[1]{\overline{#1}}
+
+\newcommand{\pmatch}{PrefixMatch}
+
+\newcommand{\plen}{\mathsf{prefix\_len}}
+\newcommand{\slen}{\mathsf{suffix\_len}}
+\newcommand{\ptlen}{\mathsf{pt\_len}}
+
+
+
+\newcommand{\comment}[1]{\hfill {\footnotesize // #1}}
+
+\newcommand{\prefixes}{\mathsf{prefixes}}
+\newcommand{\seed}{\mathsf{seed}}
 
 % RESULTS
 
@@ -162,8 +178,8 @@
     \renewcommand{\labelenumi}{\arabic{enumi}: }
   \renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}: }
   \renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}: }                                     
-  \noindent \textbf{#1:} \label{#2} 
-#3
+  \noindent \textbf{#1} \label{#2}
+(#3):
   \vspace{0.13\baselineskip}
   \begin{enumerate}[noitemsep,nolistsep]\itemsep=0.1\baselineskip
 #4
