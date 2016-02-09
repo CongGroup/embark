@@ -85,12 +85,11 @@ The cache hence learns the frequency of different URIs, but cannot immediately l
  This is the only field which we encrypt in the weaker setting.
 We place this encrypted value in the extension channel; hence our HTTP encryption has the same format-compatibility properties as other DPI devices.
 
-Like other DPI tasks, this requires parsing the entire TCP bytestream.
-However, in some circumstances we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet.
+Like other DPI tasks, this requires parsing the entire TCP bytestream. However, in some circumstances we can extract and store the HTTP headers statelessly; so long as HTTP pipelining is disabled and packet MTUs are standard-sized (>1KB), the required fields will always appear contiguously within a single packet. Given that SPDY uses persistent connections and pipelined requests, this stateless approach does not apply to SPDY.
 %Hence, if DPI is disabled we can avoid reconstructing the TCP bytestream at the middlebox.
 %When DPI is enabled, the gateway scans through every byte of data in the connection already;  extracting these headers allows the middlebox to avoid re-doing work which has already been done at the gateway.
 
-\noindent{\bf Decryption.} The packet is decrypted as normal using the data stored in the payload; options are removed.
+\noindent{\bf Decryption.} The packet is decrypted as normal using the data stored in the payload; IP options are removed.
 
 
 \eat{

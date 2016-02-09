@@ -22,7 +22,7 @@ The middleboxes search through the encrypted extension channel -- not the packet
 Much of the BlindBox paper is devoted to designing new fast-path algorithms which provide high throughput and cryptographic compatibility; as we showed \sys sidesteps this problem for header middleboxes since it can re-use existing algorithms.
 
 \subsection{HTTP Middleboxes}
-Parental filters and HTTP proxies read the HTTP URI from the options header. 
+Parental filters and HTTP proxies read the HTTP URI from the extension channel. 
 If the parental filter observes a blacklisted URI, it drops packets that belong to the connection.
 %The L7 load balancer uses the URI to rewrite the IP header, and operates exactly like a NAT or L4 LB, except that it uses the URI to select which destination address to assign new connections.
 
@@ -31,8 +31,8 @@ The proxy caches HTTP static content (e.g., images) in order to improve client-s
 When a client opens a new HTTP connection, a typical proxy will capture the client's SYN packet and open a new connection to the client, as if the proxy were the web server. The proxy then opens a second connection in the background to the original web server, as if it were the client. 
 When a client sends a request for new content, if the content is in the proxy's cache, the proxy will serve it from there. Otherwise, the proxy will forward this request to the web server and cache the new content. 
 
-The proxy has a map of encrypted file path to encrypted file content. When the proxy receives a packet, the proxy extracts the encrypted URI from the options header and looks it up in the cache. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two cases: there is a hit or a miss. For hit, the proxy assembles a packet header for reverse traffic and attaches to it the encrypted file content from the cache. Even without being able to encrypt IP addresses or ports, the proxy can create the header by reversing the encrypted information in the original header.
-For a miss, the proxy forwards the request to the web server, once again copying the IP address, ports, and options. When receiving the response, the proxy caches it to serve future requests.
+The proxy has a map of encrypted file path to encrypted file content. When the proxy accepts a new TCP connection on port 80, the proxy extracts the encrypted URI for that connection from the extension channel and looks it up in the cache. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two possible cases: there is a hit or a miss. If there is a cache hit, the proxy sends the encrypted file content from the cache via the existing TCP connection. Even without being able to decrypt IP addresses or ports, the proxy can still accept the connection, as the gateway encrypts/decrypts the header fields transparently.
+If there is a cache miss, the proxy opens a new connection and forwards the encrypted request to the web server. Recall that the traffic bounces back to gateway before being forwarded to the web server, so that the gateway can decrypt the header fields and payloads. Conversely, the response packets from the web server are encrypted by the gateway and received by the proxy. The proxy then caches and sends the encrypted content back. The content is separated by packets. Packet payloads are encrypted on a per-packet basis. Hence, the gateway can decrypt them correctly.
 
 
 

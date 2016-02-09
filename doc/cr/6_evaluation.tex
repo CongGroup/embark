@@ -35,7 +35,7 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
 
  
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
-Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as HTTP/proxy encryption. 
+Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as stateless HTTP/proxy encryption. 
 For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 9.6Gbps per core; for full-sized packets it achieves over 9.8Gbps.
 In scalability experiments (Fig.~\ref{fig:gwscale}) with 4 cores dedicated to processing, our server could could forward at up to 9.7Gbps for empirical traffic while encrypting for headers and HTTP traffic.
 There is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
@@ -170,7 +170,7 @@ In what follows, we provide some further middlebox-specific benchmarks for the f
 \noindent{\bf Firewalls:} 
 {\it Does \sys support all rules in a typical firewall configuration? How much does the ruleset ``expand'' due to encryption?}
 
-We tested our firewall with three rulesets provided to us by a network administrator at our institution and an IP firewall ruleset from Emerging Threats~\cite{emergingthreats}. We were able to encode all rules using range and keyword match encryptions. The size of 3 rulesets did not change after encryption, while the size of the other ruleset from Emerging Threats expanded from 1363 to 1370 -- an 0.5\% increase. Therefore we conclude that it has negligible impact on the firewall performance.
+We tested our firewall with three rulesets provided to us by a network administrator at our institution and an IP firewall ruleset from Emerging Threats~\cite{emergingthreats}. We were able to encode all rules using range and keyword match encryptions. The size of 3 rulesets did not change after encryption, while the size of the other ruleset from Emerging Threats expanded from 1363 to 1370 -- a 0.5\% increase. Therefore we conclude that it has negligible impact on the firewall performance.
 
 
 % We also investigated how much the ruleset increased due to PrefixMatch. Rules are typically encoded in the firewall as prefixes, hence a rule over the range [4.0.0.0, 4.255.255.255] is in practice implemented as a bit-mask over the first 8 bits of every packet. Using PrefixMatch, the same prefix might be mapped to 9.128.0.0-10.128.0.0.0, resulting in two /9 prefix ranges in the final rule encoding: 9.128.0.0/9 or 10.128.0.0/9. As throughput for many middleboxes decreases with the number of rules, we were concerned that these mappings might degrade performance. However, in practice rules increased modestly, by between 5.8\% and 10.2\%.
