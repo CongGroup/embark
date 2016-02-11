@@ -195,8 +195,7 @@ Hence, this setup cost is paid once when the gateway is initially configured. \s
 
 \noindent{\it (2) Security improvements.} 
 Using IDS rulesets from Snort, we converted regular expressions to exact match strings as discussed in \S\ref{sec:bbarch}. With 10G memory, we were able to convert about half of all regular expressions to a finite number of exact match strings; the remainder resulted in too many possible states. 
-We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%.
-With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%.
+We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%. With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%. The major drawback of \sys is that \sys cannot perform probable cause encryption, because there is no end-to-end SSL session in the \sys scenario. However, \sys still strictly improves the security in this outsourcing scenario.
 
 \eat{
 \begin{table}[h]
