@@ -6,67 +6,60 @@
 \centering
 \small
 \hspace{-2pt}
-\begin{tabular}{l|l|l}
+\begin{tabular}{l | p{8.8cm} | l}
 \hline
 {\bf Middlebox} & {\bf Requirements} & {\bf Scheme} \\ \hline
-IP Firewall & 
-\parbox {10cm}{
+IP Firewall~\cite{fireman} & 
+\parbox {8cm}{
+
 \begin{flalign*}
-(SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ action\ a \quad \Rightarrow \quad (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ action\ a &
+& \text{Let $A$ be the action of a firewall rule, } \\
+& (SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ A \ \Rightarrow \ (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ A 
 \end{flalign*}
 } & PrefixMatch \\ \hline
 
-NAT (NAPT) & 
-\parbox {10cm}{
+NAT (NAPT)~\cite{rfc3022} & 
+\parbox {8cm}{
 \begin{flalign*}
-\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
-\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
+\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \ \Rightarrow \ (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
+\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \ \Rightarrow \ (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
 \end{flalign*}
 } 
 & PrefixMatch \\ \hline
 
-L3 Load Balancer (ECMP) &
-\parbox {10cm}{
+L3 Load Balancer (ECMP)~\cite{rfc2991} &
+\parbox {8cm}{
 \begin{flalign*}
-\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \ \Rightarrow \\
 & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2') 
 \end{flalign*}
 }
 & PrefixMatch \\ \hline
 
-L4 Load Balancer &
-\parbox {10cm}{
+TCP Load Balancer~\cite{haproxy} &
+\parbox {8cm}{
 \begin{flalign*}
-    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \ \Rightarrow \\
     & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ \neq\ (SIP_2', DIP_2', SP_2', DP_2', P_2') \\
-    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\ 
+    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \ \Rightarrow \\ 
     & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2')
 \end{flalign*}
 }
 & PrefixMatch \\ \hline
 
-Deep Packet Inspection &
-\parbox {10cm}{
-\begin{flalign*}
-& keyword \in stream \quad \Rightarrow \quad keyword' \in stream'
-\end{flalign*}
-} &
+Deep Packet Inspection~\cite{blindbox} &
+If a keyword presents in the original bytestream, then the encrypted keyword should present in the encrypted bytestream.
+&
 KeywordMatch \\ \hline
 
 Parental Filter &
-\parbox {10cm}{
-\begin{flalign*}
-& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-\end{flalign*}
-} &
+If an URI presents in the HTTP URI field, then parental filters should be able to obtain the encrypted URI and to compare against encrypted rules.
+ &
 KeywordMatch \\ \hline
 
-HTTP Proxy / Cache &
-\parbox {10cm}{
-\begin{flalign*}
-& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-\end{flalign*}
-} &
+HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
+If an URI presents in the HTTP URI field, then proxies should be able to obtain the encrypted URI and to compare against other encrypted URIs.
+&
 KeywordMatch \\ \hline
 
 \end{tabular}
@@ -127,7 +120,7 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
+\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. It also lists each middlebox's requirement on the encryption schemes. We derive those requirements based on the existing papers, documents, or implementations. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
    
 From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
 However, these schemes are four orders of magnitude slower than {\it PrefixMatch} making them unusable for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em PrefixMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
