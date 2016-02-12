@@ -2,6 +2,7 @@
 
 \section{Introduction}\label{sec:intro}
 
+
 %\begin{table*}[t]
 %\centering
 %\small
@@ -97,6 +98,7 @@
 
 
 
+
 Middleboxes such as firewalls, NATs, and proxies, have grown to be a vital part of modern networks, but are 
 also widely recognized as bringing significant problems including high cost, inflexibility, and complex management.  
 These problems have led both research and industry to explore an alternate approach: moving middlebox functionality out of dedicated boxes and into 
@@ -136,7 +138,7 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
+\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. It also lists each middlebox's requirement on the encryption schemes. We derive those requirements based on the existing papers, documents, or implementations. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
    
 From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
 However, these schemes are four orders of magnitude slower than {\it PrefixMatch} making them unusable for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em PrefixMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
@@ -190,7 +192,7 @@ KeywordMatch \\
 
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
-Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
+Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
 \eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
 

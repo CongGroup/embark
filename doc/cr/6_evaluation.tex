@@ -100,7 +100,7 @@ This overhead is negligible.% on any modern server.
 
 We use web performance to understand end-to-end user experience of \sys.
 Figure~\ref{fig:e2eloads} shows a CDF for the Alexa top-500 sites loaded through our testbed. We compare the baseline (direct download) assuming three different service providers: an ISP hosting services in a Central Office (CO), a Content-Distribution Network, and a traditional cloud provider (EC2). The mean RTTs from the gateway are 60$\mu$s, 4ms, and 31ms, respectively. We deployed \sys on EC2 and used this deployment for our experiments, but for the CO and CDN we emulated the deployment with inflated latencies and servers in our testbed. We ran a pipeline of NAT, firewall and proxy (with empty cache) in the experiment.
-Because of the `bounce' redirection \sys uses, all page load times increase by some fraction; in the median case this increase is less than 50ms for the ISP/Central Office, 100ms for the CDN, and 720ms using EC2; hence ISP and CDN based deployments will escape human perception~\cite{millishumans} but a cloud deployment will introduce human-noticeable overheads.
+Because of the `bounce' redirection \sys uses, all page load times increase by some fraction; in the median case this increase is less than 50ms for the ISP/Central Office, 100ms for the CDN, and 720ms using EC2; hence ISP based deployments will escape human perception~\cite{millishumans} but a CDN (or a cloud deployment) may introduce human-noticeable overheads.
 
 \subsubsection{Bandwidth Overheads}
 We evaluate two costs: the increase in bandwidth due to our encryption and metadata, and the increase in bandwidth cost due to `bounce' redirection.
@@ -195,8 +195,7 @@ Hence, this setup cost is paid once when the gateway is initially configured. \s
 
 \noindent{\it (2) Security improvements.} 
 Using IDS rulesets from Snort, we converted regular expressions to exact match strings as discussed in \S\ref{sec:bbarch}. With 10G memory, we were able to convert about half of all regular expressions to a finite number of exact match strings; the remainder resulted in too many possible states. 
-We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%.
-With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%.
+We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%. With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%. The major drawback of \sys is that \sys cannot perform probable cause encryption, because there is no end-to-end SSL session in the \sys scenario. However, \sys still strictly improves the security in this outsourcing scenario.
 
 \eat{
 \begin{table}[h]
