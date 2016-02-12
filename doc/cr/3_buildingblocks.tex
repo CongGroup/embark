@@ -150,7 +150,7 @@ We now present the EncryptPrefixes procedure, which works the same for prefixes 
 \end{framed}
 
 \mypara{Value encryption}
-To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. $\ov{I}$ becomes the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it satisfies the determinism property required in \todo{link}.
+To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. $\ov{I}$ becomes the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it is deterministic. \todo{link}
 Hence, the suffix is chosen based on a pseudorandom function that $\prf^{\slen}$ seeded in a given seed  $\seed$.  
 
 
@@ -198,7 +198,7 @@ We formalize and prove the security guarantees of \pmatch{} in our extended pape
 \todo{THIS  SUBSECTION IS WORK IN PROGRESS}
 
 
-\todo{move the following few in the gateway} We seed $\prf$ in $q$, a function of both the key and hash of the tuple being encrypted ($q = \prf_k(\text{(u, v)})$). Note that, in the system setup with two gateways, the gateways generate the same encryption because they share $k$. Let $N$ be $2^{w-m}$, where the value is $w$-bit and the prefix is $m$-bit. The encryption of $v$ is
+To encrypt a value with EncryptValue, we seed $\prf$ in $\seed$, a function of both the key and hash of the tuple being encrypted ($\seed = \prf_k(\text{(u, v)})$). Note that, in the system setup with two gateways, the gateways generate the same encryption because they share $k$.  
 
 The scheme supports NATs -- which require that every time a value for the same connection is encrypted, it returns the same value. It generates a random encryption using a deterministic function. 
 

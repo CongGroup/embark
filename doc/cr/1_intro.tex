@@ -2,89 +2,98 @@
 
 \section{Introduction}\label{sec:intro}
 
-\begin{table*}[t]
-\centering
-\small
-\hspace{-2pt}
-\begin{tabular}{l|l|l}
-\hline
-{\bf Middlebox} & {\bf Requirements} & {\bf Scheme} \\ \hline
-IP Firewall & 
-\parbox {10cm}{
-\begin{flalign*}
-(SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ action\ a \quad \Rightarrow \quad (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ action\ a &
-\end{flalign*}
-} & PrefixMatch \\ \hline
+%\begin{table*}[t]
+%\centering
+%\small
+%\hspace{-2pt}
+%\begin{tabular}{l|l|l}
+%\hline
+%{\bf Middlebox} & {\bf Requirements} & {\bf Scheme} \\ \hline
+%IP Firewall & 
+%\parbox {10cm}{
+%\begin{flalign*}
+%(SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ action\ a \quad \Rightarrow \quad (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ action\ a &
+%\end{flalign*}
+%} & PrefixMatch \\ \hline
+%
+%NAT (NAPT) & 
+%\parbox {10cm}{
+%\begin{flalign*}
+%\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
+%\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
+%\end{flalign*}
+%} 
+%& PrefixMatch \\ \hline
+%
+%L3 Load Balancer (ECMP) &
+%\parbox {10cm}{
+%\begin{flalign*}
+%\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+%& (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2') 
+%\end{flalign*}
+%}
+%& PrefixMatch \\ \hline
+%
+%L4 Load Balancer &
+%\parbox {10cm}{
+%\begin{flalign*}
+%    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
+%    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ \neq\ (SIP_2', DIP_2', SP_2', DP_2', P_2') \\
+%    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\ 
+%    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2')
+%\end{flalign*}
+%}
+%& PrefixMatch \\ \hline
+%
+%Deep Packet Inspection &
+%\parbox {10cm}{
+%\begin{flalign*}
+%& keyword \in stream \quad \Rightarrow \quad keyword' \in stream'
+%\end{flalign*}
+%} &
+%KeywordMatch \\ \hline
+%
+%Parental Filter &
+%\parbox {10cm}{
+%\begin{flalign*}
+%& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
+%\end{flalign*}
+%} &
+%KeywordMatch \\ \hline
+%
+%HTTP Proxy / Cache &
+%\parbox {10cm}{
+%\begin{flalign*}
+%& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
+%\end{flalign*}
+%} &
+%KeywordMatch \\ \hline
+%
+%\end{tabular}
+%\caption[]{Middleboxes supported by \sys. Middleboxes are also labeled with their requirement on the encryption schemes. $(SIP, DIP, SP, DP, P)$ denotes the 5-tuple of a connection. $x'$ is the encryption of $x$.\label{tbl:mbreqs}} 
+%\end{table*}
+%
 
-NAT (NAPT) & 
-\parbox {10cm}{
-\begin{flalign*}
-\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
-\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
-\end{flalign*}
-} 
-& PrefixMatch \\ \hline
 
-L3 Load Balancer (ECMP) &
-\parbox {10cm}{
-\begin{flalign*}
-\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
-& (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2') 
-\end{flalign*}
-}
-& PrefixMatch \\ \hline
-
-L4 Load Balancer &
-\parbox {10cm}{
-\begin{flalign*}
-    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
-    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ \neq\ (SIP_2', DIP_2', SP_2', DP_2', P_2') \\
-    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\ 
-    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2')
-\end{flalign*}
-}
-& PrefixMatch \\ \hline
-
-Deep Packet Inspection &
-\parbox {10cm}{
-\begin{flalign*}
-& keyword \in stream \quad \Rightarrow \quad keyword' \in stream'
-\end{flalign*}
-} &
-KeywordMatch \\ \hline
-
-Parental Filter &
-\parbox {10cm}{
-\begin{flalign*}
-& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-\end{flalign*}
-} &
-KeywordMatch \\ \hline
-
-HTTP Proxy / Cache &
-\parbox {10cm}{
-\begin{flalign*}
-& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-\end{flalign*}
-} &
-KeywordMatch \\ \hline
-
-\end{tabular}
-\caption[]{Middleboxes supported by \sys. Middleboxes are also labeled with their requirement on the encryption schemes. $(SIP, DIP, SP, DP, P)$ denotes the 5-tuple of a connection. $x'$ is the encryption of $x$.\label{tbl:mbreqs}} 
-\end{table*}
+%%%%%%%%%%%%%%%%%%%%
 
 
-A useful piece of text:
 
-Table 1 presents the ``textbook'' functionality of each middlebox supported. This functionality is the basica functionality
-of this box as presented in textbook .. and RFC ...
-Note that some of these middleboxes have become even more complex, supporting additional functionality not present in
-Table 1. Such functionality may or may be supported by \sys. \sys does not support all complex functionalities out there adn we discuss in \S what we do not support. Make clear that the table spells out precisely what we can support and what not. 
 
-In Table XX, we provide the functionality that \sys provides. This covers the functionality of xxx of above and most of the one
-below. Moreover, in eval, we show that we support at least a real middlebox from each of hte examples above. 
 
-------
+\todo{fix the text below in comments}
+
+%A useful piece of text:
+%
+%Table 1 presents the ``textbook'' functionality of each middlebox supported. This functionality is the basica functionality
+%of this box as presented in textbook .. and RFC ...
+%Note that some of these middleboxes have become even more complex, supporting additional functionality not present in
+%Table 1. Such functionality may or may be supported by \sys. \sys does not support all complex functionalities out there adn we discuss in \S what we do not support. Make clear that the table spells out precisely what we can support and what not. 
+%
+%In Table XX, we provide the functionality that \sys provides. This covers the functionality of xxx of above and most of the one
+%below. Moreover, in eval, we show that we support at least a real middlebox from each of hte examples above. 
+%
+%------
 
 
 
@@ -142,6 +151,43 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
   
  
+ \begin{table}[t]
+\centering
+\small
+\hspace{-2pt}
+\begin{tabular}{c|c}
+\hline
+{\bf Middlebox} &  {\bf Scheme} \\ \hline
+IP Firewall & 
+ PrefixMatch \\ 
+
+NAT (NAPT) & 
+ PrefixMatch \\
+
+L3 Load Balancer (ECMP) &
+ PrefixMatch \\ 
+
+L4 Load Balancer &
+ PrefixMatch \\ 
+
+Deep Packet Inspection &
+
+KeywordMatch \\ 
+
+Parental Filter &
+
+KeywordMatch \\ 
+
+HTTP Proxy / Cache &
+
+KeywordMatch \\ 
+
+\end{tabular}
+\caption[]{Middleboxes supported by \sys and the encryption scheme used.\label{tbl:mbreqs}} 
+\end{table}
+
+
+
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 1.5 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
