@@ -89,20 +89,18 @@ To the best of our knowledge, RangeMatch is the only practical encryption scheme
 
 Although RangeMatch has a similar functionality to order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope}, neither meets our security requirement (because they leak the ordering between encrypted values, not just whether they match a range) or provides the performance necessary for packet processing (as we show in \S\ref{sec:eval}).
 
-\eat{
-\begin{CompactEnumerate}[leftmargin=*]
+%\begin{CompactEnumerate}[leftmargin=*]
+%\item  {\em be fast}: the throughput of encryption should be not much lower than network throughput. In particular, the scheme should preserve the ability to use {\em existing fast packet matching algorithms}, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of SP  to compute ``>'' between $v$ and the endpoints of an interval,
+%hence the encryption scheme should preserve this property. 
 
-\item  {\em be fast}: the throughput of encryption should be not much lower than network throughput. In particular, the scheme should preserve the ability to use {\em existing fast packet matching algorithms}, such as  various kinds of tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}.  All of these rely on the ability of SP  to compute ``>'' between $v$ and the endpoints of an interval,
-hence the encryption scheme should preserve this property. 
+%\item {\em provide strong security}: The encryption scheme should not leak $v$, $e_1$, $s_1$, $\dots$, $e_n$, $s_n$ to SP.
+%Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). \label{req:sec}
 
-\item {\em provide strong security}: The encryption scheme should not leak $v$, $e_1$, $s_1$, $\dots$, $e_n$, $s_n$ to SP.
-Ideally, SP does not learn anything about $v$ other than what interval it matches to. In  particular, even if $v_1$ and $v_2$ match the same range, SP should not learn their order. SP is allowed to learn the order relation of the intervals (in fact, in many setups, SP provides the intervals). \label{req:sec}
+%\item {\em be deterministic}: To integrate with NAT and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely.  \label{req:injective}
 
-\item {\em be deterministic}: To integrate with NAT and to enable middleboxes to piece together packets from the same flow, each value should get  consistently  the same encryption. Any changes in the encryption assigned should happen rarely.  \label{req:injective}
+%\item {\em be format-preserving}: The encryption should have the same format as the data. Concretely, an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure, which would be a hurdle to adoption. 
+%\end{CompactEnumerate}
 
-\item {\em be format-preserving}: The encryption should have the same format as the data. Concretely, an encrypted IP address should look like an IP address.  This property is important to avoid changing the packet header structure, which would be a hurdle to adoption. 
- \end{CompactEnumerate}
-}
 
 
 \subsubsection{Scheme} 
@@ -195,7 +193,6 @@ one point only, namely $s = e$.
 \end{framed}
 
 
-\eat{
 %EncryptValue encrypts the values to be matched against ranges.
 %\begin{framed}
 %\begin{algorithmic}[1]
@@ -207,7 +204,7 @@ one point only, namely $s = e$.
 %\EndProcedure
 %\end{algorithmic}
 %\end{framed}
-}
+
 We described how to encrypt values matched against ranges in \S\ref{sec:rmscheme}; it requires identifying set $I$ of possible encryption values for each value.
 Here is how to compute $I$ efficiently. When searching for $v$ in the tree, the gateway
 can identify the tightest enclosing interval [$p_1$, $p_2$] in logarithmic time. 
