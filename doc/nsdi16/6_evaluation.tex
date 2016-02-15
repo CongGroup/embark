@@ -129,8 +129,7 @@ Internet access typically has high bandwidth but a lower SLA; traffic may also b
 Intra-domain connectivity usually has a private, virtual Ethernet link between sites of the company with a high SLA and lower bandwidth.
 Because bounce redirection is over the `cheaper' link, the overall impact to bandwidth cost with header-only encryption given public sales numbers is between 15-50\%; with DPI encryption this cost increases to between 30-150\%. 
 
-\eat{Getting frustrated with these numbers so leaving them here and will come back to them. Megapath offers a dedicated link at 5x5Mbps for \$250/mo; 20x20Mbps for \$1300/mo. Comcast offers enterprise cable at 150/20Mbps for \$250/mo. The three way bounce should result in a cost increase of 15-50\%, depending on how much the internal link is provisioned for. The DPI should be 2-3 times that, so, between 30-150\%... 
-}
+%Getting frustrated with these numbers so leaving them here and will come back to them. Megapath offers a dedicated link at 5x5Mbps for \$250/mo; 20x20Mbps for \$1300/mo. Comcast offers enterprise cable at 150/20Mbps for \$250/mo. The three way bounce should result in a cost increase of 15-50\%, depending on how much the internal link is provisioned for. The DPI should be 2-3 times that, so, between 30-150\%... 
 
 \subsection{Middleboxes}
 \label{sec:evalcloud}
@@ -200,26 +199,22 @@ Using IDS rulesets from Snort, we converted regular expressions to exact match s
 We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%.
 With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%.
 
-\eat{
-\begin{table}[h]
-  \centering
-  \small
-  \begin{tabular}{l|c|c}
-  %\begin{tabular}{p{1.75in}|p{.4in}|p{.4in}}
-    {{\bf Rule Set}}&{\bf Exact Match}&{\bf Prob. Cause}\\
-    \hline
-    \hline
-    BB: Community&67\%&100\%\\
-    \hline
-    MB: Community&88.7\%&100\%\\
-
-    \hline
-    \hline
-    BB: Emerging Threats&42\%&100\%\\
-    \hline
-    MB: Emerging Threats&79.8\%&100\%\\
-    \hline
-  \end{tabular}
-\end{table}
-}
-
+%\begin{table}[h]
+%  \centering
+%  \small
+%  \begin{tabular}{l|c|c}
+%  %\begin{tabular}{p{1.75in}|p{.4in}|p{.4in}}
+%    {{\bf Rule Set}}&{\bf Exact Match}&{\bf Prob. Cause}\\
+%    \hline
+%    \hline
+%    BB: Community&67\%&100\%\\
+%    \hline
+%    MB: Community&88.7\%&100\%\\
+%    \hline
+%    \hline
+%    BB: Emerging Threats&42\%&100\%\\
+%    \hline
+%    MB: Emerging Threats&79.8\%&100\%\\
+%    \hline
+%  \end{tabular}
+%\end{table}

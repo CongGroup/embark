@@ -11,13 +11,12 @@
 \end{figure}
 
 
-\eat{
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=3.25in]{fig/gatewaydiag}
-  \caption[]{\label{fig:gateway} Data encryption (enterprise to cloud) click module.}
-\end{figure}
-}
+
+%\begin{figure}[t]
+%  \centering
+%  \includegraphics[width=3.25in]{fig/gatewaydiag}
+%  \caption[]{\label{fig:gateway} Data encryption (enterprise to cloud) click module.}
+%\end{figure}
 
 
 
@@ -95,11 +94,10 @@ However, in some circumstances we can extract and store the HTTP headers statele
 \noindent{\bf Decryption.} The packet is decrypted as normal using the data stored in the payload; options are removed.
 
 
-\eat{
-JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??
-\subsubsection{Optimizing Decryption}
-To reduce bandwidth usage, the gateway temporarily caches the packets destined to the service provider indexed by their hashes for a short time. If the middleboxes on the cloud do not change the packet content, instead of sending the whole packet back, the service provider sends a control packet containing the hash of the original packet. The gateway then retrieves the local packet by looking up the hash in the cache.
-}
+
+%JS: I vote to cut this. Here's why -- we are going to be basically hosed when it comes to bandwidth, whether or not we have this. And adding this in adds a huge amount of complexity to the gateway! So way sacrifice our primary goal (cheap, less complex) to only partially fix another problem??
+%\subsubsection{Optimizing Decryption}
+%To reduce bandwidth usage, the gateway temporarily caches the packets destined to the service provider indexed by their hashes for a short time. If the middleboxes on the cloud do not change the packet content, instead of sending the whole packet back, the service provider sends a control packet %containing the hash of the original packet. The gateway then retrieves the local packet by looking up the hash in the cache.
 
 \subsection{Rule Encryption}
 \label{sec:rulenc}
@@ -119,35 +117,31 @@ After this setup, all connections from the enterprise are encrypted with the sam
 %This is important because for a typical industry ruleset, a garbled circuit + oblivious transfer exchange takes 97 seconds~\cite{blindbox}; with BlindBox this exchange must be performed for every connection and thus is prohibitive for practicality.
 %For \sys, on the otherhand, this amounts to a relatively cheap one-time setup cost.
 
-\eat{
-\subsection{Discussion}
-\label{sec:gwimpl}
-We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
-We discuss a few systems properties of our gateway as follows before discussing middlebox implementations in \S\ref{sec:mbimpl}.
-
-\eat{
-Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
-
-\noindent\textbf{Header Rewrite.} At this stage, the gateway rewrites the header fields in the packets using the RangeMatch scheme using in algorithm in Section \ref{sec:dataenc}. It consists of multiple Click elements: ProtocolTranslator46 that translates an IPv4 packet to an IPv6 packet, AppendIP6Option that populates DET-encrypted header fields into the IPv6 options, HeaderEncrypt that performs the encryption, and SetTCPChecksum that sets the checksum.
-
-\noindent\textbf{Stream Reconstruction.} This component acts as a TCP transparent proxy by terminating incoming TCP connections from clients. It encrypts the reconstructed bytestreams using the stream cipher, and relays them in new connections. Note that the IP options are preserved during this phase. It also pushes bytestreams into the secondary channel, where middleboxes can perform DPI operations. Meanwhile, it extracts HTTP headers from the stream and puts the deterministically encrypted HTTP header fields into the IP options.
-
-\noindent\textbf{Packet Cache.} The dataflow from the service provider back to the gateway is relatively simple. The Packet Cache restores the packets, the Stream Reconstruction component decrypts the streams into plaintext, then the Header Rewrite component decrypts the header fields and performs 6to4 translation (if the client uses IPv4).
-
-Having discussed the design and implementation of the gateway, we now revisit a few of its system properties before moving on to the design and implementation of the middleboxes in \S\ref{sec:mbimpl}.
-}
-
-\noindent\textbf{Scalability.}
-Encryption and decryption are entirely parallel: they require no synchronization or communication between threads. We show in \S\ref{sec:eval} that we achieve almost linear improvements from adding additional processing cores.
-However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instructions. 
-Consequently, the gateway can support 10Gbps of traffic with only 8 cores enabled.
-
-\noindent\textbf{Complexity.}
-An administrator only supplies the gateway with the IP address of the cloud and the secret key $k$.
-The administrator places the gateway at the border of their enterprise network to the Internet.
-The administrator supplies any rules/policies to the cloud provider and the gateway is then configured by the cloud provider.
-
-\noindent\textbf{Fault Tolerance.}
-When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
-When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenization; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
-}
+%\subsection{Discussion}
+%\label{sec:gwimpl}
+%We built our gateway as described above using Click over DPDK on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
+%We discuss a few systems properties of our gateway as follows before discussing middlebox implementations in \S\ref{sec:mbimpl}.
+%
+%Our gateway datapath implementation has 3 major components: Header Rewrite, Stream Reconstruction, and Packet Cache. We primarily introduce the dataflow from the client to the gateway below:
+%
+%\noindent\textbf{Header Rewrite.} At this stage, the gateway rewrites the header fields in the packets using the RangeMatch scheme using in algorithm in Section \ref{sec:dataenc}. It consists of multiple Click elements: ProtocolTranslator46 that translates an IPv4 packet to an IPv6 packet, AppendIP6Option that populates DET-encrypted header fields into the IPv6 options, HeaderEncrypt that performs the encryption, and SetTCPChecksum that sets the checksum.
+%
+%\noindent\textbf{Stream Reconstruction.} This component acts as a TCP transparent proxy by terminating incoming TCP connections from clients. It encrypts the reconstructed bytestreams using the stream cipher, and relays them in new connections. Note that the IP options are preserved during this phase. It also pushes bytestreams into the secondary channel, where middleboxes can perform DPI operations. Meanwhile, it extracts HTTP headers from the stream and puts the deterministically encrypted HTTP header fields into the IP options.
+%
+%\noindent\textbf{Packet Cache.} The dataflow from the service provider back to the gateway is relatively simple. The Packet Cache restores the packets, the Stream Reconstruction component decrypts the streams into plaintext, then the Header Rewrite component decrypts the header fields and performs 6to4 translation (if the client uses IPv4).
+%
+%Having discussed the design and implementation of the gateway, we now revisit a few of its system properties before moving on to the design and implementation of the middleboxes in \S\ref{sec:mbimpl}.
+%
+%\noindent\textbf{Scalability.}
+%Encryption and decryption are entirely parallel: they require no synchronization or communication between threads. We show in \S\ref{sec:eval} that we achieve almost linear improvements from adding additional processing cores.
+%However, per-packet operations rely only on relatively inexpensive techniques; the most expensive operation performed is AES encryption with is supported in hardware through the AES-NI instructions. 
+%Consequently, the gateway can support 10Gbps of traffic with only 8 cores enabled.
+%
+%\noindent\textbf{Complexity.}
+%An administrator only supplies the gateway with the IP address of the cloud and the secret key $k$.
+%The administrator places the gateway at the border of their enterprise network to the Internet.
+%The administrator supplies any rules/policies to the cloud provider and the gateway is then configured by the cloud provider.
+%
+%\noindent\textbf{Fault Tolerance.}
+%When DPI is disabled, the gateway keeps no per-connection state. Hence, a cold standby can take over correctly for the gateway so long as it has the `static' state of the RangeMatch tree, key $k$, and IP address of SP.
+%When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenization; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.

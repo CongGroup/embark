@@ -2,13 +2,6 @@
 
 \section{Introduction}\label{sec:intro}
 
-
-
-
-
-
-
-
 \newcommand{\myspace}{\rule{0pt}{13em}}
 
 \begin{table*}[t]
@@ -19,50 +12,47 @@
 \hline
 {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
 IP Firewall & 
-\parbox {9cm}{
+\parbox {8cm}{
 \begin{flalign*}
 & (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
-& \hspace{5mm} \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) \\
-& \text{To support existing packet classification algorithms {\em unchanged:}} \\
- &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
+& \hspace{5mm} \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
+% & \text{To support existing packet classification algorithms {\em unchanged:}} \\
+% &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
 \end{flalign*}
 }
- & Yes & PrefixMatch \\  \hline 
-
-
+& Yes & PrefixMatch \\  \hline 
 
 NAT (NAPT) & 
-$(SIP_1, SP_1) = (SIP_2, SP_2) \Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) $
+\parbox {8cm}{
+\begin{flalign*}
+(SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
+(SIP_1, SP_1) \neq (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) \neq \Enc(SIP_2, SP_2) 
+\end{flalign*}
+}
 & Yes & PrefixMatch \\ \hline
 
-
-
-
 L3 Load Balancer (ECMP) &
-%
-$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) $
-
-$\Leftrightarrow 
-\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
-%
-%
+\parbox {8cm}{
+\begin{flalign*}
+&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+\end{flalign*}
+}
 & Yes & PrefixMatch \\ \hline
 
 L4 Load Balancer &
-$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) $
-$\Leftrightarrow 
-\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
-& Yes & PrefixMatch \\ \hline
-
-
+\parbox {8cm}{
+\begin{flalign*}
+&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+\end{flalign*}
+}& Yes & PrefixMatch \\ \hline
 
 HTTP Proxy / Cache &
-$ \text{URL} \in \text{HTTP Header} \Rightarrow \Match(\Enc(\text{URL}),\ \Enc(\text{HTTP Header}))=1 $
-&
-Yes & KeywordMatch \\ \hline
-
-
-
+$ \text{Request-URI} \in \text{HTTP Header} \Rightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
+& Yes & KeywordMatch \\ \hline
 
 Deep Packet Inspection: & & & \\
 
@@ -70,7 +60,7 @@ Deep Packet Inspection: & & & \\
 $\circ$ Parental Filter &
 \parbox {8cm}{
 \begin{flalign*}
-& \text{URL} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{URL}),\ \Enc(\text{HTTP Header})) = 1
+& \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1
 \end{flalign*}
 } &
 Yes & KeywordMatch \\
@@ -78,25 +68,25 @@ Yes & KeywordMatch \\
 %
 $\circ$ Data Exfiltration /  Watermark Detection 
 &
-$\text{watermark} \in \text{stream} \hspace{1mm} \Leftrightarrow \hspace{1mm} \Match(\Enc(\text{watermark}),\ \Enc(\text{stream})$)=1
+$\text{Watermark} \in \text{Stream} \hspace{1mm} \Leftrightarrow \hspace{1mm} \Match(\Enc(\text{Watermark}),\ \Enc(\text{Stream})$)=1
  &
 Yes & KeywordMatch \\ 
 %
 %
 $\circ$ Intrusion detection
 &
-$ \text{keyword} \in \text{stream} \quad \Leftrightarrow \quad   \Match(\Enc(\text{keyword}),\ \Enc(\text{stream}))=1$
+$ \text{Keyword} \in \text{Stream} \quad \Leftrightarrow \quad   \Match(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))=1$
 &
 Yes & KeywordMatch \\ 
 %
 %
 &
-$\text{regexp} \in \text{stream} \quad \Leftrightarrow \quad \Match(\Enc(\text{regexp}),\Enc(\text{stream}))=1$
+$\text{RegExpMatch(RegExp, Stream)} \quad \Leftrightarrow \quad \Match(\Enc(\text{regexp}),\Enc(\text{stream}))=1$
 &
 Partially & KeywordMatch \\
 
 &
-run intrusion detection scripts on traffic stream
+Run intrusion detection scripts on traffic stream
  &
 No & KeywordMatch \\
 
@@ -106,7 +96,8 @@ No & KeywordMatch \\
 
 \end{tabular}
 }
-\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes efficiently. ``Support'' indicates if \sys supports the the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+
+\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes efficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
 \end{table*}
 
 %\multicolumn{3}{c}}\\
@@ -175,15 +166,18 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   PrefixMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
   Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
+<<<<<<< HEAD
   
  
 
+=======
+>>>>>>> 067f6bab50e876e70f765cd18f6e5a742307530b
 
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
-\eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
+%\eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
 
 
 
