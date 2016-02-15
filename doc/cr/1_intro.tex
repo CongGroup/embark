@@ -25,44 +25,40 @@ IP Firewall &
 NAT (NAPT) & 
 \parbox {8cm}{
 \begin{flalign*}
-(SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
-(SIP_1, SP_1) \neq (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) \neq \Enc(SIP_2, SP_2) 
+(SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
 \end{flalign*}
 }
 & Yes & PrefixMatch \\ \hline
 
-L3 Load Balancer (ECMP) &
+L3 LB (ECMP) &
+\parbox {8cm}{
+\begin{flalign*}
+&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+\Rightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+\end{flalign*}
+}
+& Yes & PrefixMatch \\ \hline
+
+L4 LB &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
 \Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
-\end{flalign*}
-}
-& Yes & PrefixMatch \\ \hline
-
-L4 Load Balancer &
-\parbox {8cm}{
-\begin{flalign*}
-&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+%&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+%\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
 \end{flalign*}
 }& Yes & PrefixMatch \\ \hline
 
 HTTP Proxy / Cache &
-$ \text{Request-URI} \in \text{HTTP Header} \Rightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
+$ \text{Request-URI} \in \text{HTTP Header} \Leftrightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
 & Yes & KeywordMatch \\ \hline
 
 Deep Packet Inspection: & & & \\
 
 
 $\circ$ Parental Filter &
-\parbox {8cm}{
-\begin{flalign*}
-& \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1
-\end{flalign*}
-} &
+$ \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1$
+ &
 Yes & KeywordMatch \\
 %
 %
@@ -97,7 +93,7 @@ No & KeywordMatch \\
 \end{tabular}
 }
 
-\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes efficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes sufficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
 \end{table*}
 
 %\multicolumn{3}{c}}\\
@@ -166,12 +162,6 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   PrefixMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
   Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
-<<<<<<< HEAD
-  
- 
-
-=======
->>>>>>> 067f6bab50e876e70f765cd18f6e5a742307530b
 
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
