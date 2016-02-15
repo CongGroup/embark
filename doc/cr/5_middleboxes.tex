@@ -44,11 +44,16 @@ If there is a cache miss, the proxy opens a new connection and forwards the encr
 First, for intrusion detection, \sys does not support regular expressions that cannot be expanded in limited number of keyword matches. \sys does not support running detection scripts on the traffic as in Bro~\cite{Bro}.
 
 Second, \sys does not support application firewalls and application-level gateways.
-Application-level firewalls act as a protocol end point and relay (e.g., an SMTP client/server or a Web proxy agent) \todo{relay what?}. KeywordMatch does not support all protocols. \todo{why??}
-\todo{need to say that some app firewalls also support regexp right, and this is not supported}
-Application-level gateways are useful for certain address-dependent protocols such as FTP; these do not change the semantics of the application protocol, but carry out mechanical substitution of fields. KeywordMatch does not support all protocols and need to be tailored for each protocol. \todo{what does not support, can you be more specific?}
+Application-level firewalls act as a protocol end point and relay (e.g., an SMTP client/server or a Web proxy agent).
+KeywordMatch does not support all protocols. For example, an unmodified SMTP firewall cannot 
+read SMTP messages encrypted by KeywordMatch. Designing a mechanism for those protocols is beyond
+the scope of this paper. Application-level gateways are useful for certain address-dependent 
+protocols such as FTP; these do not change the semantics of the application protocol, but carry 
+out mechanical substitution of fields. KeywordMatch does not support all protocols and 
+need to be tailored for each protocol. \todo{what does not support, can you be more specific?}
 
-Also, \sys does not support transcoders, who perform on-the-fly conversion of application level data. KeywordMatch doesnÕt support them.
+Also, \sys does not support transcoders, who perform on-the-fly conversion of application level data. KeywordMatch doesnï¿½t support them.
 
+In general, \sys does not have a general solution to support all application-level middleboxes.
 Supporting these functionalities is part of our future work.
 
