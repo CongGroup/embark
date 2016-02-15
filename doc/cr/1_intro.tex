@@ -8,7 +8,7 @@
 \centering
 \small
 {\renewcommand{\arraystretch}{1.8}%
-\begin{tabular}{|>{\raggedright}m{3cm}|>{\raggedright}m{8.7cm}|c|c|}
+\begin{tabular}{|>{\raggedright}p{3cm}|>{\raggedright}p{8.7cm}|c|c|}
 \hline
 {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
 IP Firewall & 
@@ -183,44 +183,6 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   PrefixMatch ensures that comparisons (such as $\leq$) function normally, hence, a middlebox receiving an encrypted packet can simply perform the normal set of `fast-path' packet processing operations unmodified.
   Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
-  
- 
- \begin{table}[t]
-\centering
-\small
-\hspace{-2pt}
-\begin{tabular}{c|c}
-\hline
-{\bf Middlebox} &  {\bf Scheme} \\ \hline
-IP Firewall & 
- PrefixMatch \\ 
-
-NAT (NAPT) & 
- PrefixMatch \\
-
-L3 Load Balancer (ECMP) &
- PrefixMatch \\ 
-
-L4 Load Balancer &
- PrefixMatch \\ 
-
-Deep Packet Inspection &
-
-KeywordMatch \\ 
-
-Parental Filter &
-
-KeywordMatch \\ 
-
-HTTP Proxy / Cache &
-
-KeywordMatch \\ 
-
-\end{tabular}
-\caption[]{Middleboxes supported by \sys and the encryption scheme used.\label{tbl:mbreqs}} 
-\end{table}
-
-
 
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
