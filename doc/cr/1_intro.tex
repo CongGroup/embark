@@ -156,7 +156,8 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance, as listed in Table~\ref{tbl:mbreqs}. These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
+\sys supports a wide range of middleboxes with practical performance, as listed in Table~\ref{tbl:mbreqs}. 
+%These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
 From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
