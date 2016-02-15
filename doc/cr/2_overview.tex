@@ -2,7 +2,7 @@
 
 % 2nd fig/1st fig = 1.12 ratio
 \begin{figure*}[t!]
-\vspace{-10pt}
+
 \centering
 \subfigure[Enterprise to external site communication]{
   \includegraphics[width=2.8in]{fig/model_1.pdf}
@@ -109,10 +109,10 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 \subsection{Encryption Overview}
 
 \begin{figure*}[t!]
-\vspace{-10pt}
-\centering
+\begin{center}
   \includegraphics[width=6.7in]{fig/packetpath.pdf}
 \caption{Example of packet flow through a few middleboxes. Red in bold indicates encrypted data. \label{fig:packetflow}}
+\end{center}
 \end{figure*}
 
 To protect privacy, \sys \textit{encrypts all traffic} passing through the service provider (SP).
@@ -160,6 +160,19 @@ This is a trivial requirement as it is easy to convert from IPv4 to IPv6 (and ba
 
 {\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
+
+\subsection{Functionality}
+
+\sys supports the ``textbook'' functionality of almost all middleboxes considered for outsourcing in APLOMB~\cite{aplomb}.
+Table~\ref{tbl:mbreqs} lists the middleboxes supported by \sys.  In this paper, we consider the functionality of the middlebox to be the one 
+described in textbooks and references\todo{add cite}. We note that there exist versions of these middleboxes with more complex functionality that \sys may not support: we discuss \sys's limitations in \S\ref{s:limitations}.
+
+Nevertheless, \sys covers the ``textbook'' functionality for almost all these middleboxes. Such functionality covers many real use cases; as a demonstration, we show in \S\ref{sec:eval} that \sys supports at least one real usage for each one of the middlebox categories in Table~\ref{tbl:mbreqs}.
+
+
+% sys supports the textbook functionality of almost all middleboxes considered for outsourcing in aplomb. 
+% for each category of middlebox, \sys supports at least one real use case as we show in \s. 
+
 
 \subsection{Architectural Implications} 
 \label{sec:bbarch}
