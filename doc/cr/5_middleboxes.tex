@@ -46,14 +46,16 @@ First, for intrusion detection, \sys does not support regular expressions that c
 Second, \sys does not support application firewalls and application-level gateways.
 Application-level firewalls act as a protocol end point and relay (e.g., an SMTP client/server or a Web proxy agent).
 KeywordMatch does not support all protocols. For example, an unmodified SMTP firewall cannot 
-read SMTP messages encrypted by KeywordMatch. Designing a mechanism for those protocols is beyond
-the scope of this paper. Application-level gateways are useful for certain address-dependent 
+read SMTP messages encrypted by KeywordMatch. Application-level gateways are useful for certain address-dependent 
 protocols such as FTP; these do not change the semantics of the application protocol, but carry 
-out mechanical substitution of fields. KeywordMatch does not support all protocols and 
-need to be tailored for each protocol. \todo{what does not support, can you be more specific?}
+out mechanical substitution of fields. Similarly, application-level gateways cannot read or 
+rewrite those fields that are in the application-level data, which is encrypted by KeywordMatch.
+Therefore, KeywordMatch needs to be tailored for each protocol, which is beyond the scope of this
+paper.
 
-Also, \sys does not support transcoders, who perform on-the-fly conversion of application level data. KeywordMatch doesn�t support them.
+Also, \sys does not support transcoders, who perform on-the-fly conversion of application level 
+data. Such operations are not supported by KeywordMatch.
 
-In general, \sys does not have a general solution to support all application-level middleboxes.
+In sum, \sys does not have a general solution to support all application-level middleboxes.
 Supporting these functionalities is part of our future work.
 
