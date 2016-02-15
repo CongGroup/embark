@@ -8,87 +8,59 @@
 \centering
 \small
 {\renewcommand{\arraystretch}{1.8}%
-\begin{tabular}{|>{\raggedright}p{3cm}|>{\raggedright}p{8.7cm}|c|c|}
+\begin{tabular}{|c|>{\raggedright}m{2.5cm}|>{\raggedright}m{8.2cm}|l|l|}
 \hline
-{\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
-IP Firewall~\cite{fireman} & 
-\parbox {8cm}{
-\begin{flalign*}
-& (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
-& \hspace{5mm} \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
-% & \text{To support existing packet classification algorithms {\em unchanged:}} \\
-% &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
-\end{flalign*}
-}
-& Yes & PrefixMatch \\  \hline 
+& {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
 
-NAT (NAPT)~\cite{rfc3022} & 
-\parbox {8cm}{
-\begin{flalign*}
-(SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
-\end{flalign*}
-}
+\parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\hspace{-\normalbaselineskip}L3/L4 Header}}}
+& IP Firewall~\cite{fireman} & 
+$(SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P) \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) $
+& Yes & PrefixMatch \\  \cline{2-5} 
+
+& NAT (NAPT)~\cite{rfc3022} & 
+$(SIP_1, SP_1) = (SIP_2, SP_2) \Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) $
+& Yes & PrefixMatch \\ \cline{2-5}
+
+& L3 LB (ECMP)~\cite{rfc2991} &
+$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Rightarrow \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
+& Yes & PrefixMatch \\ \cline{2-5}
+
+& L4 LB~\cite{haproxy} &
+$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Leftrightarrow \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
 & Yes & PrefixMatch \\ \hline
 
-L3 LB (ECMP)~\cite{rfc2991} &
-\parbox {8cm}{
-\begin{flalign*}
-&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Rightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
-\end{flalign*}
-}
-& Yes & PrefixMatch \\ \hline
-
-L4 LB~\cite{haproxy} &
-\parbox {8cm}{
-\begin{flalign*}
-&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
-%&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-%\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
-\end{flalign*}
-}& Yes & PrefixMatch \\ \hline
-
-HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
+\parbox[t]{2mm}{\multirow{1}{*}{\rotatebox[origin=c]{90}{HTTP}}}
+& HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
 $ \text{Request-URI} \in \text{HTTP Header} \Leftrightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
 & Yes & KeywordMatch \\ \hline
 
-Deep Packet Inspection: & & & \\
-
-
-$\circ$ Parental Filter~\cite{squid} &
+\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection}}}
+& Parental Filter~\cite{squid} &
 $ \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1$
  &
-Yes & KeywordMatch \\
-%
-%
-$\circ$ Data Exfiltration /  Watermark Detection 
+Yes & KeywordMatch \\ \cline{2-5}
+
+& Data Exfiltration 
 &
 $\text{Watermark} \in \text{Stream} \hspace{1mm} \Leftrightarrow \hspace{1mm} \Match(\Enc(\text{Watermark}),\ \Enc(\text{Stream})$)=1
  &
-Yes & KeywordMatch \\ 
-%
-%
-$\circ$ Intrusion detection~\cite{snort, bro}
+Yes & KeywordMatch \\ \cline{2-5}
+
+& \multirow{4}{*}{IDS ~\cite{snort, bro}}
 &
 $ \text{Keyword} \in \text{Stream} \quad \Leftrightarrow \quad   \Match(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))=1$
 &
-Yes & KeywordMatch \\ 
-%
-%
-&
+Yes & KeywordMatch \\ \cline{3-5}
+
+& &
 $\text{RegExpMatch(RegExp, Stream)} \quad \Leftrightarrow \quad \Match(\Enc(\text{regexp}),\Enc(\text{stream}))=1$
 &
-Partially & KeywordMatch \\
+Partially & KeywordMatch \\ \cline{3-5}
 
-&
+& &
 Run intrusion detection scripts on traffic stream
  &
-No & KeywordMatch \\
-
-
-
- \hline
+No & KeywordMatch \\ \hline
 
 \end{tabular}
 }
