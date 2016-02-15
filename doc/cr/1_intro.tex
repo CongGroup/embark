@@ -11,7 +11,7 @@
 \begin{tabular}{|>{\raggedright}p{3cm}|>{\raggedright}p{8.7cm}|c|c|}
 \hline
 {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
-IP Firewall & 
+IP Firewall~\cite{fireman} & 
 \parbox {8cm}{
 \begin{flalign*}
 & (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
@@ -22,7 +22,7 @@ IP Firewall &
 }
 & Yes & PrefixMatch \\  \hline 
 
-NAT (NAPT) & 
+NAT (NAPT)~\cite{rfc3022} & 
 \parbox {8cm}{
 \begin{flalign*}
 (SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
@@ -30,7 +30,7 @@ NAT (NAPT) &
 }
 & Yes & PrefixMatch \\ \hline
 
-L3 LB (ECMP) &
+L3 LB (ECMP)~\cite{rfc2991} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
@@ -39,7 +39,7 @@ L3 LB (ECMP) &
 }
 & Yes & PrefixMatch \\ \hline
 
-L4 LB &
+L4 LB~\cite{haproxy} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
@@ -49,14 +49,14 @@ L4 LB &
 \end{flalign*}
 }& Yes & PrefixMatch \\ \hline
 
-HTTP Proxy / Cache &
+HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
 $ \text{Request-URI} \in \text{HTTP Header} \Leftrightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
 & Yes & KeywordMatch \\ \hline
 
 Deep Packet Inspection: & & & \\
 
 
-$\circ$ Parental Filter &
+$\circ$ Parental Filter~\cite{squid} &
 $ \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1$
  &
 Yes & KeywordMatch \\
@@ -69,7 +69,7 @@ $\text{Watermark} \in \text{Stream} \hspace{1mm} \Leftrightarrow \hspace{1mm} \M
 Yes & KeywordMatch \\ 
 %
 %
-$\circ$ Intrusion detection
+$\circ$ Intrusion detection~\cite{snort, bro}
 &
 $ \text{Keyword} \in \text{Stream} \quad \Leftrightarrow \quad   \Match(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))=1$
 &
