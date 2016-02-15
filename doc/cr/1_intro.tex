@@ -93,18 +93,26 @@ No & KeywordMatch \\
 \end{tabular}
 }
 
-\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes sufficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes sufficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes a generic encryption protocol, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$, $\Leftrightarrow$ denotes ``if and only if''. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
 \end{table*}
 
 %\multicolumn{3}{c}}\\
 
 %%%%%%%%%%%%%%%%%%%
 
-% the above is a SUFFICIENT func. this is a sufficient functionality for textbook functionality together with performance cause classif don't change
-% is this necessary? NO in a theory sense, because the cloud should not be able to compute range for parts of the header, but  that for parts. Imagine knowing the answer, and making it like packet classification. 
-% but necessary in a practical sense based on the various decisions we make on performance and how much work we want the gateway vs the cloud to make
+\eat{
+
+IMPORTANT COMMENTS:
+=====================
+
+The above is a SUFFICIENT functionality. When implemented efficiently, it suffices for the textbook version of these apps and to give good performance and not change packet classifiers. 
+
+It is NOT NECESSARY in a theory sense. The reason si that the cloud should not be able to compute range for parts of the header, but  that for parts. Imagine knowing the answer, and making it like packet classification. 
 
 
+It is also a lower bound on the functionality of \sys
+
+}
 
 
 
@@ -148,7 +156,7 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance, as listed in Table~\ref{tbl:mbreqs}. These cover almost all the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
+\sys supports a wide range of middleboxes with practical performance, as listed in Table~\ref{tbl:mbreqs}. These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
 From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
