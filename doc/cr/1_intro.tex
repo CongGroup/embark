@@ -3,80 +3,115 @@
 \section{Introduction}\label{sec:intro}
 
 
-%\begin{table*}[t]
-%\centering
-%\small
-%\hspace{-2pt}
-%\begin{tabular}{l|l|l}
-%\hline
-%{\bf Middlebox} & {\bf Requirements} & {\bf Scheme} \\ \hline
-%IP Firewall & 
-%\parbox {10cm}{
-%\begin{flalign*}
-%(SIP,\ DIP,\ SP,\ DP,\ P)\ \rightarrow\ action\ a \quad \Rightarrow \quad (SIP',\ DIP',\ SP',\ DP',\ P')\ \rightarrow\ action\ a &
-%\end{flalign*}
-%} & PrefixMatch \\ \hline
-%
-%NAT (NAPT) & 
-%\parbox {10cm}{
-%\begin{flalign*}
-%\text{Injective: } & (SIP_1, SP_1)\ \neq\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ \neq\ (SIP_2', SP_2') \\
-%\text{Deterministic: } & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \quad \Rightarrow \quad (SIP_1', SP_1')\ =\ (SIP_2', SP_2')
-%\end{flalign*}
-%} 
-%& PrefixMatch \\ \hline
-%
-%L3 Load Balancer (ECMP) &
-%\parbox {10cm}{
-%\begin{flalign*}
-%\text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
-%& (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2') 
-%\end{flalign*}
-%}
-%& PrefixMatch \\ \hline
-%
-%L4 Load Balancer &
-%\parbox {10cm}{
-%\begin{flalign*}
-%    \text{Injective: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\
-%    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ \neq\ (SIP_2', DIP_2', SP_2', DP_2', P_2') \\
-%    \text{Deterministic: } & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \quad \Rightarrow \\ 
-%    & (SIP_1', DIP_1', SP_1', DP_1', P_1')\ =\ (SIP_2', DIP_2', SP_2', DP_2', P_2')
-%\end{flalign*}
-%}
-%& PrefixMatch \\ \hline
-%
-%Deep Packet Inspection &
-%\parbox {10cm}{
-%\begin{flalign*}
-%& keyword \in stream \quad \Rightarrow \quad keyword' \in stream'
-%\end{flalign*}
-%} &
-%KeywordMatch \\ \hline
-%
-%Parental Filter &
-%\parbox {10cm}{
-%\begin{flalign*}
-%& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-%\end{flalign*}
-%} &
-%KeywordMatch \\ \hline
-%
-%HTTP Proxy / Cache &
-%\parbox {10cm}{
-%\begin{flalign*}
-%& URL \in HTTP\ Header \quad \Rightarrow \quad URL' \in HTTP\ Header'
-%\end{flalign*}
-%} &
-%KeywordMatch \\ \hline
-%
-%\end{tabular}
-%\caption[]{Middleboxes supported by \sys. Middleboxes are also labeled with their requirement on the encryption schemes. $(SIP, DIP, SP, DP, P)$ denotes the 5-tuple of a connection. $x'$ is the encryption of $x$.\label{tbl:mbreqs}} 
-%\end{table*}
-%
 
 
-%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newcommand{\myspace}{\rule{0pt}{13em}}
+
+\begin{table*}[t]
+\centering
+\small
+{\renewcommand{\arraystretch}{1.8}%
+\begin{tabular}{|>{\raggedright}p{3cm}|>{\raggedright}p{8.7cm}|c|c|}
+\hline
+{\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
+IP Firewall & 
+\parbox {9cm}{
+\begin{flalign*}
+& (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
+& \hspace{5mm} \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) \\
+& \text{To support existing packet classification algorithms {\em unchanged:}} \\
+ &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
+\end{flalign*}
+}
+ & Yes & PrefixMatch \\  \hline 
+
+
+
+NAT (NAPT) & 
+$(SIP_1, SP_1) = (SIP_2, SP_2) \Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) $
+& Yes & PrefixMatch \\ \hline
+
+
+
+
+L3 Load Balancer (ECMP) &
+%
+$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) $
+
+$\Leftrightarrow 
+\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
+%
+%
+& Yes & PrefixMatch \\ \hline
+
+L4 Load Balancer &
+$(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) $
+$\Leftrightarrow 
+\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)$
+& Yes & PrefixMatch \\ \hline
+
+
+
+HTTP Proxy / Cache &
+$ \text{URL} \in \text{HTTP Header} \quad \Rightarrow \quad \Enc(\text{URL}) \in \Enc(\text{HTTP Header}) $
+&
+Yes & KeywordMatch \\ \hline
+
+
+
+
+Deep Packet Inspection: & & & \\
+
+
+$\circ$ Parental Filter &
+\parbox {8cm}{
+\begin{flalign*}
+& \text{URL} \in \text{HTTP Header} \quad \Leftrightarrow \quad \Enc(\text{URL}) \in \Enc(\text{HTTP Header})
+\end{flalign*}
+} &
+Yes & KeywordMatch \\
+%
+%
+$\circ$ Data Exfiltration /  Watermark Detection 
+&
+$\text{watermark} \in \text{stream} \quad \Leftrightarrow \quad \Enc(\text{watermark}) \in \Enc(\text{stream})$
+ &
+Yes & KeywordMatch \\ 
+%
+%
+$\circ$ Intrusion detection
+&
+$ \text{keyword} \in \text{stream} \quad \Leftrightarrow \quad \Enc(\text{keyword}) \in \Enc(\text{stream})$
+&
+Yes & KeywordMatch \\ 
+%
+%
+&
+$\text{regexp} \in \text{stream} \quad \Leftrightarrow \quad \Enc(\text{regexp}) \in \Enc(\text{stream})$
+&
+Partially & KeywordMatch \\
+
+&
+run intrusion detection scripts on traffic stream
+ &
+No & KeywordMatch \\
+
+
+
+ \hline
+
+\end{tabular}
+}
+\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes efficiently. ``Support'' indicates if the middlebox is supported and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes encryption, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+\end{table*}
+
+%\multicolumn{3}{c}}\\
+
+%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -138,7 +173,8 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance. These cover all the applications that are typically outsourced as surveyed in~\cite{aplomb}. Table~\ref{tbl:mbreqs} lists these applications. It also lists each middlebox's requirement on the encryption schemes. We derive those requirements based on the existing papers, documents, or implementations. \sys achieves this through a combination of systems and cryptographic innovations, as follows.
+\sys supports a wide range of middleboxes with practical performance. These cover almost all the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
+Table~\ref{tbl:mbreqs} lists these applications. It also lists the desired functionality from encryption in order to support the functionality of this middlebox.  \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
 From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope,popa:cryptdb}. 
 However, these schemes are four orders of magnitude slower than {\it PrefixMatch} making them unusable for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes, which leak unnecessary information to the provider: for every encrypted value, {\em PrefixMatch} reveals only whether the value lies within a range or not, whereas OPE reveals the total ordering among all values.
@@ -196,4 +232,7 @@ Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a singl
 
 \eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
 
+
+\todo{ and where do we put this? In this paper, we consider the functionality of the middlebox to be the one 
+described in textbooks and references\todo{add cite}. We note that there exist versions of these middleboxes with different and quite complex functionality that \sys does not support, and we discuss the limitations of \sys in \S\ref{s:limitations}.}
 
