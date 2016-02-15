@@ -177,41 +177,6 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
   
  
- \begin{table}[t]
-\centering
-\small
-\hspace{-2pt}
-\begin{tabular}{c|c}
-\hline
-{\bf Middlebox} &  {\bf Scheme} \\ \hline
-IP Firewall & 
- PrefixMatch \\ 
-
-NAT (NAPT) & 
- PrefixMatch \\
-
-L3 Load Balancer (ECMP) &
- PrefixMatch \\ 
-
-L4 Load Balancer &
- PrefixMatch \\ 
-
-Deep Packet Inspection &
-
-KeywordMatch \\ 
-
-Parental Filter &
-
-KeywordMatch \\ 
-
-HTTP Proxy / Cache &
-
-KeywordMatch \\ 
-
-\end{tabular}
-\caption[]{Middleboxes supported by \sys and the encryption scheme used.\label{tbl:mbreqs}} 
-\end{table}
-
 
 
 We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
