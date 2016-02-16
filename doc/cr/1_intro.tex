@@ -8,10 +8,13 @@
 \centering
 \small
 {\renewcommand{\arraystretch}{1.8}%
-\begin{tabular}{|>{\raggedright}p{3cm}|>{\raggedright}p{8.7cm}|c|c|}
+\begin{tabular}{|c|>{\raggedright}m{2.5cm}|>{\raggedright}m{8.2cm}|l|l|}
 \hline
-{\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
-IP Firewall~\cite{fireman} & 
+& {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
+
+
+\parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\hspace{-\normalbaselineskip}L3/L4 Header}}}
+& IP Firewall~\cite{fireman} & 
 \parbox {8cm}{
 \begin{flalign*}
 & (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
@@ -20,26 +23,26 @@ IP Firewall~\cite{fireman} &
 % &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
 \end{flalign*}
 }
-& Yes & PrefixMatch \\  \hline 
+& Yes & PrefixMatch \\   \cline{2-5} 
 
-NAT (NAPT)~\cite{rfc3022} & 
+& NAT (NAPT)~\cite{rfc3022} & 
 \parbox {8cm}{
 \begin{flalign*}
 (SIP_1, SP_1) = (SIP_2, SP_2) &\Leftrightarrow \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
 \end{flalign*}
 }
-& Yes & PrefixMatch \\ \hline
+& Yes & PrefixMatch \\  \cline{2-5} 
 
-L3 LB (ECMP)~\cite{rfc2991} &
+& L3 LB (ECMP)~\cite{rfc2991} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
 &\Leftrightarrow\  \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
 \end{flalign*}
 }
-& Yes & PrefixMatch \\ \hline
+& Yes & PrefixMatch \\ \cline{2-5} 
 
-L4 LB~\cite{haproxy} &
+& L4 LB~\cite{haproxy} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
@@ -49,54 +52,54 @@ L4 LB~\cite{haproxy} &
 \end{flalign*}
 }& Yes & PrefixMatch \\ \hline
 
-HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
+\parbox[t]{2mm}{\multirow{1}{*}{\rotatebox[origin=c]{90}{HTTP}}} &
+ HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
 $ \Match(\text{Request-URI},\ \text{HTTP Header})$
 
 $= \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
 & Yes & KeywordMatch \\ \hline
 
-Deep Packet Inspection: & & & \\
 
+\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection}}}
 
-$\circ$ Parental Filter~\cite{squid} &
+& Parental Filter~\cite{squid} &
 $ \Match(\text{Request-URI},\ \text{HTTP Header})$
 
 $ = \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
  &
-Yes & KeywordMatch \\
+Yes & KeywordMatch \\ \cline{2-5}
 %
 %
-$\circ$ Data Exfiltration/  Watermark Detection 
+&  Data Exfiltration~\cite{exfiltration}/  Watermark Detection 
 &
 $\Match(\text{Watermark},\ \text{Stream})  \hspace{1mm}$ 
 
 $ = \Match'(\Enc(\text{Watermark}),\ \Enc(\text{Stream})$)
  &
-Yes & KeywordMatch \\ 
+Yes & KeywordMatch \\  \cline{2-5}
 %
 %
-$\circ$ Intrusion detection~\cite{snort, bro}
+
+& \multirow{4}{*}{Intrusion detection~\cite{snort, bro}}
 &
 $ \Match(\text{Keyword},\ \text{Stream}) =   \Match'(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))$
 &
-Yes & KeywordMatch \\ 
+Yes & KeywordMatch \\ \cline{3-5}
 %
 %
-&
+& &
 $\mathsf{RegExpMatch}(\text{RegExp, Stream})$
 
 $ = \mathsf{RegExpMatch}'(\Enc(\text{RegExp}),\Enc(\text{Stream}))$
 &
-Partially & KeywordMatch \\
+Partially & KeywordMatch \\ \cline{3-5}
 
-&
+& &
 Run intrusion detection scripts on traffic stream
  &
-No & KeywordMatch \\
+No & KeywordMatch \\ \hline
 
 
-
- \hline
 
 \end{tabular}
 }
