@@ -78,7 +78,7 @@ Hence, for efficiency, we need a scheme for matching ranges.
 %
 There are a few requirements \sys needs from PrefixMatch.
 %
-First, PrefixMatch must allow for direct order comparison (i.e., using $\leq$/$\geq$) between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s}_1$ and $\ov{e}_1$ of a range, $[s_1, e_1]$. This allows existing packet classification algorithms, such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}, 
+First, PrefixMatch must allow for direct order comparison (i.e., using $\leq$/$\geq$) between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s_1}$ and $\ov{e_1}$ of a range, $[s_1, e_1]$. This allows existing packet classification algorithms, such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}, 
  to run unchanged. 
 
 Second, to support the functionality of NAT in Table~\ref{tbl:mbreqs}, $\Enc(v)$ should be {\em deterministic} within a flow. Recall that a flow is a 5-tuple of source IP and port, destination IP and port, and protocol. Moreover, the encryption corresponding to two pairs (IP$_1$, port$_1$) and  (IP$_2$, port$_2$) that are different should be different.
@@ -100,9 +100,9 @@ Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eva
 
 
 \mypara{Functionality}
-PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P}_{i,1} \dots, \ov{P}_{i, n_i}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
+PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P_{i,1}} \dots, \ov{P_{i, n_i}}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
 %
-\[  v \in P_i  \Leftrightarrow \Enc(v) \in \ov{P}_{i, 1} \cup \dots \cup \ov{P}_{i, n_i}. \]
+\[  v \in P_i  \Leftrightarrow \Enc(v) \in \ov{P_{i, 1}} \cup \dots \cup \ov{P_{i, n_i}}. \]
 %
 In other words, the encryption preserves prefix matching.
 
@@ -133,36 +133,35 @@ whose endpoints have size $\len$ bits. \pmatch{} encrypts each prefix  into a se
 
 Consider all the endpoints $s_i$ and $e_i$ laid out on an axis in increasing order as in Fig.~\ref{fig:rangeopts3}.
 Add on this axis the endpoints of $P_0$, the smallest and largest possible values, $0$ and $2^{\ptlen}-1$.
-Consider all the intervals formed by each consecutive pair of such endpoints. 
+Consider all the non-overlapping intervals formed by each consecutive pair of such endpoints. 
+For example, in Fig.~\ref{fig:rangeopts3},  there are two prefixes to encrypt: $P_1$ and $P_2$. PrefixMatch computes the intervals $I_0, \dots, I_4$.
 
-For example, consider Fig.~\ref{fig:rangeopts3}.  There are two prefixes to encrypt: $P_1$ and $P_2$. PrefixMatch computes intervals $I_0, \dots, I_4$.
+PrefixMatch now assigns an encrypted prefix to each interval. Note that each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefix of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number because $\prefixes(I_0) = \prefixes(I_4)$.
 
-PrefixMatch now assigns an encrypted prefix to each interval. Note that each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefix of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for the intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number.
+When a prefix overlaps partially with another prefix, it will have more than one encrypted prefix because it is broken into intervals. For example, $I_1$ was assigned a random number of $0x123c$ and $I_2$ of $0xabcc$. The encryption of  $P_1$ in Fig.~\ref{fig:rangeopts3} will be the pair ($123c::/16$, $abcc::/16$).
 
-When an interval overlaps partially with another interval, it will have more than one encrypted prefix. For example, consider that $\plen = 16$, $I_1$ was assigned a random number of $0x123c$ and $I_2$ of $0xabcc$. The encryption of the prefix $P_1$ in Fig.~\ref{fig:rangeopts3} will be the pair ($123c::/16$, $abcc::/16$).
-
-Since the encryption is a random prefix, the encryption does not reveal the original prefix. Moreover, the fact that intervals pertaining to the same set of prefixes receive the same encrypted number hides where an encrypted value matches, as we discuss below. For example, for an IP address $v$ that does not match either $P_1$ or $P_2$, the cloud provider will not learn whether it matches to the left or right of $P_1$ and $P_2$ because $I_0$ and $I_4$ receive the same encryption. The only information it learns about $v$ is that $v$ does not match either $P_1$ or $P_2$. 
+Since the encryption is a random prefix, the encryption does not reveal the original prefix. Moreover, the fact that intervals pertaining to the same set of prefixes receive the same encrypted number hides where an encrypted value matches, as we discuss below. For example, for an IP address $v$ that does not match either $P_1$ or $P_2$, the cloud provider will not learn whether it matches to the left or to the right of $P_1 \cup P_2$ because $I_0$ and $I_4$ receive the same encryption. The only information it learns about $v$ is that $v$ does not match either $P_1$ or $P_2$. 
 
 We now present the EncryptPrefixes procedure, which works the same for prefixes or ranges.
 
 
 
 \begin{framed}
-\ALGORITHM{EncryptPrefixes}{proc:enc_prefixes}{$P_1$, $\dots$, $P_n$, $\plen$, $\ptlen$, $\slen$}{
+\ALGORITHM{EncryptPrefixes}{proc:enc_prefixes}{$P_1$, $\dots$, $P_n$, $\plen$, $\ptlen$}{
 \item Let $s_i$ and $e_i$ be the endpoints of $P_i$. \comment{$P_i = [s_i, e_i]$}
 	\item Assign $P_0 \gets [0, 2^{\ptlen}-1]$
-	\item Sort all endpoints in increasing order
-	\item  Construct intervals $I_0, \dots, I_m$ from each pair of consecutive endpoints. Multiple equal endpoints form a unit interval. For each interval $I_i$, compute $\prefixes(I_i)$, the list of prefixes $P_{1}, \dots, P_{m_i}$ that contain   $I_i$. 
+	\item Sort all endpoints in $\cup_i P_i$ in increasing order
+	\item  Construct non-overlapping intervals $I_0, \dots, I_m$ from each pair of consecutive endpoints. Multiple equal endpoints form a unit interval. For each interval $I_i$, compute $\prefixes(I_i)$, the list of prefixes $P_{1}, \dots, P_{m_i}$ that contain   $I_i$. 
 	\item Assign a distinct random value of size $\plen$ to each of $\ov{I_0}, \dots, \ov{I_m}$  
-	\item For all $i, j$ with $i<j$ if the prefixes containing $I_i$ and $I_j$ are the same, set $\ov{I_j} \gets \ov{I_i}$
-	\item The encryption of $P_i$ is $\ov{P_i} = \{\ov{I_j}/\plen, I_j \in \prefixes(P_i) \}$. The encrypted prefixes are output sorted by value (as a means of randomization).
+	\item For all $i, j$ with $i<j$ if  $\prefixes(I_i) =  \prefixes(I_j)$, set $\ov{I_j} \gets \ov{I_i}$
+	\item The encryption of $P_i$ is $\ov{P_i} = \{\ov{I_j}/\plen, \text{for all}\ I_j \in \prefixes(P_i) \}$. The encrypted prefixes are output sorted by value (as a means of randomization).
 	\item Output $\ov{P_1}, \dots,\ \ov{P_n}$ and the {\em interval map} [$I_i \rightarrow \ov{I_i}$] 
 }
 \end{framed}
 
 \mypara{Value Encryption}
-To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. $\ov{I}$ becomes the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it is deterministic. 
-Hence, the suffix is chosen based on a pseudorandom function that $\prf^{\slen}$ seeded in a given seed  $\seed$.  
+To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. It then looks up $\ov{I}$ in the interval map computed by EncryptPrefixes and sets $\ov{I}$ to be the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it is deterministic. 
+Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolume1}, $\prf^{\slen}$, seeded in a given seed  $\seed$, where $\slen = \len-\plen$.  
 
 
 
