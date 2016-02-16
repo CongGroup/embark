@@ -194,6 +194,7 @@ Hence, a regular packet classification can be run at the firewall with no modifi
 \todo{attention, there is also the determinism that leaks}
 
 \subsubsection{Security Guarantees}
+\label{sec:buildingblocks:guarantees}
 
 \pmatch{} hides the endpoints of ranges or the prefixes encrypted with EncryptPrefixes and it does not reveal the values encrypted with EncryptValue. \pmatch{} reveals only matching information between values and prefixes to enable functionality at the cloud provider.  For every subset of prefixes out of $P_1, \dots, P_m$, the cloud provider learns if these overlap and whether an encrypted value $v$ matches them. In particular, the cloud provider does not learn the order of encrypted values $\Enc(v)$ or the order of the prefixes. Hence, PrefixMatch is significantly more secure than order-preserving encryption.
 
