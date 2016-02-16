@@ -56,24 +56,26 @@ On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount 
 
 \noindent{\it Is PrefixMatch faster than existing order preserving algorithms?}
 PrefixMatch is the only encryption scheme that has low latency and the ordering property needed for packet processing.
-We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} below:
+We compare against BCLO~\cite{boldyreva:ope} and mOPE~\cite{popa:mope} in Table~\ref{tab:opecomp}.
 
 \begin{table}[h]
-\vspace{-10pt}
+
 \centering
 \small
 \begin{tabular}{c|c|c|c}
-{\bf Operation}&{\bf BCLO}&{\bf mOPE}&{\bf \sys}\\
+{\bf Operation}&{\bf BCLO}&{\bf mOPE}&{\bf PrefixMatch}\\
 \hline
 \hline
-Encrypt, 10K rules&9333$\mu$s&6640$\mu$s&0.53$\mu$s\\
+Encrypt 10K rules&9333$\mu$s&6640$\mu$s&0.53$\mu$s\\
 \hline
-Encrypt, 100K rules&9333$\mu$s&8300$\mu$s&0.77$\mu$s\\
+Encrypt 100K rules&9333$\mu$s&8300$\mu$s&0.77$\mu$s\\
 \hline
 Decrypt&169$\mu$s&0.128$\mu$s&0.128$\mu$s\\
 \hline
 \end{tabular}
-\vspace{-10pt}
+
+\caption{PrefixMatch's performance.
+\label{tab:opecomp} }
 \end{table}
 
 \noindent{\it What is the memory overhead of PrefixMatch?}
