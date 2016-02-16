@@ -1,9 +1,3 @@
-@inproceedings{ethan-paper,
-  title = {{SoftFlow: A Middlebox Architecture for Open vSwitch}},
-  author = {Ethan Jackson and Melvin Walls and Aurojit Panda and Justin Pettit and Ben Pfaff and Jarno Rajahalme and Teemu Koponen and Scott Shenker},
-  booktitle = {Under submission to NSDI 2016}
-  }
-
 @misc{nicdocument,
   title = {{Intel 82599 10 GbE Controller Datasheet}},
   howpublished = {\url{http://www.intel.com/content/dam/www/public/us/en/documents/datasheets/82599-10-gbe-controller-datasheet.pdf}}
@@ -88,7 +82,6 @@
  doi = {10.1145/2342356.2342359},
  acmid = {2342359},
  publisher = {ACM},
- address = {New York, NY, USA},
  keywords = {cloud, middlebox, outsourcing},
 } 
 
@@ -112,7 +105,7 @@
 @article{click,
   author = {Kohler, Eddie and Morris, Robert and Chen, Benjie and Jannotti, John and Kaashoek, M. Frans},
   title = {{The Click Modular Router}},
-  journal = {ACM Trans. Comput. Syst.},
+  journal = {ACM Transactions on Computer Systems},
   volume = {18},
   number = {3},
   month = aug,
@@ -140,31 +133,35 @@
   howpublished = {{\url{https://www.snort.org/downloads/community/community-rules.tar.gz}}}
 }
 
-@misc{Snort,
-  crossref = {Snort_manual}
+@misc{snort,
+  crossref = {snort_manual}
 }
 
-@misc{Snort_manual,
+@misc{snort_manual,
   title = {Snort Users Manual},
   year = {2014},
   author = {{The Snort Project}},
   note = {Version 2.9.7}
 }
 
-
-@article{Bro,
-  author = {Paxson, Vern},
-  title = {{Bro: A System for Detecting Network Intruders in Real-time}},
-  journal = {Computer Networks,},
-  issue_date = {Dec. 1999},
-  volume = {31},
-  number = {23-24},
-  month = dec,
-  year = {1999},
-  issn = {1389-1286},
-  pages = {2435--2463},
+@article{bro,
+ author = {Paxson, Vern},
+ title = {{Bro: A System for Detecting Network Intruders in Real-time}},
+ journal = {Computer Networks},
+ issue_date = {Dec. 1999},
+ volume = {31},
+ number = {23-24},
+ month = dec,
+ year = {1999},
+ issn = {1389-1286},
+ pages = {2435--2463},
+ numpages = {29},
+ url = {http://dx.doi.org/10.1016/S1389-1286(99)00112-7},
+ doi = {10.1016/S1389-1286(99)00112-7},
+ acmid = {337972},
+ publisher = {Elsevier North-Holland, Inc.},
+ keywords = {domain-specific languages, network intrusion detection, network monitoring evasion, passive network monitoring},
 } 
-
 
 @TechReport{CMU_exfiltration_report,
   author = {George J. Silowash and  Todd Lewellen and Joshua W. Burns and Daniel L. Costa },
@@ -353,7 +350,6 @@
  doi = {10.1145/2785956.2787502},
  acmid = {2787502},
  publisher = {ACM},
- address = {New York, NY, USA},
  keywords = {middlebox privacy, network privacy, searchable encryption},
 } 
 
@@ -363,20 +359,29 @@
   author = "Goldreich, Oded",
   publisher = "Cambridge University Press",
   isbn = "0-521-79172-3",
-  year = 2003
+  year = 2003,
 }
-
 
 @inproceedings{BonehRange,
-  title = {{Fully Collusion Resistant Traitor Tracing With Short Ciphertexts and Private Keys}},
-  author = {Dan Boneh and  Amit Sahai and Brent Waters},
-  crossref = {EUROCRYPT06}
-}
+ author = {Boneh, Dan and Sahai, Amit and Waters, Brent},
+ title = {{Fully Collusion Resistant Traitor Tracing with Short Ciphertexts and Private Keys}},
+ booktitle = {Proceedings of the 24th Annual International Conference on The Theory and Applications of Cryptographic Techniques},
+ series = {EUROCRYPT'06},
+ year = {2006},
+ isbn = {3-540-34546-9, 978-3-540-34546-6},
+ location = {St. Petersburg, Russia},
+ pages = {573--592},
+ numpages = {20},
+ url = {http://dx.doi.org/10.1007/11761679_34},
+ doi = {10.1007/11761679_34},
+ acmid = {2171207},
+ publisher = {Springer-Verlag},
+} 
 
 @article{Vern:Anonymize06,
  author = {Pang, Ruoming and Allman, Mark and Paxson, Vern and Lee, Jason},
  title = {{The Devil and Packet Trace Anonymization}},
- journal = {SIGCOMM Comput. Commun. Rev.},
+ journal = {SIGCOMM Computer Communication Review},
  issue_date = {January 2006},
  volume = {36},
  number = {1},
@@ -389,7 +394,6 @@
  doi = {10.1145/1111322.1111330},
  acmid = {1111330},
  publisher = {ACM},
- address = {New York, NY, USA},
 } 
 
 @inproceedings{Vern:Anonymize03,
@@ -406,7 +410,6 @@
  doi = {10.1145/863955.863994},
  acmid = {863994},
  publisher = {ACM},
- address = {New York, NY, USA},
  keywords = {anonymization, internet, measurement, network intrusion detection, packet trace, privacy, transformation},
 } 
 
@@ -427,7 +430,6 @@
 
 
 @inproceedings{naor-pinkas,
-  address = {Philadelphia, {PA}, {USA}},
   series = {{SODA} '01},
   title = {{Efficient Oblivious Transfer Protocols}},
   isbn = {0-89871-490-7},
@@ -452,7 +454,6 @@
 }
 
 @inproceedings{flowtags,
-  address = {Berkeley, {CA}, {USA}},
   series = {{NSDI}'14},
   title = {{Enforcing Network-wide Policies in the Presence of Dynamic Middlebox Actions Using FlowTags}},
   isbn = {978-1-931971-09-6},
@@ -474,7 +475,6 @@
 }
 
 @inproceedings{clickos,
-  address = {Berkeley, {CA}, {USA}},
   series = {{NSDI}'14},
   title = {{{ClickOS} and the Art of Network Function Virtualization}},
   isbn = {978-1-931971-09-6},
@@ -490,7 +490,6 @@
 }
 
 @inproceedings{comb,
-  address = {Berkeley, {CA}, {USA}},
   series = {{NSDI}'12},
   title = {{Design and Implementation of a Consolidated Middlebox Architecture}},
   url = {http://dl.acm.org/citation.cfm?id=2228298.2228331},
@@ -505,7 +504,6 @@
 }
 
 @inproceedings{opennf,
-  address = {New York, {NY}, {USA}},
   series = {{SIGCOMM} '14},
   title = {{{OpenNF}: Enabling Innovation in Network Function Control}},
   isbn = {978-1-4503-2836-4},
@@ -528,7 +526,6 @@
 }
 
 @inproceedings{mb-manifesto,
-  address = {New York, {NY}, {USA}},
   series = {{HotNets}-X},
   title = {{The Middlebox Manifesto: Enabling Innovation in Middlebox Deployment}},
   isbn = {978-1-4503-1059-8},
@@ -546,7 +543,6 @@
 }
 
 @inproceedings{colo,
-  address = {New York, {NY}, {USA}},
   series = {{SOCC} '13},
   title = {{{COLO}: {COarse}-grained {LOck}-stepping Virtual Machines for Non-stop Service}},
   isbn = {978-1-4503-2428-1},
@@ -609,7 +605,6 @@
  doi = {10.1145/2785956.2787482},
  acmid = {2787482},
  publisher = {ACM},
- address = {New York, NY, USA},
  keywords = {https, ssl, tls},
 } 
 
@@ -626,20 +621,19 @@
  doi = {10.1145/1476589.1476628},
  acmid = {1476628},
  publisher = {ACM},
- address = {New York, NY, USA},
 } 
 
 @inproceedings{secmb,
  author = {Yuan, Xingliang and Wang, Xinyu and Lin, Jianxiong and Wang, Cong},
  title = {{Privacy-preserving Deep Packet Inspection in Outsourced Middleboxes}},
- booktitle = {INFOCOM, 2016 Proceedings IEEE},
+ booktitle = {Proceedings of the 2016 IEEE Conference on Computer Communications},
  series = {INFOCOM '16},
  year = {2016},
 } 
 
 @inproceedings{blindseer,
  author = {Pappas, Vasilis and Krell, Fernando and Vo, Binh and Kolesnikov, Vladimir and Malkin, Tal and Choi, Seung Geol and George, Wesley and Keromytis, Angelos and Bellovin, Steve},
- title = {Blind Seer: A Scalable Private DBMS},
+ title = {{Blind Seer: A Scalable Private DBMS}},
  booktitle = {Proceedings of the 2014 IEEE Symposium on Security and Privacy},
  series = {SP '14},
  year = {2014},
@@ -650,13 +644,12 @@
  doi = {10.1109/SP.2014.30},
  acmid = {2650808},
  publisher = {IEEE Computer Society},
- address = {Washington, DC, USA},
  keywords = {Private database, private search},
 } 
 
 @inproceedings{fireman,
  author = {Yuan, Lihua and Mai, Jianning and Su, Zhendong and Chen, Hao and Chuah, Chen-Nee and Mohapatra, Prasant},
- title = {FIREMAN: A Toolkit for FIREwall Modeling and ANalysis},
+ title = {{FIREMAN: A Toolkit for FIREwall Modeling and ANalysis}},
  booktitle = {Proceedings of the 2006 IEEE Symposium on Security and Privacy},
  series = {SP '06},
  year = {2006},
@@ -667,7 +660,6 @@
  doi = {10.1109/SP.2006.16},
  acmid = {1130374},
  publisher = {IEEE Computer Society},
- address = {Washington, DC, USA},
 } 
 
 @misc{rfc3022, 
@@ -701,3 +693,204 @@
   title = {{HAProxy}},
   howpublished = {\url{http://www.haproxy.org/}}
 }
+
+@inproceedings{boldyreva:ope,
+ author = {Boldyreva, Alexandra and Chenette, Nathan and Lee, Younho and O'Neill, Adam},
+ title = {{Order-Preserving Symmetric Encryption}},
+ booktitle = {Proceedings of the 28th Annual International Conference on Advances in Cryptology: The Theory and Applications of Cryptographic Techniques},
+ series = {EUROCRYPT '09},
+ year = {2009},
+ isbn = {978-3-642-01000-2},
+ location = {Cologne, Germany},
+ pages = {224--241},
+ numpages = {18},
+ url = {http://dx.doi.org/10.1007/978-3-642-01001-9_13},
+ doi = {10.1007/978-3-642-01001-9_13},
+ acmid = {1533691},
+ publisher = {Springer-Verlag},
+} 
+
+@inproceedings{popa:mope,
+ author = {Popa, Raluca Ada and Li, Frank H. and Zeldovich, Nickolai},
+ title = {{An Ideal-Security Protocol for Order-Preserving Encoding}},
+ booktitle = {Proceedings of the 2013 IEEE Symposium on Security and Privacy},
+ series = {SP '13},
+ year = {2013},
+ isbn = {978-0-7695-4977-4},
+ pages = {463--477},
+ numpages = {15},
+ url = {http://dx.doi.org/10.1109/SP.2013.38},
+ doi = {10.1109/SP.2013.38},
+ acmid = {2498128},
+ publisher = {IEEE Computer Society},
+ keywords = {order-preserving encryption, encoding},
+} 
+
+@inproceedings{popa:cryptdb,
+ author = {Popa, Raluca Ada and Redfield, Catherine M. S. and Zeldovich, Nickolai and Balakrishnan, Hari},
+ title = {{CryptDB: Protecting Confidentiality with Encrypted Query Processing}},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {85--100},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/2043556.2043566},
+ doi = {10.1145/2043556.2043566},
+ acmid = {2043566},
+ publisher = {ACM},
+}
+
+@inproceedings{song:search,
+ author = {Song, Dawn Xiaodong and Wagner, David and Perrig, Adrian},
+ title = {{Practical Techniques for Searches on Encrypted Data}},
+ booktitle = {Proceedings of the 2000 IEEE Symposium on Security and Privacy},
+ series = {SP '00},
+ year = {2000},
+ isbn = {0-7695-0665-8},
+ pages = {44--55},
+ url = {http://dl.acm.org/citation.cfm?id=882494.884426},
+ acmid = {884426},
+ publisher = {IEEE Computer Society},
+}
+
+@inproceedings{Yao86,
+ author = {Yao, Andrew Chi-Chih},
+ title = {{How to Generate and Exchange Secrets}},
+ booktitle = {Proceedings of the 27th Annual Symposium on Foundations of Computer Science},
+ series = {SFCS '86},
+ year = {1986},
+ isbn = {0-8186-0740-8},
+ pages = {162--167},
+ numpages = {6},
+ url = {http://dx.doi.org/10.1109/SFCS.1986.25},
+ doi = {10.1109/SFCS.1986.25},
+ acmid = {1382944},
+ publisher = {IEEE Computer Society},
+} 
+
+@inproceedings{baumann:haven,
+ author = {Baumann, Andrew and Peinado, Marcus and Hunt, Galen},
+ title = {{Shielding Applications from an Untrusted Cloud with Haven}},
+ booktitle = {Proceedings of the 11th USENIX Conference on Operating Systems Design and Implementation},
+ series = {OSDI'14},
+ year = {2014},
+ isbn = {978-1-931971-16-4},
+ location = {Broomfield, CO},
+ pages = {267--283},
+ numpages = {17},
+ url = {http://dl.acm.org/citation.cfm?id=2685048.2685070},
+ acmid = {2685070},
+ publisher = {USENIX Association},
+} 
+
+@inproceedings{giffin:hails,
+ author = {Giffin, Daniel B. and Levy, Amit and Stefan, Deian and Terei, David and Mazi\`{e}res, David and Mitchell, John C. and Russo, Alejandro},
+ title = {{Hails: Protecting Data Privacy in Untrusted Web Applications}},
+ booktitle = {Proceedings of the 10th USENIX Conference on Operating Systems Design and Implementation},
+ series = {OSDI'12},
+ year = {2012},
+ isbn = {978-1-931971-96-6},
+ location = {Hollywood, CA, USA},
+ pages = {47--60},
+ numpages = {14},
+ url = {http://dl.acm.org/citation.cfm?id=2387880.2387886},
+ acmid = {2387886},
+ publisher = {USENIX Association},
+} 
+
+@inproceedings{Mylar,
+ author = {Popa, Raluca Ada and Stark, Emily and Helfer, Jonas and Valdez, Steven and Zeldovich, Nickolai and Kaashoek, M. Frans and Balakrishnan, Hari},
+ title = {{Building Web Applications on Top of Encrypted Data Using Mylar}},
+ booktitle = {Proceedings of the 11th USENIX Conference on Networked Systems Design and Implementation},
+ series = {NSDI'14},
+ year = {2014},
+ isbn = {978-1-931971-09-6},
+ location = {Seattle, WA},
+ pages = {157--172},
+ numpages = {16},
+ url = {http://dl.acm.org/citation.cfm?id=2616448.2616464},
+ acmid = {2616464},
+ publisher = {USENIX Association},
+}
+
+@inproceedings{blaze:cfs,
+ author = {Blaze, Matt},
+ title = {{A Cryptographic File System for UNIX}},
+ booktitle = {Proceedings of the 1st ACM Conference on Computer and Communications Security},
+ series = {CCS '93},
+ year = {1993},
+ isbn = {0-89791-629-8},
+ location = {Fairfax, Virginia, USA},
+ pages = {9--16},
+ numpages = {8},
+ url = {http://doi.acm.org/10.1145/168588.168590},
+ doi = {10.1145/168588.168590},
+ acmid = {168590},
+ publisher = {ACM},
+} 
+
+@inproceedings{kallahalla:plutus,
+ author = {Kallahalla, Mahesh and Riedel, Erik and Swaminathan, Ram and Wang, Qian and Fu, Kevin},
+ title = {{Plutus: Scalable Secure File Sharing on Untrusted Storage}},
+ booktitle = {Proceedings of the 2nd USENIX Conference on File and Storage Technologies},
+ series = {FAST '03},
+ year = {2003},
+ location = {San Francisco, CA},
+ pages = {29--42},
+ numpages = {14},
+ url = {http://dl.acm.org/citation.cfm?id=1090694.1090698},
+ acmid = {1090698},
+ publisher = {USENIX Association},
+} 
+
+@inproceedings{goh:sirius,
+   author = {Eu-Jin Goh and Hovav Shacham and Nagendra Modadugu and Dan Boneh},
+   title = {{SiRiUS:} {S}ecuring {R}emote {U}ntrusted {S}torage},
+   booktitle = {Proceedings of the Tenth Network and
+                Distributed System Security Symposium},
+   series = {NDSS '03},
+   location = {San Diego, CA},
+   pages = {131--145},
+   year = 2003,
+   month = feb,
+   publisher = {Internet Society (ISOC)}
+} 
+
+@inproceedings{Zhang:CloudVisor,
+ author = {Zhang, Fengzhe and Chen, Jin and Chen, Haibo and Zang, Binyu},
+ title = {{CloudVisor: Retrofitting Protection of Virtual Machines in Multi-tenant Cloud with Nested Virtualization}},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {203--216},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/2043556.2043576},
+ doi = {10.1145/2043556.2043576},
+ acmid = {2043576},
+ publisher = {ACM},
+ keywords = {multi-tenant cloud, nested virtualization, virtual machine security},
+} 
+
+@techreport{softnic,
+    Author = {Han, Sangjin and Jang, Keon and Panda, Aurojit and Palkar, Shoumik and Han, Dongsu and Ratnasamy, Sylvia},
+    Title = {{SoftNIC: A Software NIC to Augment Hardware}},
+    Institution = {EECS Department, University of California, Berkeley},
+    Year = {2015},
+    Month = {May},
+    URL = {http://www.eecs.berkeley.edu/Pubs/TechRpts/2015/EECS-2015-155.html},
+    Number = {UCB/EECS-2015-155},
+    Abstract = {As the main gateway for network traffic to a server, the network interface card (NIC) is an ideal place to incorporate diverse network functionality, such as traffic control, protocol offloading, and virtualization. However, the slow evolution and inherent inflexibility of NIC hardware have failed to support evolving protocols, emerging applications, and rapidly changing system/network architectures. The traditional soft- ware approach to this problem—implementing NIC features in the host network stack—is unable to meet increasingly challenging performance requirements.
+In this paper we present SoftNIC, a hybrid software-hardware architecture to bridge the gap between limited hardware capabilities and ever changing user demands. SoftNIC provides a programmable platform that allows applications to leverage NIC features implemented in software and hard- ware, without sacrificing performance. Our evaluation results show that SoftNIC achieves multi-10G performance even on a single core and scales further with multiple cores. We also present a variety of use cases to show the potential of software NIC augmentation.}
+}
+
+@techreport{exfiltration,
+title={{Detecting and Preventing Data Exfiltration Through Encrypted Web Sessions via Traffic Inspection}},
+author={George Silowash and Todd Lewellen and Joshua Burns and Daniel Costa},
+year={2013},
+number={CMU/SEI-2013-TN-012},
+institution={Software Engineering Institute, Carnegie Mellon University},
+url={http://resources.sei.cmu.edu/library/asset-view.cfm?AssetID=40224} }
