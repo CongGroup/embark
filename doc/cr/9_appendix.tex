@@ -1,0 +1,171 @@
+%!TEX root = mb.tex
+\NewEnviron{smallmultiline}{%
+    \begin{multline}
+    \scalebox{0.5}{$\BODY$}
+    \end{multline}
+    }
+
+\appendix
+\section{Discussion} 
+\label{sec:appendix:middleboxes}
+In this section, we discuss the core functionality of IP Firewall, NAT, L3/L4 Load Balancers 
+in Table~\ref{tbl:mbreqs}, and how do we derive the requirements for the encryption scheme. We 
+omit the discussion of other middleboxes in the table since their requirements are obvious to obtain.
+
+\subsection{IP Firewall}
+Firewalls from different vendors may have significantly different configurations and rule organizations, 
+and thus we need to extract a general model of firewalls. We used the model defined in ~\cite{fireman}, 
+which describes Cisco
+PIX firewalls and Linux iptables. In this model, the firewall consists of several access control lists (ACLs). 
+Each ACL consists of a list of rule. Rules can be interpreted in the form (\emph{predicate}, \emph{action}), 
+where the \emph{predicate} describes the packets matching this rule and the \emph{action} describes
+the action performed on the matched packets. The predicate is defined as a combination of ranges of source/destination
+IP addresses and ports as well as the protocol. The set of possible actions includes "\emph{accept}" and "\emph{deny}".
+
+Now we discuss the encryption. Let $\Enc$ denote a generic encryption protocol,
+$(SIP[],\ DIP[],\ SP[],\ DP[],\ P)$ denote the predicate of a rule. Any packet with 5-tuple 
+$(SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)$ matches that rule. 
+We encrypt both tuples and rules. In order to preserve the functionality of the firewall, 
+we should ensure that the following requirement holds after the encryption.
+
+\begin{equation}
+\label{eqn:firewall}
+\begin{split}
+& (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P) \Leftrightarrow \\
+& \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
+\end{split}
+\end{equation}
+
+\subsection{NAT}
+A typical NAT translates a pair of source IP and port into a pair of
+external source IP and port (and back), where the external source IP is the external address of the gateway,
+and the external source port is arbitrarily chosen. Essentially, a NAT maintains a mapping from a pair of source IP
+and port to an external port. There are two requirements: 1) same pair should be mapped to the same external source
+port; 2) different pairs should not be mapped to the same external source port. In order to satisfy the two
+requirements, the encryption scheme should ensure that the following requirements hold.
+
+\begin{equation}
+\begin{split}
+& (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \\ 
+ \Rightarrow & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
+\end{split}
+\end{equation}
+
+\begin{equation}
+\begin{split}
+& \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
+& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2) 
+\end{split}
+\end{equation}
+
+However, we may relax 1) to 1*): the source IP and port pair that belongs to the same 5-tuple 
+should be mapped to the same external port. We will explain as we get to the
+formal definition of PrefixMatch. After relaxing this requirement, the functionality of NAT is still preserved,
+but the NAT table may get filled up more quickly since the same pair may be mapped to different ports. However,
+we argue that this may not happen in practice, as an application on a host rarely connects to different hosts 
+or ports using the same source port. The requirements then become:
+
+\begin{equation}
+\label{eqn:nat1}
+\begin{split}
+& (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
+\Rightarrow & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
+\end{split}
+\end{equation}
+
+\begin{equation}
+\label{eqn:nat2}
+\begin{split}
+& \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
+& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2) 
+\end{split}
+\end{equation}
+
+\subsection{L3 Load Balancer}
+L3 Load Balancer maintains a pool of servers. It chooses a server for an incoming packet based on
+L3 connection information. A common implementation of L3 Load Balancing uses the ECMP scheme in the 
+switch. It guarantees that packets of the same flow will be forwarded to the same server by hashing
+the 5-tuple. Therefore, the requirement is
+
+\begin{equation}
+\label{eqn:l3lb}
+\begin{split}
+& (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Rightarrow \\
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+\end{split}
+\end{equation}
+
+\subsection{L4 Load Balancer}
+L4 Load Balancer~\cite{haproxy}, or TCP Load Balancer also maintains a pool of servers.
+It acts as a TCP endpoint that accepts the client's connection. After accepting a connection from a client,
+it connects to one of the server and forwards the bytestreams between client and server. The encryption
+scheme should make sure that same 5-tuples have the same encryption. In addition, two different 5-tuple
+should not have the same encryption, otherwise the L4 Load Balancer cannot distinguish those two flows.
+Thus, the requirement of supporting L4 Load Balancer is:
+
+\begin{equation}
+\label{eqn:l4lb}
+\begin{split}
+& (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Leftrightarrow \\
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+\end{split}
+\end{equation}
+
+\section{Formal Properties of PrefixMatch}
+In this section, we show how PrefixMatch supports middleboxes discussed in \S\ref{sec:appendix:middleboxes}.
+First of all, we formally list the properties that PrefixMatch preserves. As discussed in \label{sec:range},
+PrefixMatch preserves the functionality of firewalls by guaranteeing Property \ref{eqn:firewall}:
+
+In addition, PrefixMatch also ensures the following properties:
+
+\begin{equation}
+\label{eqn:pm1}
+\begin{split}
+& (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Rightarrow \\
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+\end{split}
+\end{equation}
+
+\begin{equation}
+\label{eqn:pm2}
+\Enc(SIP_1) = \Enc(SIP_2)\ \Rightarrow\ SIP_1 = SIP_2
+\end{equation}
+
+\begin{equation}
+\label{eqn:pm3}
+\Enc(DIP_1) = \Enc(DIP_2)\ \Rightarrow\ DIP_1 = DIP_2
+\end{equation}
+
+\begin{equation}
+\label{eqn:pm4}
+\Enc(SP_1) = \Enc(SP_2)\ \Rightarrow\ SP_1 = SP_2
+\end{equation}
+
+\begin{equation}
+\label{eqn:pm5}
+\Enc(DP_1) = \Enc(DP_2)\ \Rightarrow\ DP_1 = DP_2
+\end{equation}
+
+\begin{equation}
+\label{eqn:pm6}
+\Enc(P_1) = \Enc(P_2)\ \Rightarrow\ P_1 = P_2
+\end{equation}
+
+We discuss how those properties imply all the requirements in \S\ref{sec:appendix:middleboxes} as follows.
+
+\noindent{\bf NAT} 
+We will show that Eq.\eqref{eqn:pm1}-Eq.\eqref{eqn:pm6} imply Eq.\eqref{eqn:nat1}-
+Eq.\eqref{eqn:nat2}. Given $(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2)$, 
+by Eq.~\eqref{eqn:pm1},
+we have $\Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2)$. Hence, Eq.\eqref{eqn:nat1} holds. Similarly, 
+given $\Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2)$, by Eq.\eqref{eqn:pm2} and Eq.\eqref{eqn:pm4}, 
+we have $(SIP_1, SP_1) = (SIP_2, SP_2)$. Hence, Eq.\eqref{eqn:nat2} also holds. Note that if
+we did not relax the requirement in Eq.\eqref{eqn:nat1}, we could not obtain such proof.
+
+\noindent{\bf L3 Load Balancer} 
+By Eq.\eqref{eqn:pm1}, Eq.\eqref{eqn:l3lb} holds.
+
+\noindent{\bf L4 Load Balancer} 
+By Eq.\eqref{eqn:pm1}, the left to right direction of 
+Eq.\eqref{eqn:l4lb} holds. By Eq.\eqref{eqn:pm2}-Eq.\eqref{eqn:pm6}, the right to left 
+direction of Eq.\eqref{eqn:l4lb} also holds.
