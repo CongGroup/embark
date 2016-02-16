@@ -39,22 +39,18 @@ If there is a cache miss, the proxy opens a new connection and forwards the encr
 
 \subsection{Limitations}\label{s:limitations}
 
-\todo{reread}
-\sys supports a wide range of middleboxes, but not all middlebox functionality one could envision outsourcing.
+ \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs},
+but not all middlebox functionality one could envision outsourcing.
 
-First, for intrusion detection, \sys does not support regular expressions that cannot be expanded in limited number of keyword matches. \sys does not support running detection scripts on the traffic as in Bro~\cite{Bro}.
+First, for intrusion detection, \sys does not support regular expressions that cannot be expanded in a certain number of keyword matches. \sys does not support running detection scripts on the traffic as in Bro~\cite{Bro}.
 
-Second, \sys does not support application firewalls and application-level gateways.
-Application-level firewalls act as a protocol end point and relay (e.g., an SMTP client/server or a Web proxy agent).
-KeywordMatch cannot support arbitrary application-level protocols. For example, a SMTP firewall will try to parse the content received into SMTP format, but it cannot do such parsing over encrypted tokens from KeywordMatch. Application-level gateways are useful for certain address-dependent 
-protocols such as FTP; these do not change the semantics of the application protocol, but carry 
-out mechanical substitution of fields. Similarly, application-level gateways cannot read or 
-rewrite those fields that are in the application-level data, because it cannot parse the data as needed when it is encrypted with KeywordMatch.
+Second, \sys does not support application-level middleboxes.
+These applications may parse the traffic in an application-specific way -- such parsing is not supported by KeywordMatch.
+For example, application-level firewalls such as the SMTP firewall parse the content received into SMTP format. Application-level gateways are used for  certain address-dependent 
+protocols such as FTP, and carry 
+out mechanical substitution of fields based on a certain parsing of the stream.
+Similarly, \sys does not support transcoders, which perform on-the-fly conversion of application level 
+data.
 
-
-Also, \sys does not support transcoders, which perform on-the-fly conversion of application level 
-data because it cannot parse KeywordMatch-encrypted tokens.
-
-In sum, \sys does not have a general solution to support all application-level middleboxes.
 Supporting these functionalities is part of our future work.
 

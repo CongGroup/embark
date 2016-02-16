@@ -15,7 +15,7 @@ IP Firewall~\cite{fireman} &
 \parbox {8cm}{
 \begin{flalign*}
 & (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)  \\ 
-& \hspace{5mm} \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
+&  \Leftrightarrow  \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
 % & \text{To support existing packet classification algorithms {\em unchanged:}} \\
 % &    E_1 \le E_2 \Leftrightarrow \Enc(E_1) \le \Enc(E_2), \text{ where } E \text{ is any of } SIP,\ DIP,\ SP,\ DP,\ P
 \end{flalign*}
@@ -34,7 +34,7 @@ L3 LB (ECMP)~\cite{rfc2991} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Rightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+&\Leftrightarrow\  \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
 \end{flalign*}
 }
 & Yes & PrefixMatch \\ \hline
@@ -43,41 +43,49 @@ L4 LB~\cite{haproxy} &
 \parbox {8cm}{
 \begin{flalign*}
 &(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
-\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
+&\Leftrightarrow \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
 %&(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \\
 %\Leftrightarrow &\Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ \neq\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2) 
 \end{flalign*}
 }& Yes & PrefixMatch \\ \hline
 
 HTTP Proxy / Cache~\cite{rfc3040, haproxy, squid} &
-$ \text{Request-URI} \in \text{HTTP Header} \Leftrightarrow \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header}))=1 $
+$ \Match(\text{Request-URI},\ \text{HTTP Header})$
+
+$= \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
 & Yes & KeywordMatch \\ \hline
 
 Deep Packet Inspection: & & & \\
 
 
 $\circ$ Parental Filter~\cite{squid} &
-$ \text{Request-URI} \in \text{HTTP Header}\  \Leftrightarrow\ \Match(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) = 1$
+$ \Match(\text{Request-URI},\ \text{HTTP Header})$
+
+$ = \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
  &
 Yes & KeywordMatch \\
 %
 %
-$\circ$ Data Exfiltration /  Watermark Detection 
+$\circ$ Data Exfiltration/  Watermark Detection 
 &
-$\text{Watermark} \in \text{Stream} \hspace{1mm} \Leftrightarrow \hspace{1mm} \Match(\Enc(\text{Watermark}),\ \Enc(\text{Stream})$)=1
+$\Match(\text{Watermark},\ \text{Stream})  \hspace{1mm}$ 
+
+$ = \Match'(\Enc(\text{Watermark}),\ \Enc(\text{Stream})$)
  &
 Yes & KeywordMatch \\ 
 %
 %
 $\circ$ Intrusion detection~\cite{snort, bro}
 &
-$ \text{Keyword} \in \text{Stream} \quad \Leftrightarrow \quad   \Match(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))=1$
+$ \Match(\text{Keyword},\ \text{Stream}) =   \Match'(\Enc(\text{Keyword}),\ \Enc(\text{Stream}))$
 &
 Yes & KeywordMatch \\ 
 %
 %
 &
-$\text{RegExpMatch(RegExp, Stream)} \quad \Leftrightarrow \quad \Match(\Enc(\text{regexp}),\Enc(\text{stream}))=1$
+$\mathsf{RegExpMatch}(\text{RegExp, Stream})$
+
+$ = \mathsf{RegExpMatch}'(\Enc(\text{RegExp}),\Enc(\text{Stream}))$
 &
 Partially & KeywordMatch \\
 
@@ -93,7 +101,7 @@ No & KeywordMatch \\
 \end{tabular}
 }
 
-\caption[]{Middleboxes supported by \sys. The second column indicates the functionality desired out of the encryption to support these middleboxes sufficiently. ``Support'' indicates if \sys supports the desired functionality  and ``Scheme'' the encryption scheme used.  {\bf Legend:} $\Enc$ denotes a generic encryption protocol, $\Match$ is a matching algorithm that works with encrypted values, $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$, $\Leftrightarrow$ denotes ``if and only if''. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+\caption[]{Middleboxes supported by \sys. The second column indicates the core functionality of each middlebox along with the property required of encryption to support this functionality. ``Support'' indicates whether \sys supports this functionality and ``Scheme'' is the encryption scheme used.  {\bf Legend:} $\Enc$ denotes a generic encryption protocol,  $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port, $P$ = protocol,  $E[]$ = a range of $E$, $\Leftrightarrow$ denotes ``if and only if'', $\Match(x, s)$ indicates if $x$ is a substring of $s$, and $\Match'$ is the encrypted equivalent of $\Match$. The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
 \end{table*}
 
 %\multicolumn{3}{c}}\\
@@ -156,7 +164,7 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance, as listed in Table~\ref{tbl:mbreqs}. 
+\sys supports a wide range of middleboxes with practical performance.  Table~\ref{tbl:mbreqs} shows the relevant middleboxes, their core functionality, and the extent to which \sys supports this functionality.
 %These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
@@ -172,7 +180,8 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb, ethan-paper}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
 
-We implemented and evaluated \sys on EC2. \sys supports all applications typically deployed by outsourcing as surveyed in~\cite{aplomb}.
+We implemented and evaluated \sys on EC2. \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs}.
+In our evaluation, we showed that \sys supports at least one real application in each middlebox category in Table~\ref{tbl:mbreqs}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
