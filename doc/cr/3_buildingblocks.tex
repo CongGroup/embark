@@ -62,23 +62,24 @@ Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule
 
 \subsection{PrefixMatch} \label{sec:range}
 
-\todo{what is the size of $\slen$, $\plen$, and $\ptlen$? we need to be consistent in all the examples}
 
-
-Many middleboxes perform detection over {\it prefixes} or {\it ranges} of port numbers or IP addresses (i.e. packet classification). For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. PrefixMatch enables a middlebox to tell whether an IP address $v$ lies in between a range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$. Unlike KeywordMatch, PrefixMatch is a new scheme we designed specifically for our setting.
+Many middleboxes perform detection over {\it prefixes} or {\it ranges} of  IP addresses or port numbers  (i.e. packet classification). For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 18.0.0.0/8, \ie{}, 18.0.0.0-18.255.255.255. PrefixMatch enables a middlebox to tell whether an encrypted IP address $v$ lies in an encrypted range $[s_1, e_1]$, where $s_1$ = 18.0.0.0 and $e_1$ = 18.255.255.255; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$. Unlike KeywordMatch, PrefixMatch is a new scheme we designed specifically for our setting.
 
 One might ask whether PrefixMatch is necessary, or one can instead employ KeywordMatch using the same expansion technique we used for some (but not all) regexps in \S\ref{sec:bbarch}. 
 To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
-For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match only rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
-Hence, to perform typical middlebox behaviors {\it in practice}, we require a PrefixMatch scheme which is more efficient.
+For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match  rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
+Hence, for efficiency, we need a scheme for matching ranges.
 
+\mypara{Requirements}
+There are a few requirements \sys needs from PrefixMatch.
+First, PrefixMatch must allow for direct order comparison between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s}_1$ and $\ov{e}_1$ of a range, $[s_1, e_1]$. This is in order to allow existing packet classification algorithms to run unchanged (e.g. firewall algorithms). Note that \sys does not need order comparison between $\Enc(v_1)$ and $\Enc(v_2)$ and hence such order information should not leak. 
 
-
+Second, to support the functionality of NAT in Table~\ref{tbl:mbreqs}, $\Enc(v)$ should be {\em injective within a flow}. This means that two encryptions $\Enc(v_1)$ and $\Enc(v_2)$ should not be equal unless 
 
 \mypara{Functionality}
-PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P}_{i,1} \dots, \ov{P}_{i, n_i}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\ov{v}$. These encryptions have the  property that, for all $i$,  
+PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P}_{i,1} \dots, \ov{P}_{i, n_i}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
 %
-\[  v \in P_i  \Leftrightarrow \ov{v} \in \ov{P}_{i, 1} \cup \dots \cup \ov{P}_{i, n_i}. \]
+\[  v \in P_i  \Leftrightarrow \Enc(v) \in \ov{P}_{i, 1} \cup \dots \cup \ov{P}_{i, n_i}. \]
 %
 In other words, the encryption preserves prefix matching.
 
@@ -92,6 +93,8 @@ Our goal in designing PrefixMatch was for it to be both efficient/fast {\em and}
 \todo{give syntax somewhere?}
 
 
+
+\todo{make clear that the same key is used for equality matching, somewhere in the gateway}
 
 
 In terms of performance, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
@@ -118,6 +121,9 @@ Although PrefixMatch has a similar functionality to order-preserving encryption 
 We now explain how PrefixMatch works. To illustrate the protocol, we use IP addresses, but the scheme works with 
 ports and other value domains too.
 
+\todo{what is the size of $\slen$, $\plen$, and $\ptlen$? we need to be consistent in all the examples}
+
+\todo{put requirements on the scheme}
 
 
 \mypara{Prefixes/ranges encryption} \pmatch{} takes as input a set of prefixes or ranges $P_1 = [s_1, e_1], \dots, P_n$, 
