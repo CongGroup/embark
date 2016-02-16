@@ -161,7 +161,7 @@ We now present the EncryptPrefixes procedure, which works the same for prefixes 
 
 \mypara{Value Encryption}
 To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. It then looks up $\ov{I}$ in the interval map computed by EncryptPrefixes and sets $\ov{I}$ to be the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it is deterministic. 
-Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolume1}, $\prf^{\slen}$, seeded in a given seed  $\seed$, where $\slen = \len-\plen$.  
+Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolume1}\todo{fix}, $\prf^{\slen}$, seeded in a given seed  $\seed$, where $\slen = \len-\plen$.  
 
 
 
@@ -178,7 +178,6 @@ For example, if $v$ is 127.0.0.1 (0::ffff:127.0.0.1), and the assigned prefix fo
 }
 \end{framed}
 
-\todo{introduce suffix len}
 
 %\begin{figure}
 %  \includegraphics[width=3.25in]{fig/tree}
@@ -208,7 +207,7 @@ We formalize and prove the security guarantees of \pmatch{} in our extended pape
 \label{sec:tree}
 
 \todo{THIS  SUBSECTION IS WORK IN PROGRESS}
-\todo{give syntax somewhere?}
+
 
 
 
