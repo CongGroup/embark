@@ -165,7 +165,7 @@ Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolu
 
 
 
-For example, if $v$ is 127.0.0.1 (0::ffff:127.0.0.1), and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the ecryption does not retain any information about $v$ other than the interval it matches in. In particular, two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, PrefixMatch does not reveal order.
+For example, if $v$ is 127.0.0.1 (0::ffff:127.0.0.1), and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the encryption does not retain any information about $v$ other than the interval it matches in. In particular, two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, PrefixMatch does not reveal order.
 
 \begin{framed}
 \ALGORITHM{EncryptValue}{proc:enc_value}{$\seed$, $v$, $\slen$, interval map}{
@@ -236,7 +236,7 @@ Therefore, if $w=128$ (which is the case when we use IPv6), the probability is n
 
 \todo{remark for perfect security and tradeoff with work at the gateway}
 \todo{does each rule become multiple rules?? explain who FW does with this, explain how many there are, need eval of this}
-\todo{then in func you also need to clarfiy that it becomes more than one; this will leak about the prefixes what intersections they have!! even without fields matching}
+\todo{then in func you also need to clarify that it becomes more than one; this will leak about the prefixes what intersections they have!! even without fields matching}
 \todo{and what does the firewall do?}
 
 
