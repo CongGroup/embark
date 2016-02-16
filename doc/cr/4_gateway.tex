@@ -45,7 +45,10 @@ As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middlebo
 IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with PrefixMatch.
 We use PrefixMatch for these fields because many middleboxes perform analysis over prefixes and ranges of values -- e.g., a firewall may block all connections from a restricted IP prefix.
 
-\noindent{\bf Decryption.} PrefixMatch is not reversible. To enable packet decryption, we store the AES-encrypted values for the header fields in the IPv6 options header. When the gateway receives a packet to decrypt, it decrypts the values from the options header and restores them.% to the IP or transport header.
+\noindent{\bf Decryption.} PrefixMatch is not reversible. To enable packet decryption, we store the AES-encrypted values for the header fields in the IPv6 options header. 
+When the gateway receives a packet to decrypt, if the values haven't been rewritten by the middlebox (\eg NAT),
+it decrypts the values from the options header and restores them. 
+% to the IP or transport header.
 
 \noindent{\bf Format-compatibility.} 
 Our modifications to the IP and transport headers place the encrypted prefix match data back in to the same fields as the unencrypted data was originally stored; because comparisons between rules and encrypted data rely on $\leq$ $\geq$, just as unencrypted data, this means that operations performing comparisons on IP and transport headers {\it remain entirely unchanged at the middlebox.}
@@ -63,9 +66,18 @@ Because this encrypted payload data is over the {\it bytestream}, we need to gen
 Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {'malici', 'alicio', 'liciou', 'icious'}.
 If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
-After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection between the gateway and middleboxes. The bytestream in transmission is associated with its flow identifier, so that the DPI middleboxes can distinguish between bytestreams in different flows.
+After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over 
+an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
+This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection 
+between the gateway and middleboxes. The bytestream in transmission is associated with its flow identifier, 
+so that the DPI middleboxes can distinguish between bytestreams in different flows.
 
-Besides, the gateway still forward the packets to the cloud, with the payload data encrypted with AES and checksums recomputed. The DPI middleboxes handle the packets based on the bytestream received from the extension channel.
+Besides, the gateway still forward the packets to the cloud, with the payload data encrypted with AES 
+and checksums recomputed. Since there is a VPN connection in TCP between the gateway and the cloud, we guarantee
+the reliable delivery of the packets.
+The DPI middleboxes handle the packets based on the bytestream received from the extension channel. For example, if 
+the intrusion prevention system finds the bytesteam matches a signature, it drops all the packets associated with
+the matched flow.
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like PrefixMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.
