@@ -18,7 +18,7 @@ Yamada et al~\cite{Yamada_IDS} show how one can perform some very limited proces
 
 \noindent{\bf Encryption Schemes:}
 \sys's PrefixMatch scheme is similar to order preserving encryption schemes, but no existing scheme provided both the performance and security properties we required.
-The order-preserving encryption~\cite{boldyreva:ope, popa:mope} used in CryptDB is 
+The order-preserving encryption~\cite{boldyreva:ope, popa:mope}  is 
  $>10000$ times slower than PrefixMatch (\S\ref{sec:eval}); moreover, it leaks the order of the IP addresses encrypted, while PrefixMatch protects this information. However, OPE schemes are more generic and applicable to a wide set of scenarios. PrefixMatch, on the other hand, is designed for a particular scenario.
 The encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security guarantee to PrefixMatch; but, it is orders of magnitude slower than the OPE schemes which are already 10000$\times$ slower than PrefixMatch. 
 

@@ -130,16 +130,19 @@ Like other DPI tasks, this requires parsing the entire TCP bytestream. However, 
 \subsection{Rule Encryption}
 \label{sec:rulenc}
 
+Given a ruleset for a middlebox type, the gateway encrypts this ruleset with either KeywordMatch or PrefixMatch, depending on the encryption scheme used by that middlebox as in Table~\ref{tbl:mbreqs}. For example, firewall rules are encrypted using PrefixMatch. As a result of encryption, some rulesets expand and we evaluate in \S\ref{sec:eval} by how much. For example, a firewall rule containing an IP prefix that maps to two encrypted prefixes using PrefixMatch becomes two rules, one for each encrypted prefix.
+ 
+
 
 Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
-On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client.
+On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client (gateway).
 \sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
 PrefixMatch rules only supports (a) and (c) -- the gateway who maintains the rule tree {\it must} know the rules to perform encryption properly.
 
-If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or PrefixMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these annotated with the plaintext for each encryption; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
+If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or PrefixMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these encrypted rules annotated with the plaintext; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
 
-If the client is not permitted to know the rules, we must somehow allow the cloud provider to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
+If the client (gateway) is not permitted to know the rules, we must somehow allow the cloud provider to learn the encryption of each rule with the client's key. This is achieved using a classical combination of Yao's garbled circuits~\cite{Yao86} with oblivious transfer~\cite{Naor-Pinkas}, as originally applied by BlindBox~\cite{blindbox}.
 As in BlindBox, this exchange only succeeds if the rules are signed by a trusted third party (such as McAffee, Symantec, or EmergingThreats) -- the cloud provider should not be able to generate their own rules without such a signature as it would allow the cloud provider to read arbitrary data from the clients' traffic.
 Unlike BlindBox, this rule exchange occurs exactly once -- when the gateway initializes the rule. 
 After this setup, all connections from the enterprise are encrypted with the same key at the gateway.
@@ -212,20 +215,26 @@ After this setup, all connections from the enterprise are encrypted with the sam
 
 
 
-\mypara{Rule Updates at the Cloud}
+\mypara{Rule Updates}
 \label{sec:updates}
-At the cloud, PrefixMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update can also change encrypted values within packets.
-The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections
-Adding or removing a rule will modify these values in the PrefixMatch tree, and thus to continue correct processing the NAT state must be updated.
-The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
-The same problem occurs if packets encrypted under the new tree arrive before the new ruleset.
+%
+Rule updates need to be treated carefully for PrefixMatch.
+Adding a new prefix/range or removing an existing range can affect the encryption of an existing prefix. The reason is that the new prefix can overlap with an existing one. In the worst case, the encryption of all the rules needs to be updated. 
 
-To avoid these problems the gateway and cloud provider do the following. 
-When the gateway updates the PrefixMatch tree, it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
-The gateway then sends a signal to the cloud provider that it is about to `swap in' the new map. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it releases the new traffic.
+The fact that the encryption of old rules changes poses two challenges.
+The first challenge is the correctness of middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections. The encryption of an IP address with EncryptValue depends on the list of prefixes so an IP address might be encrypted differently after the rule update, becoming inconsistent with the NAT table.
+ Thus, the NAT state must also be updated.
+The second challenge is a race condition: if the middlebox adopts a new ruleset while packets encrypted under the old ruleset  are still flowing, these packets can be misclassified.
+%The same problem occurs if packets encrypted under the new ruleset arrive before the new ruleset was .
+
+To avoid these problems, the gateway and the cloud provider do the following. 
+The gateway first runs EncryptPrefixes for the new set of prefixes and creates a new set of encrypted prefixes and a new interval map. 
+Then, the gateway announces to the cloud provider the pending update, and the middleboxes ship their current state to the gateway. The gateway updates this state by producing new encryptions and sends the new state back to the middleboxes. During all this time, the gateway continued to encrypt traffic based on the old prefixes and the middleboxes processed it based on the old rules.
+Once all middleboxes have the new state, the gateway sends a signal to the cloud provider that it is about to `swap in' the new data. 
+The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it starts processing new traffic.
 Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing. 
 
+\todo{fix para below:}
 The cloud provider updating middlebox rules will have to write rules appropriately to account for the fact that a 
 single prefix maps to multiple intervals. For example, if a middlebox is counting the number of connections to a 
 prefix $P$. $P$ maps to a single interval $I$. After updating, a new rule is added which partially overlaps 
@@ -233,20 +242,8 @@ with $P$ and hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update
 \texttt{if $v$ in $I$ then counter++} becomes \texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}.
 
 
-\noindent \textbf{Updating ranges.}
-Adding a new range or removing an existing range would affect the intervals it covers. Therefore, in the worst case $O(N)$ rules needs to be updated. 
-
-\todo{ and it has to be clear that to encrypt firewall rules at the gateway using the Prefix match, you need to go through each part of the rule and encrypt that; 
-The gateway will use an instance of PrefixMatch for every field, destination IP, etc.
-}
-\todo{and need to discuss the prefix part}
-
-\todo{need to discuss the fact that they blowup here}
 
 
-The gateway stores the intervals and the mapping from intervals to prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
-
-The gateway can use the following functions. EncryptRules encrypts the initial rules. EncryptTuple encrypts packet header fields which are represented as a tuple; it requires identifying the interval $I$ for each field. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
 
 
 
