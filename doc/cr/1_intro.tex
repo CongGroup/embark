@@ -10,7 +10,7 @@
 {\renewcommand{\arraystretch}{1.8}%
 \begin{tabular}{|c|>{\raggedright}m{2.6cm}|>{\raggedright}m{8.2cm}|l|l|}
 \hline
-& {\bf Middlebox} & {\bf Sufficient Property} & {\bf Support} & {\bf Scheme} \\ \hline
+& {\bf Middlebox} & {\bf Functionality} & {\bf Support} & {\bf Scheme} \\ \hline
 
 
 \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\hspace{-\normalbaselineskip}L3/L4 Header}}}
@@ -58,7 +58,7 @@ $= \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
 & Yes & KeywordMatch \\ \hline
 
 
-\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection}}}
+\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection (DPI)}}}
 
 & Parental Filter~\cite{squid} &
 $ \Match(\text{Request-URI},\ \text{HTTP Header})$
@@ -102,9 +102,9 @@ No & - \\ \hline
 \end{tabular}
 }
 
-\caption[]{Middleboxes supported by \sys. The second column indicates the sufficient property required of encryption 
-to support the middlebox's core functionality. We discuss this in \S~\ref{sec:appendix:middleboxes}. ``Support'' indicates whether \sys supports this 
-functionality and ``Scheme'' is the encryption scheme used.  {\bf Legend:} $\Enc$ denotes a generic encryption
+\caption[]{Middleboxes supported by \sys. The second column indicates an encryption functionality 
+that is sufficient to support the middlebox's core functionality (as we elaborate in Appendix \S\ref{sec:appendix:middleboxes}). ``Support'' indicates whether \sys supports this 
+functionality and ``Scheme'' is the encryption scheme used to support it.  {\bf Legend:} $\Enc$ denotes a generic encryption
  protocol,  $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port,
   $P$ = protocol,  $E[]$ = a range of $E$, $\Leftrightarrow$ denotes ``if and only if'', $\Match(x, s)$ 
   indicates if $x$ is a substring of $s$, and $\Match'$ is the encrypted equivalent of $\Match$. 
@@ -156,7 +156,7 @@ To address this, we designed and implemented \sys, the first system to allow an 
 Middleboxes in \sys operate directly over {\it encrypted} traffic. %without decrypting the traffic. 
 
 
-In recent work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
+In recent work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection (DPI)~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for this setting because
  (1) it has restricted functionality that does not support all middleboxes required for outsourcing, and (2) it has prohibitive performance overheads.
  
@@ -171,7 +171,7 @@ Regarding performance, BlindBox has a prohibitive setup time of 97s per-connecti
 \sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
 not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
-\sys supports a wide range of middleboxes with practical performance.  Table~\ref{tbl:mbreqs} shows the relevant middleboxes, their core functionality, and the extent to which \sys supports this functionality.
+\sys supports a wide range of middleboxes with practical performance.  Table~\ref{tbl:mbreqs} shows the relevant middleboxes, the desired functionality from encryption to support these, and the extent to which \sys supports this functionality.
 %These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
@@ -187,8 +187,8 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   Importantly, middleboxes can continue to take advantage of highly-efficient packet classification algorithms~\cite{packet_classif} as already implemented, and which are among the more expensive tasks in software middleboxes~\cite{comb}.
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
 
-We implemented and evaluated \sys on EC2. \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs}.
-In our evaluation, we show that \sys supports the core functionality of each middlebox category in Table~\ref{tbl:mbreqs}.
+We implemented and evaluated \sys on EC2. \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs}, and elaborated in Appendix~\ref{sec:appendix:middleboxes}.
+In our evaluation, we show that \sys supports a real use case in each  middlebox category in Table~\ref{tbl:mbreqs}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 
