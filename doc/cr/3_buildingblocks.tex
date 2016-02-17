@@ -13,7 +13,7 @@ When describing these schemes we refer to the encryptor as the gateway whose sec
 \subsection{KeywordMatch}\label{s:kwmatch}
 
 
-KeywordMatch allows detecting if an encrypted keyword matches an encrypted data item by equality.
+KeywordMatch detects if an encrypted keyword matches an encrypted data item by equality.
 For example, given an encryption of the keyword ``malicious'', and a list of encrypted strings  [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')], SP can  detect that the keyword matches the second string. 
 For  this, we use a searchable encryption scheme~\cite{song:search, blindbox}.
 Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule $r$ into $\encr$ and SP can detect if there is a match between $v$ and $r$. 
@@ -76,7 +76,7 @@ Hence, for efficiency, we need a scheme for matching ranges.
 
 \mypara{Requirements}
 %
-There are a few requirements \sys needs from PrefixMatch.
+Supporting the middleboxes from Table~\ref{tbl:introtable} and meeting our system security and performance requirements entail the following requirements in desigigning PrefixMatch.
 %
 First, PrefixMatch must allow for direct order comparison (i.e., using $\leq$/$\geq$) between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s_1}$ and $\ov{e_1}$ of a range, $[s_1, e_1]$. This allows existing packet classification algorithms, such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}, 
  to run unchanged. 
@@ -86,12 +86,10 @@ Second, to support the functionality of NAT in Table~\ref{tbl:mbreqs}, $\Enc(v)$
 Third, for security, we require that nothing leaks about the values $v$ encrypted other than what is needed by the functionality above. Note that \sys does not need order comparison between $\Enc(v_1)$ and $\Enc(v_2)$; hence, PrefixMatch does not leak such order information.  PrefixMatch also provides protection for the endpoints of ranges: SP should not learn their values, and SP should not learn the ordering of the intervals. 
  Further, note that the NAT does not require that $\Enc(v)$ be deterministic across flows; hence, PrefixMatch hides whether two IP addresses encrypted as part of different flows are equal or not. In other words, PrefixMatch is randomized across flows.
  
-
-
-In terms of performance, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
+Finally, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
 Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eval}), and the detection is the same as regular middleboxes based on the $\leq$/$\geq$ operators.
 
- To the best of our knowledge, PrefixMatch is the only encryption scheme that achieves these security guarantees and is practical for our setting.
+ %To the best of our knowledge, PrefixMatch is the only encryption scheme that achieves these security guarantees and is practical for our setting.
  Order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope} can provide the same and more functionality than PrefixMatch. In comparison, PrefixMatch provides significantly stronger security by not leaking the order of values encrypted, and achieves four orders of magnitude higher performance  (as we show in \S\ref{sec:eval}).
 
 
@@ -138,7 +136,7 @@ For example, in Fig.~\ref{fig:rangeopts3},  there are two prefixes to encrypt: $
 
 PrefixMatch now assigns an encrypted prefix to each interval. Note that each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefix of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number because $\prefixes(I_0) = \prefixes(I_4)$.
 
-When a prefix overlaps partially with another prefix, it will have more than one encrypted prefix because it is broken into intervals. For example, $I_1$ was assigned a random number of $0x123c$ and $I_2$ of $0xabcc$. The encryption of  $P_1$ in Fig.~\ref{fig:rangeopts3} will be the pair ($123c::/16$, $abcc::/16$).
+When a prefix overlaps partially with another prefix, it will have more than one encrypted prefix because it is broken into intervals. For example, $I_1$ was assigned a random number of 0x123c and $I_2$ of 0xabcc. The encryption of  $P_1$ in Fig.~\ref{fig:rangeopts3} will be the pair ($123c::/16$, $abcc::/16$).
 
 Since the encryption is a random prefix, the encryption does not reveal the original prefix. Moreover, the fact that intervals pertaining to the same set of prefixes receive the same encrypted number hides where an encrypted value matches, as we discuss below. For example, for an IP address $v$ that does not match either $P_1$ or $P_2$, the cloud provider will not learn whether it matches to the left or to the right of $P_1 \cup P_2$ because $I_0$ and $I_4$ receive the same encryption. The only information it learns about $v$ is that $v$ does not match either $P_1$ or $P_2$. 
 
@@ -193,7 +191,8 @@ Hence, a regular packet classification can be run at the firewall with no modifi
 \subsubsection{Security Guarantees}
 \label{sec:buildingblocks:guarantees}
 
-\pmatch{} hides the  prefixes and values encrypted with EncryptPrefixes and EncryptValue. \pmatch{} reveals  matching information desired to enable functionality at the cloud provider.  Concretely, the cloud provider learns the number of intervals and which prefixes overlap in each interval, but no additional information on the size, order or endpoints of these intervals. Moreover, for every encrypted value $v$, it learns the indexes of the prefixes that contain $v$ (which is the functionality desired of the scheme), but no other information about $v$. For any two encrypted values $\Enc(v)$ and $\Enc(v')$, the cloud provider learns if they are equal only if they are encrypted as part of the same flow (which is the functionality desired for the NAT), but it does not learn any other information about their value or  order.  Hence, PrefixMatch is significantly more secure than order-preserving encryption.
+\pmatch{} hides the  prefixes and values encrypted with EncryptPrefixes and EncryptValue. \pmatch{} reveals  matching information desired to enable functionality at the cloud provider.  Concretely, the cloud provider learns the number of intervals and which prefixes overlap in each interval, but no additional information on the size, order or endpoints of these intervals. Moreover, for every encrypted value $v$, it learns the indexes of the prefixes that contain $v$ (which is the functionality desired of the scheme), but no other information about $v$. For any two encrypted values $\Enc(v)$ and $\Enc(v')$, the cloud provider learns if they are equal only if they are encrypted as part of the same flow (which is the functionality desired for the NAT), but it does not learn any other information about their value or  order.  
+Hence, PrefixMatch leaks less information than OPE, which reveals the order of encrypted prefixes/ranges.
 
 %
 Since EncryptValue is seeded in a per-connection identifier, correlation attacks between different flows are not possible. 

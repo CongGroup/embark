@@ -17,7 +17,7 @@
  
 \section{Evaluation} \label{sec:eval}
 
-As we showed in \S\ref{sec:mbs}, \sys supports all middlebox applications in typical outsourcing environments~\cite{aplomb,etsi-nfv}. Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  in the affirmative.
+As we showed in \S\ref{sec:mbs}, \sys supports typical middlebox applications in typical outsourcing environments~\cite{aplomb,etsi-nfv}. Hence, from a functionality perspective, \sys answers our original question, ``Is it possible to enable a third party to perform traffic processing for an enterprise, {\em without seeing the enterprise's traffic}?''  in the affirmative.
 
 We now investigate whether \sys is practical from a performance perspective, looking at the overheads due to encryption and redirection. 
 We built our gateway using BESS (Berkeley Extensible Software Switch, formerly SoftNIC~\cite{softnic}) on an off-the-shelf 16-core server with 2.6GHz Xeon E5-2650 cores and 128GB RAM; the network hardware is a single 10GbE Intel 82599 compatible network card. 
@@ -191,12 +191,20 @@ The \sys proxy needs to synchronize between these two flows; this synchronizatio
 Our IDS is based on BlindBox~\cite{blindbox}. BlindBox incurs a substantial `setup cost' every time a client initiates a new connection. With \sys, however, the gateway and the cloud maintain one, long-term persistent connection. 
 Hence, this setup cost is paid once when the gateway is initially configured. \sys also heuristically expands regular expressions in the rulesets into exact match strings. This results in two benefits:
 
-\noindent{\it (1) End-to-end performance improvements.} Where BlindBox incurs an initial handshake of 97s~\cite{blindbox} to open a new connection, clients under \sys never pay this cost; instead they perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to between 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.
+\noindent{\it (1) End-to-end performance improvements.} Where BlindBox incurs an initial handshake of 97s~\cite{blindbox} to open a new connection and generate the encrypted rules, end hosts under \sys never pay this cost. Instead, the gateway pays a one-time setup cost, and end hosts afterwards perform a normal TCP or SSL handshake of only 3-5 RTTs. In our testbed, this amounts to between 30 and 100 ms, depending on the site and protocol -- an improvement of 4 orders of magnitude.  
 
-\todo{these numbers look old (1) I remember better garbled circuits results (2) what is the cost of the one-time setup due to regexp blowup, might be one time, but I fear it is huge  ?}
 \noindent{\it (2) Security improvements.} 
 Using IDS rulesets from Snort, we converted regular expressions to exact match strings as discussed in \S\ref{sec:bbarch}. With 10G memory, we were able to convert about half of all regular expressions to a finite number of exact match strings; the remainder resulted in too many possible states. 
-We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%. With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%. The major drawback of \sys is that \sys cannot perform probable cause encryption, because there is no end-to-end SSL session in the \sys scenario. However, \sys still strictly improves the security in this outsourcing scenario.
+We used two rulesets to evaluate this~\cite{emergingthreats, snort-community}. With the first ruleset BlindBox would resort to the lower security level for 33\% of rules, but \sys would only require this for 11.3\%. With the second ruleset, BlindBox would use lower security for 58\% of rules, but \sys would only do so for 20.2\%. However, \sys cannot perform probable cause encryption, because there is no end-to-end SSL session in the \sys scenario -- hence \sys simply does not support these remaining rules. 
+It is also worth noting that regular expression expansion in this way is incompatible with the garbled circuit rule-exchange technique discussed in \S\ref{sec:rulenc} -- the gateway to server initial setup would take over 3,000 hours to generate the set of encrypted rules due to the large number of keywords. However, it is compatible with the other two rule exchange approaches discussed in \S\ref{sec:rulenc}, since they rely only on one AES encryption per keyword rather than a garbled circuit computation which is six orders of magnitude more expensive.
+
+%%NUMBERS:
+% 10GB of 16 byte tokens: 1684 compute-hours of garble
+%        -- 8 byte tokens: 3368 compute hours
+% 1GB of 16 byte tokens: 168 compute-hours of garble
+%        -- 8 byte tokens: 336 compute hours
+
+
 
 %\eat{
 %\begin{table}[h]

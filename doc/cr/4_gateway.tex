@@ -39,7 +39,7 @@ We design the gateway with two goals in mind:
 \subsection{Data Encryption and Decryption}
 \label{sec:dataenc}
 
-As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middleboxes, which operate only on IP and transport headers; and DPI middleboxes, which operate on arbitrary fields in a connection bytestream. We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
+As shown in Table~\ref{tbl:mbreqs}, we categorize middleboxes as Header middleboxes, which operate only on IP and transport headers; DPI middleboxes, which operate on arbitrary fields in a connection bytestream; and HTTP middleboxes, which operate on values in HTTP headers (these are a subclass of DPI middleboxes). We discuss how each category of data is encrypted/decrypted in order to meet middlebox requirements as follows.
 
 \subsubsection{IP and Transport Headers}
 IP and Transport Headers are encrypted field by field (\eg{}, a source address in an input packet results in an encrypted source address field in the output packet) with PrefixMatch.
@@ -85,21 +85,16 @@ The connection bytestream is encrypted with KeywordMatch. Unlike PrefixMatch, th
 This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
 These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
 Because this encrypted payload data is over the {\it bytestream}, we need to generate encrypted values which span `between' packet payloads. 
-Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {'malici', 'alicio', 'liciou', 'icious'}.
-If the term 'malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
+Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {`malici', `alicio', `liciou', `icious'}.
+If the term `malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
 After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over 
 an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection 
 between the gateway and middleboxes. The bytestream in transmission is associated with its flow identifier, 
 so that the DPI middleboxes can distinguish between bytestreams in different flows.
-
-Besides, the gateway still forward the packets to the cloud, with the payload data encrypted with AES 
-and checksums recomputed. Since there is a VPN connection in TCP between the gateway and the cloud, we guarantee
-the reliable delivery of the packets.
-The DPI middleboxes handle the packets based on the bytestream received from the extension channel. For example, if 
-the intrusion prevention system finds the bytesteam matches a signature, it drops all the packets associated with
-the matched flow.
+DPI middleboxes handle both the packets received from the extension channel as well as the primary channel containing the data packets. 
+Hence, if an intrusion prevention system finds a signature in the extension channel, it can sever or reset connectivity for the primary channel.
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like PrefixMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
 Because the extension channel is not necessary for decryption, it is not transmitted back to the gateway.

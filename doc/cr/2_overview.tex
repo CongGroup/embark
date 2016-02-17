@@ -221,6 +221,7 @@ Hence, we convert many regular expressions to a set of exact-match strings.
 For example /hello[1-3]/ is equivalent to exact matches on "hello1", "hello2", "hello3".
 Nonetheless, many regular expressions remain too complex to do so -- if the set of potential exact matches is too large, we leave it as a regular expression.
 As we show in \S\ref{sec:eval}, this approach halves the number of rules that require using the weaker security model, enabling more rules in the stronger security model. 
+Nonetheless, this approach is at odds with the benefits of improved performance in the setup time: by expanding the rules in this fashion, we may potentially {\it increase} the setup time, which we evaluate in \S\ref{sec:eval}.
 
 In the rest of the paper, we do not revisit these architectural benefits, but focus  on \sys's new capabilities that allow us to outsource a {\it complete} set of middleboxes.
 
