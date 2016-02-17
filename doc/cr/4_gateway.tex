@@ -235,10 +235,11 @@ Note that all changes to middleboxes are in the {\it control plane} of the middl
 
 \todo{fix para below:}
 The cloud provider updating middlebox rules will have to write rules appropriately to account for the fact that a 
-single prefix maps to multiple intervals. For example, if a middlebox is counting the number of connections to a 
-prefix $P$. $P$ maps to a single interval $I$. After updating, a new rule is added which partially overlaps 
-with $P$ and hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update rules appropriately; i.e. 
-\texttt{if $v$ in $I$ then counter++} becomes \texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}.
+single prefix maps to multiple intervals. For example, suppose there is a middlebox that counts the number 
+of connections to a prefix $P$. $P$ maps to a single interval $I$. After updating, a new prefix is added 
+which  partially overlaps with $P$. Hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update 
+rules appropriately. If the firewall logic before the update is \texttt{if $v$ in $I$ then counter++},
+it should become \texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}.
 
 
 
