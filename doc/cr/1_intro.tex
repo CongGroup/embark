@@ -93,7 +93,7 @@ $ = \mathsf{RegExpMatch}'(\Enc(\text{RegExp}),\ \Enc(\text{Stream}))$
 Partially & KeywordMatch \\ \cline{3-5}
 
 & &
-Run scripts or other advanced tools (e.g., statistical) on  stream 
+Run scripts, cross-flow analysis, or other advanced (e.g. statistical) tools 
  &
 No & - \\ \hline
 
@@ -188,7 +188,7 @@ However, these schemes are four orders of magnitude slower than {\it PrefixMatch
   Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with all of these.
 
 We implemented and evaluated \sys on EC2. \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs}.
-In our evaluation, we showed that \sys supports at least one real application in each middlebox category in Table~\ref{tbl:mbreqs}.
+In our evaluation, we show that \sys supports the core functionality of each middlebox category in Table~\ref{tbl:mbreqs}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
 Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
 

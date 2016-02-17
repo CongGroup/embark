@@ -3,6 +3,8 @@ BIB = bibtex
 
 .PHONY: clean diff
 
+all: clean mb.pdf
+
 mb.pdf: mb.tex 
 	$(TEX) mb
 	$(BIB) -min-crossrefs=10000 mb
