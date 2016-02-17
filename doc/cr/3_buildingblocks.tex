@@ -76,7 +76,7 @@ Hence, for efficiency, we need a scheme for matching ranges.
 
 \mypara{Requirements}
 %
-Supporting the middleboxes from Table~\ref{tbl:introtable} and meeting our system security and performance requirements entail the following requirements in desigigning PrefixMatch.
+Supporting the middleboxes from Table~\ref{tbl:mbreqs} and meeting our system security and performance requirements entail the following requirements in designing PrefixMatch.
 %
 First, PrefixMatch must allow for direct order comparison (i.e., using $\leq$/$\geq$) between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s_1}$ and $\ov{e_1}$ of a range, $[s_1, e_1]$. This allows existing packet classification algorithms, such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}, 
  to run unchanged. 
