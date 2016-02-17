@@ -51,7 +51,6 @@ To encrypt a value with PrefixMatch's EncryptValue, the gateway seeds the encryp
 
 When encrypting IP addresses,  two different IP addresses must not map to the same encryption because this breaks the NAT. To avoid this problem, encrypted IP addresses in \sys must be IPv6 because the probability that two IP addresses get assigned to the same encryption is negligibly low. The reason is that each encrypted prefix contains a large number of possible IP addresses. Suppose we have $n$ distinct firewall rules, $m$ flows and a $\len$-bit space, the probability of a collision is approximately: 
 
-\todo{is this up to date? n is number of rules, but intervals is what matters; there are at most 2n+1 intervals}
 \begin{equation}
 1 - e^\frac{-m^2 (2n+1)}{2^{\len+1}}
 \end{equation}
