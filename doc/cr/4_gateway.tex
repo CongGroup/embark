@@ -80,7 +80,8 @@ An additional challenge for format compatibility is where to place the decryptab
 
 
 \subsubsection{Payload Data} 
-The connection bytestream is encrypted with KeywordMatch.
+The connection bytestream is encrypted with KeywordMatch. Unlike PrefixMatch, the data in all flows is encrypted with the same key $k$. The reason is that KeywordMatch is randomized and it does not leak equality patterns across flows.
+
 This allows \sys to support DPI middleboxes, such as intrusion detection or exfiltration prevention.
 These devices must detect whether or not there exists an exact match for an encrypted rule string {\it anywhere} in the connection bytestream.
 Because this encrypted payload data is over the {\it bytestream}, we need to generate encrypted values which span `between' packet payloads. 
@@ -134,7 +135,6 @@ Like other DPI tasks, this requires parsing the entire TCP bytestream. However, 
 \subsection{Rule Encryption}
 \label{sec:rulenc}
 
-\todo{need to say that there is a blowup in the size of the firewall}
 
 Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
@@ -184,22 +184,6 @@ After this setup, all connections from the enterprise are encrypted with the sam
 %When DPI is enabled, the gateway maintains the last few packets from each connection (window-length) to perform tokenization; under these conditions the gateway can use standard techniques for backup including an active standby~\cite{colo}.
 %}
 
-
-
-\noindent \textbf{Updating ranges.}
-Adding a new range or removing an existing range would affect the intervals it covers. Therefore, in the worst case $O(N)$ rules needs to be updated. 
-
-\todo{ and it has to be clear that to encrypt firewall rules at the gateway using the Prefix match, you need to go through each part of the rule and encrypt that; 
-The gateway will use an instance of PrefixMatch for every field, destination IP, etc.
-}
-\todo{and need to discuss the prefix part}
-
-\todo{need to discuss the fact that they blowup here}
-
-
-The gateway stores the intervals and the mapping from intervals to prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
-
-The gateway can use the following functions. EncryptRules encrypts the initial rules. EncryptTuple encrypts packet header fields which are represented as a tuple; it requires identifying the interval $I$ for each field. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
 
 
 
@@ -253,13 +237,24 @@ prefix $P$. $P$ maps to a single interval $I$. After updating, a new rule is add
 with $P$ and hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update rules appropriately; i.e. 
 \texttt{if $v$ in $I$ then counter++} becomes \texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}.
 
-\todo{Reread all this section}
 
-\todo{THIS  SUBSECTION IS WORK IN PROGRESS}
+\noindent \textbf{Updating ranges.}
+Adding a new range or removing an existing range would affect the intervals it covers. Therefore, in the worst case $O(N)$ rules needs to be updated. 
+
+\todo{ and it has to be clear that to encrypt firewall rules at the gateway using the Prefix match, you need to go through each part of the rule and encrypt that; 
+The gateway will use an instance of PrefixMatch for every field, destination IP, etc.
+}
+\todo{and need to discuss the prefix part}
+
+\todo{need to discuss the fact that they blowup here}
+
+
+The gateway stores the intervals and the mapping from intervals to prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
+
+The gateway can use the following functions. EncryptRules encrypts the initial rules. EncryptTuple encrypts packet header fields which are represented as a tuple; it requires identifying the interval $I$ for each field. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
 
 
 
 
-\todo{make clear that the same key is used for equality matching, somewhere in the gateway}
-\todo{we do 4 to 6 translation}
+
 
