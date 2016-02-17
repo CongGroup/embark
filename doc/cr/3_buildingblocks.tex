@@ -161,11 +161,11 @@ We now present the EncryptPrefixes procedure, which works the same for prefixes 
 
 \mypara{Value Encryption}
 To encrypt a value $v$, PrefixMatch locates the one interval $I$ such that $v \in I$. It then looks up $\ov{I}$ in the interval map computed by EncryptPrefixes and sets $\ov{I}$ to be the prefix of the encryption of $v$. This ensures that the encrypted $v$, $\ov{v}$, matches $\ov{I}/\plen$. The suffix of $v$ is chosen at random. The only requirement is that it is deterministic. 
-Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolume1}\todo{fix}, $\prf^{\slen}$, seeded in a given seed  $\seed$, where $\slen = \len-\plen$.  
+Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolume1}, $\prf^{\slen}$, seeded in a given seed  $\seed$, where $\slen = \len-\plen$.  As we discuss below, the seed used by the gateway depends on the 5-tuple of a connection (SIP, SP, DIP, DP, P).
 
 
 
-For example, if $v$ is 127.0.0.1 (0::ffff:127.0.0.1), and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the encryption does not retain any information about $v$ other than the interval it matches in. In particular, two values $v_1$ and $v_2$ that match the same interval, their order can be arbitrary. Thus, PrefixMatch does not reveal order.
+For example, if $v$ is 0::ffff:127.0.0.1, and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the encryption does not retain any information about $v$ other than the interval it matches in because the suffix is chosen (pseudo)randomly. In particular, given two values $v_1$ and $v_2$ that match the same interval, the order of their encryptions is arbitrary. Thus, PrefixMatch does not reveal order.
 
 \begin{framed}
 \ALGORITHM{EncryptValue}{proc:enc_value}{$\seed$, $v$, $\slen$, interval map}{
@@ -185,21 +185,21 @@ For example, if $v$ is 127.0.0.1 (0::ffff:127.0.0.1), and the assigned prefix fo
 %\end{figure}
 
 \mypara{Comparing encrypted values against rules}
-Determining if an encrypted value matches an encrypted prefix is straightforward: the encryption preserves the prefix.
-Hence, a regular packet classification can be run at the firewall with no modification. Comparing different encrypted values for order that match the same prefix is meaningless, and returns a random value.
+Determining if an encrypted value matches an encrypted prefix is straightforward: the encryption preserves the prefix and a middlebox can use the regular $\le$/$\ge$ operators.
+Hence, a regular packet classification can be run at the firewall with no modification. Comparing different encrypted values that match the same prefix is meaningless, and returns a random value.
 
 
-\todo{attention, there is also the determinism that leaks}
 
 \subsubsection{Security Guarantees}
 \label{sec:buildingblocks:guarantees}
 
-\pmatch{} hides the endpoints of ranges or the prefixes encrypted with EncryptPrefixes and it does not reveal the values encrypted with EncryptValue. \pmatch{} reveals only matching information between values and prefixes to enable functionality at the cloud provider.  For every subset of prefixes out of $P_1, \dots, P_m$, the cloud provider learns if these overlap and whether an encrypted value $v$ matches them. In particular, the cloud provider does not learn the order of encrypted values $\Enc(v)$ or the order of the prefixes. Hence, PrefixMatch is significantly more secure than order-preserving encryption.
+\pmatch{} hides the  prefixes and values encrypted with EncryptPrefixes and EncryptValue. \pmatch{} reveals  matching information desired to enable functionality at the cloud provider.  Concretely, the cloud provider learns the number of intervals and which prefixes overlap in each interval, but no additional information on the size, order or endpoints of these intervals. Moreover, for every encrypted value $v$, it learns the indexes of the prefixes that contain $v$ (which is the functionality desired of the scheme), but no other information about $v$. For any two encrypted values $\Enc(v)$ and $\Enc(v')$, the cloud provider learns if they are equal only if they are encrypted as part of the same flow (which is the functionality desired for the NAT), but it does not learn any other information about their value or  order.  Hence, PrefixMatch is significantly more secure than order-preserving encryption.
 
 %
-Since the encryption is seeded in a per-connection identifier, correlation attacks between different flows are not possible. 
-In particular, even though EncryptValue is deterministic, the encryption of the same IP address in different flows will be different because the seed differs per flow.
-\todo{the above sentence needs some context}
+Since EncryptValue is seeded in a per-connection identifier, correlation attacks between different flows are not possible. 
+In particular, even though EncryptValue is deterministic within a flow, it is randomized across flows:
+ for example, the encryption of the same IP address in different flows is different because the seed differs per flow. 
+
 
 We formalize and prove the security guarantees of \pmatch{} in our extended paper. 
 
