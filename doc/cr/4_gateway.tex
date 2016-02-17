@@ -22,10 +22,10 @@
 
 
 
-The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets and updates to the PrefixMatch tree.
+The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets.
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
-All three services share access to the PrefixMatch tree and the private key $k$.
+All three services share access to the PrefixMatch state and the private key $k$.
 Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 We design the gateway with two goals in mind: 
@@ -138,7 +138,7 @@ Rules for firewalls and DPI services come from a variety of sources and can have
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
 On the other hand, many DPI rules are proprietary features of DPI vendors, who may allow the provider to learn the rules, but not the client (gateway).
 \sys supports three different models for KeywordMatch rules which allow clients and providers to share rules as they are comfortable: (a) the client knows the rules, and the provider does not; (b) the provider knows the rule, and the client does not; or (c) both parties know the rules.
-PrefixMatch rules only supports (a) and (c) -- the gateway who maintains the rule tree {\it must} know the rules to perform encryption properly.
+PrefixMatch rules only supports (a) and (c) -- the gateway {\it must} know the rules to perform encryption properly.
 
 If the client is permitted to know the rules, they encrypt them -- either generating a KeywordMatch, AES, or PrefixMatch rule -- and send them to the cloud provider. If the cloud provider is permitted to know the rules as well, the client will send these encrypted rules annotated with the plaintext; if the cloud provider is not allowed, the client sends only the encrypted rules in random order.
 

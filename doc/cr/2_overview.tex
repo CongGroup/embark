@@ -115,13 +115,6 @@ these threat models are irrelevant to the protocols in \sys, and we will not dis
 \end{center}
 \end{figure*}
 
-\todo{  put this somewhere
- \sys supports the core functionality of a set of middleboxes as listed in Table~\ref{tbl:mbreqs}. This table also lists the functionality supported by \sys due to PrefixMatch and KeywordMatch.
-  In Appendix~\ref{sec:appendix:middleboxes}, we review the core functionality of each middlebox
-  and show why the functionality in Table~\ref{tbl:mbreqs} is sufficient to support these middleboxes. 
- In this section, we focus on implementation aspects of the middleboxes.
-}
-
 
 
 To protect privacy, \sys \textit{encrypts all traffic} passing through the service provider (SP).
@@ -166,6 +159,9 @@ We revisit them in detail in \S\ref{sec:mbs}.
 
 All encrypted packets are converted to IPv6 because our PrefixMatch scheme requires 128 bits to encode an encrypted IP address  -- and because we expect more and more service providers to be moving to IPv6 by default in the future.
 This is a trivial requirement as it is easy to convert from IPv4 to IPv6 (and back) at the gateway~\cite{siit}; clients may continue using IPv4 and the tunnel connecting the gateway to the provider may be either v4 or v6.
+
+Table~\ref{tbl:mbreqs} shows the functionality provided by \sys as a result of using PrefixMatch and KeywordMatch. In Appendix~\ref{sec:appendix:middleboxes} we explain why this functionality implies the core functionality of the middleboxes in Table~\ref{tbl:mbreqs}.
+
 
 {\bf Example.} Fig.~\ref{fig:packetflow} shows the end-to-end flow of a packet through three example middleboxes in the cloud, each middlebox operating over an encrypted field.  
 First,  the gateway encrypts the packet as explained above. The packet passes through the firewall which tries to match the encrypted information from the header against its encrypted rule, and decides to allow the packet. Next, the exfiltration device checks for any suspicious (encrypted) strings in data encrypted for DPI and not finding any, it allows the packet to continue to the NAT. The NAT maps the source IP address to a different IP address. Back at the gateway, the gateway decrypts the packet. 
@@ -225,5 +221,7 @@ Nonetheless, this approach is at odds with the benefits of improved performance 
 
 In the rest of the paper, we do not revisit these architectural benefits, but focus  on \sys's new capabilities that allow us to outsource a {\it complete} set of middleboxes.
 
-\todo{remark for perfect security and tradeoff with work at the gateway}
+\section{Security guarantees}
+
+We formalize and prove the overall guarantees of \sys in our extended paper. In this version we can only provide a high-level description.
 
