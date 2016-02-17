@@ -221,7 +221,8 @@ Nonetheless, this approach is at odds with the benefits of improved performance 
 
 In the rest of the paper, we do not revisit these architectural benefits, but focus  on \sys's new capabilities that allow us to outsource a {\it complete} set of middleboxes.
 
-\section{Security guarantees}
+\subsection{Security guarantees}
 
-We formalize and prove the overall guarantees of \sys in our extended paper. In this version we can only provide a high-level description.
+We formalize and prove the overall guarantees of \sys in our extended paper. In this version, we provide only  a high-level description. 
+\sys hides the values of header and payload data, but reveals some information desired for middlebox processing. The information revealed is the union of the information revealed by PrefixMatch and KeywordMatch, as detailed in \S\ref{sec:buildingblocks}. For example, a firewall learns if an encrypted IP address matches an encrypted prefix, without learning the actual values of the two. A DPI middlebox also learns the size of each packet, and whether a certain byte offset matches any string in a DPI middlebox rule. 
 

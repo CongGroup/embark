@@ -58,7 +58,7 @@ $= \Match'(\Enc(\text{Request-URI}),\ \Enc(\text{HTTP Header})) $
 & Yes & KeywordMatch \\ \hline
 
 
-\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection}}}
+\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\hspace{-2\normalbaselineskip}Deep Packet Inspection (DPI)}}}
 
 & Parental Filter~\cite{squid} &
 $ \Match(\text{Request-URI},\ \text{HTTP Header})$
@@ -156,7 +156,7 @@ To address this, we designed and implemented \sys, the first system to allow an 
 Middleboxes in \sys operate directly over {\it encrypted} traffic. %without decrypting the traffic. 
 
 
-In recent work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
+In recent work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection (DPI)~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for this setting because
  (1) it has restricted functionality that does not support all middleboxes required for outsourcing, and (2) it has prohibitive performance overheads.
  
