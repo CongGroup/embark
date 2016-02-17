@@ -165,7 +165,7 @@ Hence, the suffix is chosen based on a pseudorandom function~\cite{goldreichvolu
 
 
 
-For example, if $v$ is 0::ffff:127.0.0.1, and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the encryption does not retain any information about $v$ other than the interval it matches in because the suffix is chosen (pseudo)randomly. In particular, given two values $v_1$ and $v_2$ that match the same interval, the order of their encryptions is arbitrary. Thus, PrefixMatch does not reveal order.
+For example, if $v$ is 0::ffff:127.0.0.1, and the assigned prefix for the matched interval is $abcd::/16$, a possible encryption given the ranges encrypted above is $\Enc(v) = abcd:ef01:2345:6789:abcd:ef01:2345:6789$. Note that the encryption does not retain any information about $v$ other than the interval it matches in because the suffix is chosen (pseudo)randomly. In particular, given two values $v_1$ and $v_2$ that match the same interval, the order of their encryptions is arbitrary. Thus, PrefixMatch does not reveal order.
 
 \begin{framed}
 \ALGORITHM{EncryptValue}{proc:enc_value}{$\seed$, $v$, $\slen$, interval map}{
@@ -203,112 +203,4 @@ In particular, even though EncryptValue is deterministic within a flow, it is ra
 
 We formalize and prove the security guarantees of \pmatch{} in our extended paper. 
 
-\subsubsection{Implementing PrefixMatch in the Gateway}
-\label{sec:tree}
 
-\todo{THIS  SUBSECTION IS WORK IN PROGRESS}
-
-
-
-
-\todo{make clear that the same key is used for equality matching, somewhere in the gateway}
-\todo{we do 4 to 6 translation}
-
-To encrypt a value with EncryptValue, we seed $\prf$ in $\seed$, a function of both the key and hash of the tuple being encrypted ($\seed = \prf_k(\text{(u, v)})$). Note that, in the system setup with two gateways, the gateways generate the same encryption because they share $k$.  
-
-The scheme supports NATs -- which require that every time a value for the same connection is encrypted, it returns the same value. It generates a random encryption using a deterministic function. 
-
-When encrypting IP addresses, we do not want two different IP addresses to map to the same encryption (which would break the NAT). Fortunately, the probability that two IP addresses get assigned to the same encryption is negligibly low for IPv6.  The reason is that each interval of prefixes is large because we distributed the endpoints evenly and because there is a small number of such endpoints in a realistic setting (e.g., a firewall has less than 100,000 rules). Suppose we have $n$ distinct rules, $m$ flows and a $w$-bit space, with the assumption of uniformly distributed flows, the probability of getting collision is approximately 
-
-\begin{equation}
-1 - e^\frac{-m^2 (2n+1)}{2^{w+1}}
-\end{equation}
-
-\todo{discuss how the gateway gives the seed -- is the choice of seed outside of the prefixmatch alg or inside?}
-\todo{discuss security of ports clearly}
-
-Therefore, if $w=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. When encrypting ports, it is possible to get collisions since the port field is only 16-bit. However, this will not cause problem as long as the IP address does not collide, because NATs (and other middleboxes that require injectivity) considers both IP addresses and ports.
-
-\todo{make clear that it is seeded in this so IPs do not collide}
-
-
-\todo{need to discuss how the firewall puts prefix match in the prefix form, and adds /*}
-
-\todo{remark for perfect security and tradeoff with work at the gateway}
-\todo{does each rule become multiple rules?? explain who FW does with this, explain how many there are, need eval of this}
-\todo{then in func you also need to clarify that it becomes more than one; this will leak about the prefixes what intersections they have!! even without fields matching}
-\todo{and what does the firewall do?}
-
-
-\todo{ I wonder how much of this section actually needs to move to the gateway section}
-
-\todo{ need to discuss how the gateway chooses k for the encryptvalue -- the seed}
-
-\noindent \textbf{Updating ranges.}
-Adding a new range or removing an existing range would affect the intervals it covers. Therefore, in the worst case $O(N)$ rules needs to be updated. 
-
-\todo{ and it has to be clear that to encrypt firewall rules at the gateway using the Prefix match, you need to go through each part of the rule and encrypt that; 
-The gateway will use an instance of PrefixMatch for every field, destination IP, etc.
-}
-\todo{and need to discuss the prefix part}
-
-\todo{need to discuss the fact that they blowup here}
-
-
-The gateway stores the intervals and the mapping from intervals to prefixes for each field of the rules, and it maintains no state per IP address encrypted or per connection.
-
-The gateway can use the following functions. EncryptRules encrypts the initial rules. EncryptTuple encrypts packet header fields which are represented as a tuple; it requires identifying the interval $I$ for each field. We can compute $I$ efficiently in logarithmic time by doing a binary search. 
-
-
-
-
-% We now describe the procedure for AddRange which adds an interval (deleting an interval is similar). These procedures modify the state at the gateway. To add a range [$s$, $e$], the gateway inserts these values in the tree. If the tree needs to be rebalanced, for each endpoint that changed location in the tree, the gateway records the old and new encrypted value based on the tree in a list $L$. Note that  the number of endpoints that change encryption is $O(\log n)$ amortized worst-case. The gateway then computes the encryption of $s$ and $e$ based on their location in the tree. It sends to SP $\enc(s)$ and $\enc(e)$ along with $L$. 
-
-%Besides the interval added or deleted, a small number
-%of other intervals may be moved -- at worst, $O(\log n)$. 
-%For these, the algorithm returns the old and new encryption of the interval. 
-
-%
-%\begin{framed}
-%\begin{algorithmic}[1]
-%
-%\Procedure{AddRange}{$[s, e]$}
-%  \State Insert $s$ and $e$ into the scapegoat tree. If $s=e$, insert the value only once.
-%  %	
-%  \State Initialize $L$ to be the empty list.
-%  \If{tree needs to be rebalanced}
-%  	\State Record which nodes change position in the tree during rebalancing, together with 
-%	their old and new encryptions. Namely, record	\[L = \{ \en_1 \leftarrow \en^*_1, \dots, \en_m \rightarrow \en^*_m\},\] where $m$ is the number of nodes who changed position in the tree, and $\en_i$ and $\en^*_i$ are the old and new encryption of the $i$-th node that changed position. 
-%  \EndIf
-%  \State Compute  $\enc(s)$ and $\enc(e)$, the encryptions of $s$ and $e$, as in EncryptRanges.
-%   \State \Return{$[\enc(s), \enc(e)], L$}
-%\EndProcedure
-%
-%\end{algorithmic}
-%\end{framed}
-
-%  \State Determing the smallest and the largest encryption in the values $[\enc(s), \enc(e)]$ and $L$, and call this $\dirtyrange$.
-
-
-
-\subsubsection{Rule Updates at the Cloud}
-\label{sec:updates}
-At the cloud, PrefixMatch poses two additional challenges to updating rules, both stemming from the fact that a rule update can also change encrypted values within packets.
-The first challenge is middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections
-Adding or removing a rule will modify these values in the PrefixMatch tree, and thus to continue correct processing the NAT state must be updated.
-The second challenge is a race condition: when the middlebox adopts a new ruleset while packets encrypted under the old tree are still flowing, these packets will be misclassified as their encryption values are inconsistent with the ruleset being applied. 
-The same problem occurs if packets encrypted under the new tree arrive before the new ruleset.
-
-To avoid these problems the gateway and cloud provider do the following. 
-When the gateway updates the PrefixMatch tree, it announces to the cloud provider of the pending update, and the middleboxes ship their current state to the gateway to receive the new encryption values.
-The gateway then sends a signal to the cloud provider that it is about to `swap in' the new map. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it releases the new traffic.
-Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing. 
-
-The cloud provider updating middlebox rules will have to write rules appropriately to account for the fact that a 
-single prefix maps to multiple intervals. For example, if a middlebox is counting the number of connections to a 
-prefix $P$. $P$ maps to a single interval $I$. After updating, a new rule is added which partially overlaps 
-with $P$ and hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update rules appropriately; i.e. 
-\texttt{if $v$ in $I$ then counter++} becomes \texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}.
-
-\todo{Reread all this section}
