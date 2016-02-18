@@ -6,7 +6,7 @@
 In this section, we discuss the core functionality of IP Firewall, NAT, L3/L4 Load Balancers 
 in Table~\ref{tbl:mbreqs}, and why the properties listed in the Column 2 of Table~\ref{tbl:mbreqs} are
 sufficient for supporting the functionality of those middleboxes. We omit the discussion of other middleboxes
- in the table since the sufficiency of those properties are obvious.
+ in the table since the sufficiency of those properties is obvious.
 
 \subsection{IP Firewall}
 Firewalls from different vendors may have significantly different configurations and rule organizations, 
@@ -87,7 +87,8 @@ the 5-tuple. Therefore, the sufficient property for L3 Load Balancer is:
 \label{eqn:l3lb}
 \begin{split}
 & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Leftrightarrow \\
-& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\\
+& \hspace{3cm} \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
 \end{split}
 \end{equation}
 
@@ -105,16 +106,17 @@ Thus, the sufficient property of supporting L4 Load Balancer is:
 \label{eqn:l4lb}
 \begin{split}
 & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Leftrightarrow \\
-& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ = \\
+& \hspace{3cm}\Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
 \end{split}
 \end{equation}
 
 \section{Formal Properties of PrefixMatch}
-In this section, we show how PrefixMatch supports middleboxes discussed in \S\ref{sec:appendix:middleboxes}.
-First of all, we formally list the properties that PrefixMatch preserves. As discussed in \ref{sec:range}, \todo{prefix match pointer}
-PrefixMatch preserves the functionality of firewalls by guaranteeing Property \ref{eqn:firewall}:
 
-In addition, PrefixMatch also ensures the following properties:
+In this section, we show how PrefixMatch supports middleboxes indicated in Table~\ref{tbl:mbreqs}.
+First of all, we formally list the properties that PrefixMatch preserves. As discussed in \ref{sec:range},
+PrefixMatch preserves the functionality of firewalls by guaranteeing Property \ref{eqn:firewall}. In addition,
+PrefixMatch also ensures the following properties:
 
 \begin{equation}
 \label{eqn:pm1}

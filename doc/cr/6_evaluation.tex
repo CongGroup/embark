@@ -51,8 +51,8 @@ With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting
 \end{figure}
 
 \noindent{\it How do throughput and latency at the gateway scale with the number of rules for PrefixMatch?} 
-In \S\ref{sec:range}, we discussed how PrefixMatch stores sorted intervals; every packet encryption requires a binary search of intervals. Hence, as the size of the tree goes larger, we can expect to require more time to process each packet and throughput to decrease. We measure this effect in Figure~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of tree data structures. From 0-10k rules, throughput drops from 3Mpps to 1.5Mpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 1.1Mpps.
+In \S\ref{sec:range}, we discussed how PrefixMatch stores sorted intervals; every packet encryption requires a binary search of intervals. Hence, as the size of the interval map goes larger, we can expect to require more time to process each packet and throughput to decrease. We measure this effect in Figure~\ref{fig:xputrange}. 
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of binary search. From 0-10k rules, throughput drops from 3Mpps to 1.5Mpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 1.1Mpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
 \noindent{\it Is PrefixMatch faster than existing order preserving algorithms?}
