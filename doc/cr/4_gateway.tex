@@ -87,6 +87,7 @@ Because this encrypted payload data is over the {\it bytestream}, we need to gen
 Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {`malici', `alicio', `liciou', `icious'}.
 If the term `malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
+\todo{not clear extension channel}
 After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over 
 an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection 
@@ -226,6 +227,8 @@ The first challenge is the correctness of middlebox state. Consider a NAT with a
 The second challenge is a race condition: if the middlebox adopts a new ruleset while packets encrypted under the old ruleset  are still flowing, these packets can be misclassified.
 %The same problem occurs if packets encrypted under the new ruleset arrive before the new ruleset was .
 
+
+\todo{ explain better buffering and upper bound if it suffices not to mix new and old packets}
 To avoid these problems, the gateway and the cloud provider do the following. 
 The gateway first runs EncryptPrefixes for the new set of prefixes and creates a new set of encrypted prefixes and a new interval map. 
 Then, the gateway announces to the cloud provider the pending update, and the middleboxes ship their current state to the gateway. The gateway updates this state by producing new encryptions and sends the new state back to the middleboxes. During all this time, the gateway continued to encrypt traffic based on the old prefixes and the middleboxes processed it based on the old rules.
@@ -244,7 +247,11 @@ with $P$ and hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update
 
 
 
+\todo{webproxy is it on top of squid or if not, why did not compare to without enc}
 
+\todo{clarify that is the baseline}
+
+\todo{explain regexp protocol expansion}
 
 
 

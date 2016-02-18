@@ -33,6 +33,7 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
 
 \subsubsection{Gateway}
 
+ \todo{gateway DPI point to BB}
  
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Figure~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as stateless HTTP/proxy encryption. 
@@ -117,12 +118,12 @@ The gateway inflates the size of traffic due to three encryption costs:
 We used the m57 trace to understand how these overheads would play out in aggregate for an enterprise.
 On the uplink, from the gateway to the middlebox service provider, traffic would increase by 2.5\% due to encryption costs for a header-only gateway. Traffic would increase by 4.3$\times$ on the uplink for a gateway that supports DPI middleboxes. 
 
-\noindent{\it How much does bandwidth increase between the gateway and the cloud from using \sys? How much would this bandwidth increase an enterprises networking costs?}
+\noindent{\it How much does bandwidth increase between the gateway and the cloud from using \sys? How much would this bandwidth increase an enterprises' networking costs?}
 \sys sends all network traffic to and from the middlebox service provider for processing, before sending that traffic out to the Internet at large. 
 
 In ISP contexts, the clients' middlebox service provider and network connectivity provider are one and the same and one might expect costs for relaying the traffic to and from the middleboxes to be rolled in to one service `package;' given the latency benefits of deployment at central offices (as we saw in Fig.~\ref{fig:e2eloads}) we expect that ISP-based deployments are the best option to deploy \sys.
 
-In the cloud service setting the client must pay a third party ISP to transfer the data to and from the cloud, before paying that ISP a third time actually transfer the data over the network.
+In the cloud service setting the client must pay a third party ISP to transfer the data to and from the cloud, before paying that ISP a third time to actually transfer the data over the network.
 Using current US bandwidth pricing~\cite{comcast-costs, megapath-costs, verizon-costs}, we can estimate how much outsourcing would increase overall bandwidth costs.
 Multi-site enterprises typically provision two kinds of networking costs: Internet access, and intra-domain connectivity. 
 Internet access typically has high bandwidth but a lower SLA; traffic may also be sent over shared Ethernet~\cite{comcast-costs, verizon-costs}.
