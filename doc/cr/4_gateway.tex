@@ -130,9 +130,15 @@ Like other DPI tasks, this requires parsing the entire TCP bytestream. However, 
 \subsection{Rule Encryption}
 \label{sec:rulenc}
 
-Given a ruleset for a middlebox type, the gateway encrypts this ruleset with either KeywordMatch or PrefixMatch, depending on the encryption scheme used by that middlebox as in Table~\ref{tbl:mbreqs}. For example, firewall rules are encrypted using PrefixMatch. As a result of encryption, some rulesets expand and we evaluate in \S\ref{sec:eval} by how much. For example, a firewall rule containing an IP prefix that maps to two encrypted prefixes using PrefixMatch becomes two rules, one for each encrypted prefix.
- 
-
+Given a ruleset for a middlebox type, the gateway encrypts this ruleset with either KeywordMatch or PrefixMatch, 
+depending on the encryption scheme used by that middlebox as in Table~\ref{tbl:mbreqs}. For example, firewall 
+rules are encrypted using PrefixMatch. As a result of encryption, some rulesets expand and we evaluate 
+in \S\ref{sec:eval} by how much. For example, a firewall rule containing an IP prefix that maps 
+to two encrypted prefixes using PrefixMatch becomes two rules, one for each encrypted prefix. The gateway should 
+generate rules appropriately to account for the fact that a single prefix maps to encrypted prefixes. 
+For example, suppose there is a middlebox that counts the number of connections to a prefix $P$. $P$ maps to
+2 encrypted prefixes $P_1$ and $P_2$. If the original middlebox rule is `\texttt{if $v$ in $P$ then counter++}',
+the gateway should generate `\texttt{if $v$ in $P_1$ or $v$ in $P_2$ then counter++}'.
 
 Rules for firewalls and DPI services come from a variety of sources and can have different policies regarding who is or isn't allowed to know the rules. 
 For example, exfiltration detection rules may include keywords for company products or unreleased projects which the client may wish to keep secret from the cloud provider. 
@@ -219,7 +225,9 @@ After this setup, all connections from the enterprise are encrypted with the sam
 \label{sec:updates}
 %
 Rule updates need to be treated carefully for PrefixMatch.
-Adding a new prefix/range or removing an existing range can affect the encryption of an existing prefix. The reason is that the new prefix can overlap with an existing one. In the worst case, the encryption of all the rules needs to be updated. 
+Adding a new prefix/range or removing an existing range can affect the encryption of an existing 
+prefix. The reason is that the new prefix can overlap with an existing one. In the worst case, 
+the encryption of all the rules needs to be updated. 
 
 The fact that the encryption of old rules changes poses two challenges.
 The first challenge is the correctness of middlebox state. Consider a NAT with a translation table containing ports and IP addresses for active connections. The encryption of an IP address with EncryptValue depends on the list of prefixes so an IP address might be encrypted differently after the rule update, becoming inconsistent with the NAT table.
@@ -227,26 +235,21 @@ The first challenge is the correctness of middlebox state. Consider a NAT with a
 The second challenge is a race condition: if the middlebox adopts a new ruleset while packets encrypted under the old ruleset  are still flowing, these packets can be misclassified.
 %The same problem occurs if packets encrypted under the new ruleset arrive before the new ruleset was .
 
-
-\todo{ explain better buffering and upper bound if it suffices not to mix new and old packets}
-To avoid these problems, the gateway and the cloud provider do the following. 
-The gateway first runs EncryptPrefixes for the new set of prefixes and creates a new set of encrypted prefixes and a new interval map. 
-Then, the gateway announces to the cloud provider the pending update, and the middleboxes ship their current state to the gateway. The gateway updates this state by producing new encryptions and sends the new state back to the middleboxes. During all this time, the gateway continued to encrypt traffic based on the old prefixes and the middleboxes processed it based on the old rules.
-Once all middleboxes have the new state, the gateway sends a signal to the cloud provider that it is about to `swap in' the new data. 
-The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it starts processing new traffic.
-Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing. 
-
-\todo{fix para below:}
-The cloud provider updating middlebox rules will have to write rules appropriately to account for the fact that a 
-single prefix maps to multiple intervals. For example, suppose there is a middlebox that counts the number 
-of connections to a prefix $P$. $P$ maps to a single interval $I$. After updating, a new prefix is added 
-which  partially overlaps with $P$. Hence $I$ becomes $I_1$ and $I_2$. The cloud provider should update 
-rules appropriately. If the logic before the update is `\texttt{if $v$ in $I$ then counter++}',
-it should become `\texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}'.
-
-
-
-
+To maintain a consistent state, the gateway first runs EncryptPrefixes for the new set of prefixes. 
+Then, the gateway announces to the cloud the pending update, and the middleboxes 
+ship their current state to the gateway. The gateway updates this state by producing new encryptions 
+and sends the new state back to the middleboxes. During all this time, the gateway continued to encrypt 
+traffic based on the old prefixes and the middleboxes processed it based on the old rules.
+Once all middleboxes have the new state, the gateway sends a signal to the cloud that it is about 
+to `swap in' the new data. The cloud buffers incoming packets after this signal until all ongoing packets 
+in the pipeline finish processing at the cloud. Then, the cloud signals to all middleboxes to `swap in'
+the new rules and state; and finally it starts processing new packets. For per-packet 
+consistency defined in~\cite{sdn-consistent-update}, the buffering time is bounded by the packet processing time of
+the pipeline, which is typically hundreds of milliseconds. However, for per-flow consistency, the buffering time
+is bounded by the lifetime of a flow. Buffering for such a long time is not feasible. 
+In this case, if the cloud has backup middleboxes, we can use the migration avoidance 
+scheme~\cite{e2} for maintaining consistency. Note that all changes to 
+middleboxes are in the {\it control plane}.
 
 \todo{webproxy is it on top of squid or if not, why did not compare to without enc}
 

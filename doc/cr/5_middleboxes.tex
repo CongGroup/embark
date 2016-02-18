@@ -45,7 +45,8 @@ When a client sends a request for new content, if the content is in the proxy's 
 The proxy has a map of encrypted file path to encrypted file content. When the proxy accepts a new TCP connection on port 80, the proxy extracts the encrypted URI for that connection from the extension channel and looks it up in the cache. The use of deterministic encryption enables the proxy to use a fast search data structure/index, such as a hash map, unchanged. We have two possible cases: there is a hit or a miss. If there is a cache hit, the proxy sends the encrypted file content from the cache via the existing TCP connection. Even without being able to decrypt IP addresses or ports, the proxy can still accept the connection, as the gateway encrypts/decrypts the header fields transparently.
 If there is a cache miss, the proxy opens a new connection and forwards the encrypted request to the web server. Recall that the traffic bounces back to gateway before being forwarded to the web server, so that the gateway can decrypt the header fields and payloads. Conversely, the response packets from the web server are encrypted by the gateway and received by the proxy. The proxy then caches and sends the encrypted content back. The content is separated by packets. Packet payloads are encrypted on a per-packet basis. Hence, the gateway can decrypt them correctly.
 
-\subsection{Limitations}\label{s:limitations}
+\subsection{Limitations}
+\label{s:limitations}
 
  \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs},
 but not all middlebox functionality one could envision outsourcing.

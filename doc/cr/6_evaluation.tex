@@ -164,7 +164,10 @@ Table~\ref{tbl:appsxput} shows the throughput sustained for the apps we implemen
 The IP Firewall, NAT, and Load Balancer are all `header only' middleboxes; the results shown compare packet processing over the same dataplane, once with encrypted IPv6 data and once with unencrypted IPv4 data.
 The only middlebox for which any overhead is observable is the NAT -- and this is a reduction of only 2.7\%.
 
-We re-implemented the Web Proxy and IDS to enable the bytestream aware operations they require over our encrypted data. We compare our Web Proxy implementation with Squid~\cite{squid}. The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present later, does have a higher service time per cache hit.
+We re-implemented the Web Proxy and IDS to enable the bytestream aware operations they require over our encrypted data. 
+We compare our Web Proxy implementation with Squid~\cite{squid} to show \sys can achieve competitive performance. 
+The Web Proxy sustains the same throughput with and without encrypted data, but, as we will present later, 
+does have a higher service time per cache hit.
 The IDS numbers compare Snort (baseline) to the BlindBox implementation; this is not an apples-to-apples comparison as BlindBox performs mostly exact matches where Snort matches regular expressions.
 
 In what follows, we provide some further middlebox-specific benchmarks for the firewall, proxy, and IDS.
