@@ -25,14 +25,14 @@
 The gateway serves two purposes. First, it redirects traffic to/from the cloud for middlebox processing. Second, it provides the cloud with encryptions of rulesets.
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
-All three services share access to the PrefixMatch state and the private key $k$.
+All three services share access to the PrefixMatch interval map and the private key $k$.
 Fig.~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 We design the gateway with two goals in mind: 
 
 \noindent{\bf Format-compatibility}: in converting plaintext traffic to encrypted traffic, the encrypted data should be structured in such a way that the traffic {\it appears as normal IPv6 traffic} to middleboxes performing the processing. Format-compatibility allows us to leave fast-path operations unmodified not only in middlebox software, but also in hardware components like NICs and switches; this results in good performance at the cloud.
 
-\noindent{\bf Scalability and Low Complexity}: the gateway should perform only inexpensive per-packet operations and should be parallelizable. The gateway should not require configuration other than to generate a key and establish a session with the cloud provider. If the gateway were as expensive and complex as the middleboxes, there would be no cost or management benefits from outsourcing. 
+\noindent{\bf Scalability and Low Complexity}: the gateway should perform only inexpensive per-packet operations and should be parallelizable. The gateway should require only a small amount of configuration. % other than to generate a key and establish a session with the cloud provider. If the gateway were as expensive and complex as the middleboxes, there would be no cost or management benefits from outsourcing. 
 
 %We now discuss how the gateway performs encryption and decryption (\S\ref{sec:dataenc}) and how rules are encrypted (\S\ref{sec:rulenc}) with these design goals in mind.
 
@@ -57,9 +57,9 @@ When encrypting IP addresses,  two different IP addresses must not map to the sa
 % for n firewall rules, there are at most 2n +1 intervals
 
 
-Therefore, if $\len=128$ (which is the case when we use IPv6), the probability is negligible in a normal setting. 
+Therefore, if $\len=128$ (which is the case when we use IPv6), the probability is negligible in a realistic setting. 
 
-When encrypting ports, it is possible to get collisions since the port field is only 16-bit. However, this will not break the NAT's functionality as long as the IP address does not collide, because NATs (and other middleboxes that require injectivity) considers both IP addresses and ports. For example, if we have two flows with source IP and source ports of $(SIP, SP_1)$ and $(SIP, SP_2)$ with $SP_1 \neq SP_2$, the encryption of SIP will be different in the two flows because the encryption is seeded in the 5-tuple of a connection. As we discuss in Appendix~\ref{sec:appendix:middleboxes}, the NAT table can be larger for \sys, but the factor is small in practice.
+When encrypting ports, it is possible to get collisions since the port field is only 16-bit. However, this will not break the NAT's functionality as long as the IP address does not collide, because NATs (and other middleboxes that require injectivity) consider both IP addresses and ports. For example, if we have two flows with source IP and source ports of $(SIP, SP_1)$ and $(SIP, SP_2)$ with $SP_1 \neq SP_2$, the encryption of SIP will be different in the two flows because the encryption is seeded in the 5-tuple of a connection. As we discuss in Appendix~\ref{sec:appendix:middleboxes}, the NAT table can be larger for \sys, but the factor is small in practice.
 
 
 
@@ -255,7 +255,6 @@ The second challenge is a race condition: if the middlebox adopts a new ruleset 
 
 
 
-\todo{check this part, is new}
 To maintain a consistent state, the gateway first runs EncryptPrefixes for the new set of prefixes. 
 Then, the gateway announces to the cloud the pending update, and the middleboxes 
 ship their current state to the gateway. The gateway updates this state by producing new encryptions 
