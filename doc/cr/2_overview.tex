@@ -16,9 +16,7 @@
      %
 \caption{System architecture. APLOMB and NFV system setup with \sys encryption  at the gateway. The arrows indicate traffic from the client to the server; the response traffic follows the reverse direction. \label{fig:sys-overview}}
 \end{figure*}
-\todo{make sure all col 2 is sufficient condition and not just necessary as before}
 
-\todo{we are not giving only necessary functionality but a bit more}
 
 \section{Overview}\label{sec:overview}
 
@@ -195,7 +193,7 @@ First,  the gateway encrypts the packet as explained above. The packet passes th
 % for each category of middlebox, \sys supports at least one real use case as we show in \s. 
 
 
-\subsection{Architectural Implications} 
+\subsection{Architectural Implications} \todo{either remove or make shorter}
 \label{sec:bbarch}
 %%%End the discussion wiht BB here.
 %%% DO NOT DELETE.
@@ -230,5 +228,5 @@ In the rest of the paper, we do not revisit these architectural benefits, but fo
 \subsection{Security guarantees}
 
 We formalize and prove the overall guarantees of \sys in our extended paper. In this version, we provide only  a high-level description. 
-\sys hides the values of header and payload data, but reveals some information desired for middlebox processing. The information revealed is the union of the information revealed by PrefixMatch and KeywordMatch, as detailed in \S\ref{sec:buildingblocks}. For example, a firewall learns if an encrypted IP address matches an encrypted prefix, without learning the actual values of the two. A DPI middlebox also learns whether a certain byte offset matches any string in a DPI ruleset. 
+\sys hides the values of header and payload data, but reveals some information desired for middlebox processing. The information revealed is the union of the information revealed by PrefixMatch and KeywordMatch, as detailed in \S\ref{sec:buildingblocks}. \sys does not reveal only what is strictly necessary for the functionality, but it comes quite close to this necessary functionality.  For example, a firewall learns if an encrypted IP address matches an encrypted prefix, without learning the actual values of the IP address or the prefix. A DPI middlebox also learns whether a certain byte offset matches any string in a DPI ruleset. 
 

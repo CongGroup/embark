@@ -93,9 +93,6 @@ Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eva
  Order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope} can provide the same and more functionality than PrefixMatch. In comparison, PrefixMatch provides significantly stronger security by not leaking the order of values encrypted, and achieves four orders of magnitude higher performance  (as we show in \S\ref{sec:eval}).
 
 
-\todo{mixture of intervals, ranges and prefixes, clarify, also endpoints}
-\todo{and do you tell the size of the endpoint}
-
 
 \mypara{Functionality}
 PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P_{i,1}} \dots, \ov{P_{i, n_i}}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
@@ -131,8 +128,8 @@ whose endpoints have size $\len$ bits. \pmatch{} encrypts each prefix  into a se
 
 Consider all the endpoints $s_i$ and $e_i$ laid out on an axis in increasing order as in Fig.~\ref{fig:rangeopts3}.
 Add on this axis the endpoints of $P_0$, the smallest and largest possible values, $0$ and $2^{\ptlen}-1$.
-Consider all the non-overlapping intervals formed by each consecutive pair of such endpoints. 
-For example, in Fig.~\ref{fig:rangeopts3},  there are two prefixes to encrypt: $P_1$ and $P_2$. PrefixMatch computes the intervals $I_0, \dots, I_4$.
+Consider all the non-overlapping intervals formed by each consecutive pair of such endpoints. Each interval has the property that all points in that interval belong to the same set of prefixes.
+For example, in Fig.~\ref{fig:rangeopts3},  there are two prefixes to encrypt: $P_1$ and $P_2$. PrefixMatch computes the intervals $I_0, \dots, I_4$. Two or  more prefixes/ranges that overlap in exactly one endpoint define a one-element interval. For example, consider encrypting these two ranges [13::/16, 25::/16] and [25::/16, 27::/16]; they define three intervals: [13::/16, 25::/16-1], [25::/16, 25::/16], [25::/16+1, 27::/16].
 
 PrefixMatch now assigns an encrypted prefix to each interval. Note that each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefixes of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number because $\prefixes(I_0) = \prefixes(I_4)$.
 
@@ -149,8 +146,8 @@ We now present the EncryptPrefixes procedure, which works the same for prefixes 
 \item Let $s_i$ and $e_i$ be the endpoints of $P_i$. \comment{$P_i = [s_i, e_i]$}
 	\item Assign $P_0 \gets [0, 2^{\ptlen}-1]$
 	\item Sort all endpoints in $\cup_i P_i$ in increasing order
-	\item  Construct non-overlapping intervals $I_0, \dots, I_m$ from each pair of consecutive endpoints. Multiple equal endpoints form a unit interval. For each interval $I_i$, compute $\prefixes(I_i)$, the list of prefixes $P_{i_1}, \dots, P_{i_m}$ that contain   $I_i$. 
-	\item Assign a distinct random value of size $\plen$ to each of $\ov{I_0}, \dots, \ov{I_m}$  
+	\item  Construct non-overlapping intervals $I_0, \dots, I_m$ from the endpoints as explained above.  For each interval $I_i$, compute $\prefixes(I_i)$, the list of prefixes $P_{i_1}, \dots, P_{i_m}$ that contain   $I_i$. 
+	\item Let $\ov{I_0}, \dots, \ov{I_m}$ each be a distinct random value of size $\plen$.  
 	\item For all $i, j$ with $i<j$ if  $\prefixes(I_i) =  \prefixes(I_j)$, set $\ov{I_j} \gets \ov{I_i}$
 	\item The encryption of $P_i$ is $\ov{P_i} = \{\ov{I_j}/\plen, \text{for all $j$ s.t.}\ P_i \in \prefixes(I_j) \}$. The encrypted prefixes are output sorted by value (as a means of randomization).
 	\item Output $\ov{P_1}, \dots,\ \ov{P_n}$ and the {\em interval map} [$I_i \rightarrow \ov{I_i}$] 

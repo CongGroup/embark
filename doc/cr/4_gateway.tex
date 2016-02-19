@@ -87,13 +87,12 @@ Because this encrypted payload data is over the {\it bytestream}, we need to gen
 Searchable Encryption schemes, which we use for encrypted DPI, require that traffic be {\it tokenized} and that a set of fixed length substrings of traffic be encrypted along a sliding window -- e.g., the word malicious might be tokenized into {`malici', `alicio', `liciou', `icious'}.
 If the term `malicious' is divided across two packets, we may not be able to tokenize it properly unless we reconstruct the TCP bytestream at the gateway. Hence, if DPI is enabled at the cloud, we do exactly this.
 
-\todo{not clear extension channel}
 After reconstructing and encrypting the TCP bytestream, the gateway transmits the encrypted bytestream over 
 an `extension', secondary channel that only those middleboxes which perform DPI operations inspect. 
 This channel is not routed to other middleboxes. We implement this channel as a persistent TCP connection 
 between the gateway and middleboxes. The bytestream in transmission is associated with its flow identifier, 
 so that the DPI middleboxes can distinguish between bytestreams in different flows.
-DPI middleboxes handle both the packets received from the extension channel as well as the primary channel containing the data packets. 
+DPI middleboxes handle both the packets received from the extension channel as well as the primary channel containing the data packets; we elaborate on this mechanism in~\cite{blindbox}.
 Hence, if an intrusion prevention system finds a signature in the extension channel, it can sever or reset connectivity for the primary channel.
 
 \noindent{\bf Decryption.} The payload data is encrypted with AES and placed back into the packet payload -- like PrefixMatch, KeywordMatch is not reversible and we require this data for decryption at the gateway.
@@ -228,7 +227,7 @@ The second challenge is a race condition: if the middlebox adopts a new ruleset 
 %The same problem occurs if packets encrypted under the new ruleset arrive before the new ruleset was .
 
 
-\todo{ explain better buffering and upper bound if it suffices not to mix new and old packets}
+\todo{guys, need to explain this paragraph below, why is 100ms a reasonable upper bound to not  mix new and old packet? }
 To avoid these problems, the gateway and the cloud provider do the following. 
 The gateway first runs EncryptPrefixes for the new set of prefixes and creates a new set of encrypted prefixes and a new interval map. 
 Then, the gateway announces to the cloud provider the pending update, and the middleboxes ship their current state to the gateway. The gateway updates this state by producing new encryptions and sends the new state back to the middleboxes. During all this time, the gateway continued to encrypt traffic based on the old prefixes and the middleboxes processed it based on the old rules.
@@ -236,7 +235,7 @@ Once all middleboxes have the new state, the gateway sends a signal to the cloud
 The cloud provider buffers traffic for a few hundred milliseconds after this signal to allow all old traffic to complete processing at the cloud; it signals to all middleboxes to `swap in' the new rules and state; and finally it starts processing new traffic.
 Note that all changes to middleboxes are in the {\it control plane} of the middlebox, and require no modifications to the algorithms and operations performed in per-packet processing. 
 
-\todo{fix para below:}
+\todo{guys, need to clarify below:}
 The cloud provider updating middlebox rules will have to write rules appropriately to account for the fact that a 
 single prefix maps to multiple intervals. For example, suppose there is a middlebox that counts the number 
 of connections to a prefix $P$. $P$ maps to a single interval $I$. After updating, a new prefix is added 
@@ -248,9 +247,7 @@ it should become `\texttt{if $v$ in $I_1$ or $v$ in $I_2$ then counter++}'.
 
 
 
-\todo{webproxy is it on top of squid or if not, why did not compare to without enc}
 
-\todo{clarify that is the baseline}
 
 \todo{explain regexp protocol expansion}
 
