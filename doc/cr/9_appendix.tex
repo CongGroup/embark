@@ -13,7 +13,7 @@ Firewalls from different vendors may have significantly different configurations
 and thus we need to extract a general model of firewalls. We used the model defined in ~\cite{fireman}, 
 which describes Cisco
 PIX firewalls and Linux iptables. In this model, the firewall consists of several access control lists (ACLs). 
-Each ACL consists of a list of rule. Rules can be interpreted in the form (\emph{predicate}, \emph{action}), 
+Each ACL consists of a list of rules. Rules can be interpreted in the form (\emph{predicate}, \emph{action}), 
 where the \emph{predicate} describes the packets matching this rule and the \emph{action} describes
 the action performed on the matched packets. The predicate is defined as a combination of ranges of source/destination
 IP addresses and ports as well as the protocol. The set of possible actions includes "\emph{accept}" and "\emph{deny}".
@@ -36,7 +36,7 @@ A typical NAT translates a pair of source IP and port into a pair of
 external source IP and port (and back), where the external source IP is the external address of the gateway,
 and the external source port is arbitrarily chosen. Essentially, a NAT maintains a mapping from a pair of source IP
 and port to an external port. NATs have following requirements: 
-1) same pair should be mapped to the same external source port; 
+1) same pairs should be mapped to the same external source port; 
 2) different pairs should not be mapped to the same external source port. 
 In order to satisfy them, the following properties are sufficient.
 
