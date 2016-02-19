@@ -31,7 +31,7 @@ Middleboxes can recompute checksums as usual after they write.
 We modify middleboxes which perform DPI operations as in BlindBox~\cite{blindbox}. 
 The middleboxes search through the encrypted extension channel -- not the packet payloads themselves -- and block or log the connection if a blacklisted term is observed in the extension.
 \sys also improves the setup time and security for regular expression rules as discussed in \S\ref{s:archbb}.
-%Much of the BlindBox paper is devoted to designing new fast-path algorithms which provide high throughput and cryptographic compatibility; as we showed \sys sidesteps this problem for header middleboxes since it can re-use existing algorithms.
+%Much of the BlindBox paper is devoted to designing new fast-path algorithms which provide high throughput and cryptographic compatibility; as we showed \sys sidesteps this problem for header middleboxes since it can reuse existing algorithms.
 
 \subsection{HTTP Middleboxes}
 Parental filters and HTTP proxies read the HTTP URI from the extension channel. 
