@@ -3,14 +3,16 @@
 \appendix
 \section{Sufficient Properties for Middleboxes} 
 \label{sec:appendix:middleboxes}
-In this section, we discuss the core functionality of IP Firewall, NAT, L3/L4 Load Balancers 
+In this section, we discuss the core functionality of the IP Firewall, NAT, L3/L4 Load Balancers 
 in Table~\ref{tbl:mbreqs}, and why the properties listed in the Column 2 of Table~\ref{tbl:mbreqs} are
 sufficient for supporting the functionality of those middleboxes. We omit the discussion of other middleboxes
- in the table since the sufficiency of those properties is obvious.
+ in the table since the sufficiency of those properties is obvious. 
+ %
+The reason \sys focuses on the core (``textbook'') functionality of these middleboxes is that there exist variations and different configurations on these middleboxes  and \sys might not support some of them. 
 
 \subsection{IP Firewall}
 Firewalls from different vendors may have significantly different configurations and rule organizations, 
-and thus we need to extract a general model of firewalls. We used the model defined in ~\cite{fireman}, 
+and thus we need to extract a general model of firewalls. We used the model defined in~\cite{fireman}, 
 which describes Cisco
 PIX firewalls and Linux iptables. In this model, the firewall consists of several access control lists (ACLs). 
 Each ACL consists of a list of rules. Rules can be interpreted in the form (\emph{predicate}, \emph{action}), 
@@ -18,8 +20,8 @@ where the \emph{predicate} describes the packets matching this rule and the \emp
 the action performed on the matched packets. The predicate is defined as a combination of ranges of source/destination
 IP addresses and ports as well as the protocol. The set of possible actions includes "\emph{accept}" and "\emph{deny}".
 
-Now we discuss the encryption. Let $\Enc$ denote a generic encryption protocol,
-$(SIP[],\ DIP[],\ SP[],\ DP[],\ P)$ denote the predicate of a rule. Any packet with 5-tuple 
+ Let $\Enc$ denote a generic encryption protocol, and 
+$(SIP[],\ DIP[],\ SP[],\ DP[],\ P)$ denote the predicate of a rule. Any packet with a 5-tuple 
 $(SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P)$ matches that rule. 
 We encrypt both tuples and rules. The following property of the encryption is sufficient for firewalls.
 
@@ -27,7 +29,8 @@ We encrypt both tuples and rules. The following property of the encryption is su
 \label{eqn:firewall}
 \begin{split}
 & (SIP,\ DIP,\ SP,\ DP,\ P) \in (SIP[],\ DIP[],\ SP[],\ DP[],\ P) \Leftrightarrow \\
-& \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P) 
+& \Enc(SIP,\ DIP,\ SP,\ DP,\ P) \in \\
+& \hspace{3cm} \Enc(SIP[],\ DIP[],\ SP[],\ DP[],\ P).
 \end{split}
 \end{equation}
 
@@ -35,30 +38,31 @@ We encrypt both tuples and rules. The following property of the encryption is su
 A typical NAT translates a pair of source IP and port into a pair of
 external source IP and port (and back), where the external source IP is the external address of the gateway,
 and the external source port is arbitrarily chosen. Essentially, a NAT maintains a mapping from a pair of source IP
-and port to an external port. NATs have following requirements: 
+and port to an external port. NATs have the following requirements: 
 1) same pairs should be mapped to the same external source port; 
 2) different pairs should not be mapped to the same external source port. 
-In order to satisfy them, the following properties are sufficient.
+In order to satisfy them, the following properties are sufficient:
 
 \begin{equation}
 \begin{split}
 & (SIP_1, SP_1)\ =\ (SIP_2, SP_2) \\ 
- \Rightarrow & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) 
+ \Rightarrow & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2), 
 \end{split}
 \end{equation}
+
+
 
 \begin{equation}
 \begin{split}
 & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
-& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2) 
+& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2).
 \end{split}
 \end{equation}
 
-However, we may relax 1) to 1*): the source IP and port pair that belongs to the same 5-tuple 
-should be mapped to the same external port. We will explain as we get to the
-formal definition of PrefixMatch. After relaxing this requirement, the functionality of NAT is still preserved,
+However, we may relax 1) to: the source IP and port pair that belongs to the same 5-tuple 
+should be mapped to the same external port.  After relaxing this requirement, the functionality of NAT is still preserved,
 but the NAT table may get filled up more quickly since the same pair may be mapped to different ports. However,
-we argue that this may not happen in practice, as an application on a host rarely connects to different hosts 
+we argue that this expansion is small in practice because an application on a host rarely connects to different hosts 
 or ports using the same source port. The sufficient properties then become:
 
 \begin{equation}
@@ -68,18 +72,20 @@ or ports using the same source port. The sufficient properties then become:
 \Rightarrow & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
 \end{split}
 \end{equation}
-
+\begin{center}
+and
+\end{center}
 \begin{equation}
 \label{eqn:nat2}
 \begin{split}
 & \Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2) \\
-& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2) 
+& \Rightarrow (SIP_1, SP_1) = (SIP_2, SP_2). 
 \end{split}
 \end{equation}
 
 \subsection{L3 Load Balancer}
 L3 Load Balancer maintains a pool of servers. It chooses a server for an incoming packet based on
-L3 connection information. A common implementation of L3 Load Balancing uses the ECMP scheme in the 
+the L3 connection information. A common implementation of L3 Load Balancing uses the ECMP scheme in the 
 switch. It guarantees that packets of the same flow will be forwarded to the same server by hashing
 the 5-tuple. Therefore, the sufficient property for L3 Load Balancer is:
 
@@ -88,7 +94,7 @@ the 5-tuple. Therefore, the sufficient property for L3 Load Balancer is:
 \begin{split}
 & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Leftrightarrow \\
 & \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\\
-& \hspace{3cm} \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+& \hspace{3cm} \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2).
 \end{split}
 \end{equation}
 
@@ -98,7 +104,7 @@ the 5-tuple. Therefore, the sufficient property for L3 Load Balancer is:
 L4 Load Balancer~\cite{haproxy}, or TCP Load Balancer also maintains a pool of servers.
 It acts as a TCP endpoint that accepts the client's connection. After accepting a connection from a client,
 it connects to one of the server and forwards the bytestreams between client and server. The encryption
-scheme should make sure that same 5-tuples have the same encryption. In addition, two different 5-tuple
+scheme should make sure that two same 5-tuples have the same encryption. In addition, two different 5-tuple
 should not have the same encryption, otherwise the L4 Load Balancer cannot distinguish those two flows.
 Thus, the sufficient property of supporting L4 Load Balancer is:
 
@@ -122,14 +128,17 @@ PrefixMatch also ensures the following properties:
 \label{eqn:pm1}
 \begin{split}
 & (SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ (SIP_2, DIP_2, SP_2, DP_2, P_2) \Rightarrow \\
-& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ =\ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
+& \Enc(SIP_1, DIP_1, SP_1, DP_1, P_1)\ = \\ 
+& \hspace{3cm} \ \Enc(SIP_2, DIP_2, SP_2, DP_2, P_2)
 \end{split}
 \end{equation}
 
+The following statements hold with {\em high probability}:
 \begin{equation}
 \label{eqn:pm2}
 \Enc(SIP_1) = \Enc(SIP_2)\ \Rightarrow\ SIP_1 = SIP_2
 \end{equation}
+
 
 \begin{equation}
 \label{eqn:pm3}
@@ -137,13 +146,19 @@ PrefixMatch also ensures the following properties:
 \end{equation}
 
 \begin{equation}
+\begin{split}
 \label{eqn:pm4}
-\Enc(SP_1) = \Enc(SP_2)\ \Rightarrow\ SP_1 = SP_2
+\Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2)\ \Rightarrow\ \\
+(SIP_1, SP_1) = (SIP_2, SP_2)
+\end{split}
 \end{equation}
 
 \begin{equation}
+\begin{split}
 \label{eqn:pm5}
-\Enc(DP_1) = \Enc(DP_2)\ \Rightarrow\ DP_1 = DP_2
+\Enc(DIP_1, DP_1) = \Enc(DIP_2, DP_2)\ \Rightarrow\ \\
+(DIP_1, DP_1) = (DIP_2, DP_2)
+\end{split}
 \end{equation}
 
 \begin{equation}
@@ -160,7 +175,7 @@ by Eq.~\eqref{eqn:pm1},
 we have $\Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2)$. Hence, Eq.\eqref{eqn:nat1} holds. Similarly, 
 given $\Enc(SIP_1, SP_1) = \Enc(SIP_2, SP_2)$, by Eq.\eqref{eqn:pm2} and Eq.\eqref{eqn:pm4}, 
 we have $(SIP_1, SP_1) = (SIP_2, SP_2)$. Hence, Eq.\eqref{eqn:nat2} also holds. Note that if
-we did not relax the property Eq.\eqref{eqn:nat1}, we could not obtain such proof.
+we did not relax the property in Eq.\eqref{eqn:nat1}, we could not obtain such a proof.
 
 \noindent{\bf L3 Load Balancer} 
 %By Eq.\eqref{eqn:pm1}, Eq.\eqref{eqn:l3lb} holds.
