@@ -4,13 +4,13 @@
 \label{sec:related}
 
 \noindent{\bf Middlebox Outsourcing:}
-APLOMB~\cite{aplomb} is a practical service for outsourcing enterprise's middleboxes to the cloud, which we discussed in detail in \S\ref{sec:overview}.
+APLOMB~\cite{aplomb} is a practical service for outsourcing enterprise's middleboxes to the cloud, which we discussed in more detail in \S\ref{sec:overview}.
 
 \noindent{\bf Data Confidentiality:}
 Confidentiality of data in the cloud has been widely recognized as an important problem and researchers proposed solutions for software~\cite{Baumann:Haven}, web applications \cite{giffin:hails, Mylar},  filesystems~\cite{blaze:cfs, kallahalla:plutus, goh:sirius},  databases~\cite{popa:cryptdb, blindseer},  and virtual machines~\cite{Zhang:CloudVisor}. 
-CryptDB~\cite{popa:cryptdb} was one of the first practical systems to compute on encrypted data, but its encryption schemes and database system design do not apply to our network setting. \todo{make this more general?}
+CryptDB~\cite{popa:cryptdb} was one of the first practical systems to compute on encrypted data, but its encryption schemes and database system design do not apply to our network setting. 
 
-Focusing on traffic processing, the most closely related work to \sys is BlindBox~\cite{blindbox}, discussed in \S\ref{sec:bbarch}.  mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Unlike \sys, the middlebox  gains access to unencrypted data and is still able to leak that data should it choose to do so. A recent paper~\cite{secmb} proposed a system architecture for outsourced middleboxes to specifically perform deep packet inspection over encrypted traffic.
+Focusing on traffic processing, the most closely related work to \sys is BlindBox~\cite{blindbox}, discussed in \S\ref{sec:bbarch}.  mcTLS~\cite{mctls} proposed a protocol in which client and server can jointly authorize a middlebox to process certain portions of the encrypted traffic. Unlike \sys, the middlebox  gains access to {\em unencrypted data}. A recent paper~\cite{secmb} proposed a system architecture for outsourced middleboxes to specifically perform deep packet inspection over encrypted traffic.
 
 \noindent{\bf Trace Anonymization and Inference:}
 Some systems which focus on {\it offline} processing allow some analysis over anonymized data \cite{Vern:Anonymize06, Vern:Anonymize03}; they are not suitable for online processing as is \sys.
@@ -18,9 +18,10 @@ Yamada et al~\cite{Yamada_IDS} show how one can perform some very limited proces
 
 \noindent{\bf Encryption Schemes:}
 \sys's PrefixMatch scheme is similar to order preserving encryption schemes, but no existing scheme provided both the performance and security properties we required.
-The order-preserving encryption~\cite{boldyreva:ope, popa:mope}  is 
- $>10000$ times slower than PrefixMatch (\S\ref{sec:eval}); moreover, it leaks the order of the IP addresses encrypted, while PrefixMatch protects this information. However, OPE schemes are more generic and applicable to a wide set of scenarios. PrefixMatch, on the other hand, is designed for a particular scenario.
-The encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security guarantee to PrefixMatch; but, it is orders of magnitude slower than the OPE schemes which are already 10000$\times$ slower than PrefixMatch. 
+Order-preserving encryption (OPE) schemes such as~\cite{boldyreva:ope, popa:mope}  are 
+ $>10000$ times slower than PrefixMatch (\S\ref{sec:eval}) and additionally leak the order of  the IP addresses encrypted. On the other hand, OPE schemes are more generic and applicable to a wider set of scenarios. PrefixMatch, on the other hand, is designed for our  particular scenario.
+
+The encryption scheme of Boneh et al.~\cite{BonehRange} enables detecting if an encrypted value matches a range and provides a similar security guarantee to PrefixMatch; at the same time, it is orders of magnitude slower than the OPE schemes which are already slower than PrefixMatch. 
 
 %  mOPE unfortunately requires that the gateway and the service provider interact for a number of roundtrips (e.g., xxx in our experiments) which is too slow and requires additional setup for this interaction, and violates requirement~\ref{req:sec} or~\ref{req:injective}, and BCLO has weak security (leaking always the top half bits of the values encrypted and the order of IP addresses across different packets, thus violating requirement~\ref{req:sec}), is too slow, and not format-preserving. 
 
