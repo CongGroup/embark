@@ -26,7 +26,7 @@ The gateway serves two purposes. First, it redirects traffic to/from the cloud f
 Every gateway is configured statically to tunnel traffic to a fixed IP address at a single service provider point of presence.
 A gateway can be logically thought of as three services: the rule encryption service, the pipeline from the enterprise to the cloud (Data encryption), and the pipeline from the cloud to the enterprise (Data decryption). 
 All three services share access to the PrefixMatch state and the private key $k$.
-Figure~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
+Fig.~\ref{fig:gatewaymeta} illustrates  these three services and the data they send to and from the cloud provider.
 
 We design the gateway with two goals in mind: 
 
