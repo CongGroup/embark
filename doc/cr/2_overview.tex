@@ -165,7 +165,7 @@ First,  the gateway encrypts the packet as explained above. The packet passes th
 \begin{figure*}[t!]
 \begin{center}
   \includegraphics[width=6.7in]{fig/packetpath.pdf}
-\caption{Example of packet flow through a few middleboxes. Red in bold indicates encrypted data. \label{fig:packetflow} \todo{why is it not ipv6 at some point?}}
+\caption{Example of packet flow through a few middleboxes. Red in bold indicates encrypted data. \label{fig:packetflow} }
 \end{center}
 \end{figure*}
 
@@ -193,26 +193,36 @@ First,  the gateway encrypts the packet as explained above. The packet passes th
 % for each category of middlebox, \sys supports at least one real use case as we show in \s. 
 
 
-\subsection{Architectural Implications} \todo{either remove or make shorter}
-\label{sec:bbarch}
+\subsection{Architectural Implications and Comparison to BlindBox} \label{s:archbb}
 %%%End the discussion wiht BB here.
 %%% DO NOT DELETE.
 
-As mentioned, when compared to BlindBox, \sys provides new cryptography and system designs to support  more general middleboxes --  it turns out that, on top of these, the architectural setting of \sys provides additional benefits, which we can now explain.
+
+When compared to BlindBox, \sys provides broader functionality and better performance. 
+Regarding functionality, 
+BlindBox~\cite{blindbox} enables equality-based operations on  encrypted payloads of packets, which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, load balancers, NAT,  and those DPI devices that also examine packet headers, because these need an encryption that is compatible with packet headers and/or need to perform range queries or prefix matching. 
+ % I added this packet header thing due to NAT
+ % even though some of these MB only do exact, the architecture that puts them all together is new
+ %Achieving such generality provided new challenges to \sys. 
+%Such middleboxes require a new encryption scheme and, moreover, a system design that supports all middleboxes {\it simultaneously}: for performance, adoption and extensibility, it does not suffice to craft {\it n} different designs to support {\it n} classes of middleboxes. 
+
+ 
 
 
 %new encryption scheme and a new system design that enables a complete set of middleboxes, 
 %So far, we have described the overall architecture of \sys without discussing how the encryption or middleboxes themselves are implemented.
 %It is worth pausing here to discuss how this architecture itself can improve BlindBox, although it only supports DPI.
 %
-The first benefit is increased performance. In BlindBox, two arbitrary user endpoints communicate over a modified version of HTTPS. BlindBox requires 97 seconds to perform the initial handshake, which results in the encryption of the rules. 
-This exchange must be performed for every new connection in BlindBox because each session is between two new end-hosts with a per-connection key.
-However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Consequently, there is no per-connection overhead. 
+
+
+The performance improvement comes from the different architectural setting of \sys, which provides a set of interesting opportunities.
+ In BlindBox, two arbitrary user endpoints communicate over a modified version of HTTPS. BlindBox requires 97 seconds to perform the initial handshake, which  must be performed for every new connection.
+However, in the \sys context, this exchange can be performed just once at the gateway because the connection between the gateway and the cloud provider is long-lived. Consequently, there is no per-user-connection overhead. 
 %, after which the same encrypted rules can be reused for all clients; this key is safe to re-use because it is private to the gateway.
 %Most importantly, this architecture provides practical performance, where the BlindBox context imposed a prohibitive per-connection overhead.
 
 
-The second benefit is increased deployability. In \sys, the gateway encrypts traffic where in BlindBox the end hosts do. Hence, deployability improves because the end hosts do not need to be modified.
+The second benefit is increased deployability. In \sys, the gateway encrypts traffic whereas in BlindBox the end hosts do. Hence, deployability improves because the end hosts do not need to be modified.
 
 Finally, security improves in the following way.
 BlindBox has two security models: a stronger one to detect rules that are `exact match' substrings, and a weaker one to detect rules that are regular expressions. The more rules there are, the higher the per-connection setup cost is. 
@@ -221,7 +231,7 @@ Hence, we convert many regular expressions to a set of exact-match strings.
 For example /hello[1-3]/ is equivalent to exact matches on "hello1", "hello2", "hello3".
 Nonetheless, many regular expressions remain too complex to do so -- if the set of potential exact matches is too large, we leave it as a regular expression.
 As we show in \S\ref{sec:eval}, this approach halves the number of rules that require using the weaker security model, enabling more rules in the stronger security model. 
-Nonetheless, this approach is at odds with the benefits of improved performance in the setup time: by expanding the rules in this fashion, we may potentially {\it increase} the setup time, which we evaluate in \S\ref{sec:eval}.
+% Nonetheless, this approach is at odds with the benefits of improved performance in the setup time: by expanding the rules in this fashion, we may potentially {\it increase} the setup time, which we evaluate in \S\ref{sec:eval}.
 
 In the rest of the paper, we do not revisit these architectural benefits, but focus  on \sys's new capabilities that allow us to outsource a {\it complete} set of middleboxes.
 

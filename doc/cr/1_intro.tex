@@ -158,30 +158,22 @@ Middleboxes in \sys operate directly over {\it encrypted} traffic without decryp
 
 In previous work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection (DPI)~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for this setting because
- (1) it has a restricted functionality that supports too few of the  middleboxes typically outsourced, and (2) it has prohibitive performance overheads in some cases.
+ (1) it has a restricted functionality that supports too few of the  middleboxes typically outsourced, and (2) it has prohibitive performance overheads in some cases. We elaborate on these in \S\ref{sec:bbarch}.
  
- Regarding functionality, BlindBox enables equality-based operations on  encrypted payloads of packets, which supports certain DPI devices. However, this excludes middleboxes such as firewalls, proxies, load balancers, NAT,  and those DPI devices that also examine packet headers, because these need the ability to examine packet headers and/or perform range queries. 
- % I added this packet header thing due to NAT
- % even though some of these MB only do exact, the architecture that puts them all together is new
- Achieving such generality provided new challenges to \sys. 
-Such middleboxes require a new encryption scheme and, moreover, a system design that supports all middleboxes {\it simultaneously}: for performance, adoption and extensibility, it does not suffice to craft {\it n} different designs to support {\it n} classes of middleboxes. 
 
- 
-Regarding performance, BlindBox has a prohibitive setup time of 97s per-connection. 
-\sys's setting targets enterprise outsourcing where BlindBox targets end hosts connecting to arbitrary middleboxes. This difference brings \sys new opportunities: it
-not only allows us to remove the setup overhead, but also to achieve better deployability and higher security, as we discuss in \S\ref{sec:bbarch}. 
 
 \sys supports a wide range of middleboxes with practical performance.  Table~\ref{tbl:mbreqs} shows the relevant middleboxes and the functionality \sys provides.
 %These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
    
-From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). PrefixMatch allows matching prefixes and ranges to values over encryption using the same operators ($\le/\ge$ and prefix equality) as on unencrypted data. Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope}. 
-However, we show that  these schemes are four orders of magnitude slower than {\it PrefixMatch} making them infeasible for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes because it does not reveal order information between two encrypted values; OPE reveals the total ordering among all values. We designed PrefixMatch specifically for \sys's networking setting, which enabled such improvements over OPE. 
+From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). PrefixMatch allows matching an encrypted packet field against an encrypted prefix or range using the same operators as on unencrypted data: $\ge$ and prefix equality. At the same time, the comparison operators do not work when used between encrypted packet fields. Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope}. 
+However, we show that  these schemes are four orders of magnitude slower than {\it PrefixMatch} making them infeasible for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes: PrefixMatch does not reveal the  order of encrypted packet fields, while OPE reveals the total ordering among all fields. We designed PrefixMatch specifically for \sys's networking setting, which enabled such improvements over OPE. 
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats and header classification algorithms unchanged. An encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
   This strategy ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
-Moreover, by {\it combining} PrefixMatch with the preservation of  packet formats, header-based middleboxes can  use unmodified existing highly-efficient packet classification algorithms~\cite{packet_classif} and their implementations, which are among the more expensive tasks in software middleboxes~\cite{comb}.
-  Furthermore, even software-based NFV deployments make use of some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is compatible with these as well.
+Moreover, due to PrefixMatch's functionality,  header-based middleboxes can  run unmodified existing highly-efficient packet classification algorithms~\cite{packet_classif}, which are among the more expensive tasks in software 
+middleboxes~\cite{comb}.
+   Furthermore, even software-based NFV deployments use  some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is also compatible with these. % TO CUT/REMOVE
   
 Bridging the systems and cryptographic contributions, we reduced the core functionality of the relevant middleboxes to two basic operations over different encrypted fields of a packet: prefix and keyword matching, as listed in Table~\ref{tbl:mbreqs}. This results in an encrypted packet that {\it simultaneously} supports these middleboxes.
 
