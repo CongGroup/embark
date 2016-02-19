@@ -103,12 +103,12 @@ No & - \\ \hline
 }
 
 \caption[]{Middleboxes supported by \sys. The second column indicates an encryption functionality 
-that is sufficient to support the middlebox's core functionality (as we elaborate in Appendix \S\ref{sec:appendix:middleboxes}). ``Support'' indicates whether \sys supports this 
-functionality and ``Scheme'' is the encryption scheme used to support it.  {\bf Legend:} $\Enc$ denotes a generic encryption
- protocol,  $SIP$ = source IP address, $DIP$ = destination $IP$, $SP$ = source port, $DP$ = destination port,
+that is sufficient to support the core functionality of the middlebox. Appendix \S\ref{sec:appendix:middleboxes} demonstrates this sufficiency. ``Support'' indicates whether \sys supports this 
+functionality and ``Scheme'' is the encryption scheme \sys uses to support it.  {\bf Legend:} $\Enc$ denotes a generic encryption
+ protocol,  $SIP$ = source IP address, $DIP$ = destination IP, $SP$ = source port, $DP$ = destination port,
   $P$ = protocol,  $E[]$ = a range of $E$, $\Leftrightarrow$ denotes ``if and only if'', $\Match(x, s)$ 
   indicates if $x$ is a substring of $s$, and $\Match'$ is the encrypted equivalent of $\Match$. 
-  The $(SIP,\ DIP,\ SP,\ DP,\ P)$ thus denotes the tuple describing a connection. \label{tbl:mbreqs}} 
+  Thus, $(SIP,\ DIP,\ SP,\ DP,\ P)$  denotes the tuple describing a connection. \label{tbl:mbreqs}} 
 \end{table*}
 
 %\multicolumn{3}{c}}\\
@@ -152,35 +152,41 @@ now has access to potentially sensitive packet payloads and headers. This is
 worrisome considering the number of documented data breaches by cloud employees or hackers~\cite{PrivacyRecords,databreach}.
 Hence, an important question is: can we enable a third party to process traffic for an enterprise, {\em without seeing the enterprise's traffic}?
 
-To address this, we designed and implemented \sys, the first system to allow an enterprise to outsource  a comprehensive set of enterprise middleboxes  to a cloud provider, while keeping its traffic confidential. 
+To address this question, we designed and implemented \sys\footnote{This name comes from ``mb'' plus ``ark'', a shortcut for middlebox and a synonym for protection, respectively.}, the first system to allow an enterprise to outsource  a wide range of enterprise middleboxes  to a cloud provider, while keeping its network traffic confidential. 
 Middleboxes in \sys operate directly over {\it encrypted} traffic without decrypting it. %without decrypting the traffic. 
 
 
 In previous work, we designed a system called BlindBox to operate on encrypted traffic for a {\em specific} class of middleboxes: Deep Packet Inspection (DPI)~\cite{blindbox} -- middleboxes that examine only the payload of packets. 
 However, BlindBox is far from sufficient for this setting because
- (1) it has a restricted functionality that supports too few of the  middleboxes typically outsourced, and (2) it has prohibitive performance overheads in some cases. We elaborate on these in \S\ref{sec:bbarch}.
+ (1) it has a restricted functionality that supports too few of the  middleboxes typically outsourced, and (2) it has prohibitive performance overheads in some cases. We elaborate on these points in \S\ref{sec:bbarch}.
  
 
 
 \sys supports a wide range of middleboxes with practical performance.  Table~\ref{tbl:mbreqs} shows the relevant middleboxes and the functionality \sys provides.
 %These cover most of the middleboxes typically outsourced as surveyed in~\cite{aplomb}. 
 \sys achieves this functionality through a combination of systems and cryptographic innovations, as follows.
+  
+  
+  
    
-From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). PrefixMatch allows matching an encrypted packet field against an encrypted prefix or range using the same operators as on unencrypted data: $\ge$ and prefix equality. At the same time, the comparison operators do not work when used between encrypted packet fields. Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope}. 
+From a cryptographic perspective, \sys provides a new and fast encryption scheme called PrefixMatch  to enable the provider to perform prefix matching (\eg{}, if an IP address is in the subdomain 56.24.67.0/16) or port range detection (\eg{}, if a port is in the range 1000-2000). PrefixMatch allows matching an encrypted packet field against an encrypted prefix or range using the same operators as for unencrypted data: $\ge$ and prefix equality. At the same time, the comparison operators do not work when used between encrypted packet fields. Prior to PrefixMatch, there was no mechanism that provided the functionality, performance, and  security needed in our setting. The closest practical encryption schemes are Order-Preserving Encryption (OPE)~\cite{boldyreva:ope,popa:mope}. 
 However, we show that  these schemes are four orders of magnitude slower than {\it PrefixMatch} making them infeasible for our network setting. At the same time, PrefixMatch provides stronger security guarantees than these schemes: PrefixMatch does not reveal the  order of encrypted packet fields, while OPE reveals the total ordering among all fields. We designed PrefixMatch specifically for \sys's networking setting, which enabled such improvements over OPE. 
 
   From a systems design perspective, one of the key insights behind \sys is to keep packet formats and header classification algorithms unchanged. An encrypted IP packet is structured just as a normal IP packet, with each field (e.g., source address) containing an encrypted value of that field.
   This strategy ensures that encrypted packets never appear invalid, e.g., to existing network interfaces, forwarding algorithms, and error checking. 
-Moreover, due to PrefixMatch's functionality,  header-based middleboxes can  run unmodified existing highly-efficient packet classification algorithms~\cite{packet_classif}, which are among the more expensive tasks in software 
+Moreover, due to PrefixMatch's functionality,  header-based middleboxes can  run  existing highly-efficient packet classification algorithms~\cite{packet_classif} without modification, which are among the more expensive tasks in software 
 middleboxes~\cite{comb}.
    Furthermore, even software-based NFV deployments use  some hardware forwarding components, \eg{} NIC multiqueue flow hashing~\cite{nicdocument}, `whitebox' switches~\cite{whitebox}, and error detection in NICs and switches~\cite{nicdocument, ciscov6}; \sys is also compatible with these. % TO CUT/REMOVE
   
-Bridging the systems and cryptographic contributions, we reduced the core functionality of the relevant middleboxes to two basic operations over different encrypted fields of a packet: prefix and keyword matching, as listed in Table~\ref{tbl:mbreqs}. This results in an encrypted packet that {\it simultaneously} supports these middleboxes.
+\sys's unifying strategy was to reduce the core functionality of the relevant middleboxes to two basic operations over different fields of a packet: prefix and keyword matching, as listed in Table~\ref{tbl:mbreqs}. This results in an encrypted packet that {\it simultaneously} supports these middleboxes.
+
+
+
 
 We implemented and evaluated \sys on EC2. \sys supports the core functionality of a wide-range of  middleboxes, as listed in Table~\ref{tbl:mbreqs}, and elaborated in Appendix~\ref{sec:appendix:middleboxes}.
 In our evaluation, we showed that \sys supports a real example for each middlebox category in Table~\ref{tbl:mbreqs}.
 Further, \sys imposes  negligible throughput overheads at the service provider: for example, a single-core firewall operating over encrypted data achieves 9.8Gbps, equal to the same firewall over unencrypted data.
-Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for an small-medium enterprise.
+Our enterprise gateway can tunnel traffic at 9.6 Gbps on a single core;  a single server can easily support 10Gbps for a small-medium enterprise.
 
 %\eat{Relative to BlindBox, \sys is more general. But even when comparing the two directly, \sys (1) has practical performance for deployment, where BlindBox does not: connection session establishment uses standard handshakes and does not have the 97s overhead that BlindBox does; (2) is more secure: \sys can support 79.8\%-88\% of IDS rules without resorting to decryption, where BlindBox can only support 40-67\%; (3) requires no changes to endhosts, where BlindBox requires a new protocol to be supported by each client.} 
 

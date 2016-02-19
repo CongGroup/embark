@@ -17,10 +17,9 @@
 \caption{System architecture. APLOMB and NFV system setup with \sys encryption  at the gateway. The arrows indicate traffic from the client to the server; the response traffic follows the reverse direction. \label{fig:sys-overview}}
 \end{figure*}
 
-
 \section{Overview}\label{sec:overview}
 
-In this section, we present \sys's architecture, the threat model and applications supported.
+In this section, we present an overview of \sys.
 
 
 % TO CUT REMOVE: just mentino the figures and no need to explain 
@@ -32,8 +31,8 @@ In this section, we present \sys's architecture, the threat model and applicatio
 %middleboxes (e.g., upgrading, deciding which vendor to use, monitoring), reduce costs of hardware,
 %and provide elasticity and fault tolerance; hence \sys should maintain these benefits despite any changes made to to the gateway at the enterprise or middleboxes.
 
-In the APLOMB setup, there are two parties: the enterprise(s) and the service provider (SP).
-The enterprise runs a gateway (GW) which sends traffic to a set of middleboxes (MB) running in the cloud; in practice this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
+In the APLOMB setup, there are two parties: the enterprise(s) and the service provider or cloud (SP).
+The enterprise runs a gateway (GW) which sends traffic to middleboxes (MB) running in the cloud; in practice, this cloud may be either a public cloud service (such as EC2), or an ISP-supported service running at a Central Office (CO).
 %we already said thisThe service provider -- ISP or cloud-based -- runs a set of middleboxes. 
 
 We illustrate the two redirection setups from APLOMB in Fig.~\ref{fig:sys-overview}.  The first setup, in Fig.~\ref{fig:model1},  occurs when the enterprise communicates with an external site: traffic goes to the cloud and back before it is sent out to the Internet. 
