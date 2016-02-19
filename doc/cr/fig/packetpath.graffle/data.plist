@@ -48,7 +48,7 @@
 	<array>
 		<dict>
 			<key>Bounds</key>
-			<string>{{449.38665659228957, 259.33333333333303}, {51, 22}}</string>
+			<string>{{449.33331235249796, 257.33333386205692}, {51, 22}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -188,8 +188,8 @@
 			<integer>5460</integer>
 			<key>Points</key>
 			<array>
-				<string>{471.49332282443845, 265.67999406158924}</string>
-				<string>{493.32667902196545, 265.75340307339195}</string>
+				<string>{475.91998936235905, 263.15033393326473}</string>
+				<string>{497.75334555988604, 263.22374294506744}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -598,7 +598,7 @@ payload: password}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{524.62085660298726, 280.23511250814096}, {108.70592562357535, 44}}</string>
+			<string>{{530.07501141727016, 285.7532966037607}, {108.70592562357535, 44}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -666,7 +666,7 @@ payload:
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{544.50665504733729, 273.73514302571743}, {41, 60.499988555908189}}</string>
+					<string>{{549.96080986162019, 279.25332712133718}, {41, 60.499988555908189}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -687,7 +687,7 @@ payload:
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{519.83998838067055, 279.27108969096395}, {41, 49.168563031689338}}</string>
+					<string>{{525.29414319495345, 284.78927378658369}, {41, 49.168563031689338}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -712,7 +712,7 @@ payload:
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{425.66662788391091, 297.99998982747513}, {88, 44}}</string>
+			<string>{{425.66662788391091, 297.81846173604447}, {88, 44}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -775,7 +775,7 @@ payload:
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{159.61757214864099, 284.66666666666703}, {88, 44}}</string>
+			<string>{{162.19418644408381, 287.25331694881112}, {88, 44}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -843,7 +843,7 @@ payload:
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{179.66338221232104, 276.66667683919309}, {41, 60.499988555908189}}</string>
+					<string>{{182.23999650776386, 279.25332712133718}, {41, 60.499988555908189}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -864,7 +864,7 @@ payload:
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{154.99671554565435, 282.2026235044396}, {41, 49.168563031689338}}</string>
+					<string>{{157.57332984109718, 284.78927378658369}, {41, 49.168563031689338}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -1834,7 +1834,7 @@ payload: password}</string>
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2016-02-19 07:32:00 +0000</string>
+	<string>2016-02-19 07:39:34 +0000</string>
 	<key>Modifier</key>
 	<string>Chang Lan</string>
 	<key>NotesVisible</key>
@@ -1927,7 +1927,7 @@ payload: password}</string>
 		<key>TopSlabHeight</key>
 		<real>250</real>
 		<key>VisibleRegion</key>
-		<string>{{87, 50}, {590, 476}}</string>
+		<string>{{112.66666666666667, 59.666666666666664}, {590, 475.99999999999994}}</string>
 		<key>Zoom</key>
 		<real>1.5</real>
 		<key>ZoomValues</key>
