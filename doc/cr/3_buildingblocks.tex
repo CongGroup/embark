@@ -88,7 +88,7 @@ Finally, both encryption (performed at the gateway) and detection (performed at 
 Our PrefixMatch encrypts in $< 0.5\mu$s per value (as we discuss in \S\ref{sec:eval}), and the detection is the same as regular middleboxes based on the $\leq$/$\geq$ operators.
 
  %To the best of our knowledge, PrefixMatch is the only encryption scheme that achieves these security guarantees and is practical for our setting.
- Order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope} can provide the same and more functionality than PrefixMatch. In comparison, PrefixMatch provides significantly stronger security by not leaking the order of values encrypted, and achieves four orders of magnitude higher performance  (as we show in \S\ref{sec:eval}).
+% Order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope} can provide the same and more functionality than PrefixMatch. In comparison, PrefixMatch provides significantly stronger security by not leaking the order of values encrypted, and achieves four orders of magnitude higher performance  (as we show in \S\ref{sec:eval}).
 
 
 
@@ -189,10 +189,10 @@ Hence, a regular packet classification can be run at the firewall with no modifi
 \label{sec:buildingblocks:guarantees}
 
 \pmatch{} hides the  prefixes and values encrypted with EncryptPrefixes and EncryptValue. \pmatch{} reveals  matching information desired to enable functionality at the cloud provider.  Concretely, the cloud provider learns the number of intervals and which prefixes overlap in each interval, but no additional information on the size, order or endpoints of these intervals. Moreover, for every encrypted value $v$, it learns the indexes of the prefixes that contain $v$ (which is the functionality desired of the scheme), but no other information about $v$. For any two encrypted values $\Enc(v)$ and $\Enc(v')$, the cloud provider learns if they are equal only if they are encrypted as part of the same flow (which is the functionality desired for the NAT), but it does not learn any other information about their value or  order.  
-Hence, PrefixMatch leaks less information than OPE, which reveals the order of encrypted prefixes/ranges.
+Hence, PrefixMatch leaks less information than order-preserving encryption, which reveals the order of encrypted prefixes/ranges.
 
 %
-Since EncryptValue is seeded in a per-connection identifier, correlation attacks between different flows are not possible. 
+Since EncryptValue is seeded in a per-connection identifier, an attacker cannot correlate values across flows. Essentially, there is a different key per flow.
 In particular, even though EncryptValue is deterministic within a flow, it is randomized across flows:
  for example, the encryption of the same IP address in different flows is different because the seed differs per flow. 
 
