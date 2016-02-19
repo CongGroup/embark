@@ -64,13 +64,13 @@ For example, given an encryption of the rule ``malicious'', and a list of encryp
 Many middleboxes perform detection over {\it prefixes} or {\it ranges} of  IP addresses or port numbers  (i.e. packet classification). To illustrate PrefixMatch, we use IP addresses (IPv6), but the scheme works with 
 ports and other value domains too.
 For example, a network administrator might wish to block access to all servers hosted by MIT, in which case the administrator would block access to the prefix 0::ffff:18.0.0.0/104, \ie{}, 0::ffff:18.0.0.0/104--0::ffff:18.255.255.255/104. 
-PrefixMatch enables a middlebox to tell whether an encrypted IP address $v$ lies in an encrypted range $[s_1, e_1]$, where $s_1$ = 0::ffff:18.0.0.0/104 and $e_1$ = 0::ffff:18.255.255.255/104; however, the middlebox does not learn the values of $v$, $s_1$, or $e_1$. Unlike KeywordMatch, PrefixMatch is a new scheme we designed specifically for our setting.
+PrefixMatch enables a middlebox to tell whether an encrypted IP address $v$ lies in an encrypted range $[s_1, e_1]$, where $s_1$ = 0::ffff:18.0.0.0/104 and $e_1$ = 0::ffff:18.255.255.255/104. At the same time, the middlebox does not learn the values of $v$, $s_1$, or $e_1$.
 
 
 One might ask whether PrefixMatch is necessary, or one can instead employ KeywordMatch using the same expansion technique we used for some (but not all) regexps in \S\ref{sec:bbarch}. 
 To detect whether an IP address is in a range, one could enumerate all IP addresses in that range and perform an equality check. However, the overhead of using this technique for common network ranges such as firewall rules is prohibitive.
 For our own department network, doing so would convert our IPv6 and IPv4 firewall rule set of only 97 range-based rules to $2^{238}$ exact-match  rules; looking only at IPv4 rules would still lead to 38M exact-match rules.
-Hence, for efficiency, we need a scheme for matching ranges.
+Hence, for efficiency, we need a new scheme for matching ranges.
 
 \mypara{Requirements}
 %
@@ -79,13 +79,13 @@ Supporting the middleboxes from Table~\ref{tbl:mbreqs} and meeting our system se
 First, PrefixMatch must allow for direct order comparison (i.e., using $\leq$/$\geq$) between an encrypted value $\Enc(v)$ and the encrypted endpoints $\ov{s_1}$ and $\ov{e_1}$ of a range, $[s_1, e_1]$. This allows existing packet classification algorithms, such as tries, area-based quadtrees, FIS-trees, or hardware-based algorithms~\cite{packet_classif}, 
  to run unchanged. 
 
-Second, to support the functionality of NAT in Table~\ref{tbl:mbreqs}, $\Enc(v)$ should be {\em deterministic} within a flow. Recall that a flow is a 5-tuple of source IP and port, destination IP and port, and protocol. Moreover, the encryption corresponding to two pairs (IP$_1$, port$_1$) and  (IP$_2$, port$_2$) that are different should be different.
+Second, to support the functionality of NAT as in Table~\ref{tbl:mbreqs}, $\Enc(v)$ must be {\em deterministic within a flow}. Recall that a flow is a 5-tuple of source IP and port, destination IP and port, and protocol. Moreover, the encryption corresponding to two pairs (IP$_1$, port$_1$) and  (IP$_2$, port$_2$) must be injective: if the pairs are different, their encryption should be different.
 
-Third, for security, we require that nothing leaks about the values $v$ encrypted other than what is needed by the functionality above. Note that \sys does not need order comparison between $\Enc(v_1)$ and $\Enc(v_2)$; hence, PrefixMatch does not leak such order information.  PrefixMatch also provides protection for the endpoints of ranges: SP should not learn their values, and SP should not learn the ordering of the intervals. 
+Third, for security, we require that nothing leaks about the value $v$  other than what is needed by the functionality above. Note that \sys's middleboxes do not need to know the order between two encrypted values $\Enc(v_1)$ and $\Enc(v_2)$, but only comparison to endpoints; hence, PrefixMatch does not leak such order information.  PrefixMatch also provides protection for the endpoints of ranges: SP should not learn their values, and SP should not learn the ordering of the intervals. 
  Further, note that the NAT does not require that $\Enc(v)$ be deterministic across flows; hence, PrefixMatch hides whether two IP addresses encrypted as part of different flows are equal or not. In other words, PrefixMatch is randomized across flows.
  
 Finally, both encryption (performed at the gateway) and detection (performed at the middlebox) should be practical for typical middlebox line rates.
-Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eval}), and the detection is the same as regular middleboxes based on the $\leq$/$\geq$ operators.
+Our PrefixMatch encrypts in $< 0.5\mu$s per value (as we discuss in \S\ref{sec:eval}), and the detection is the same as regular middleboxes based on the $\leq$/$\geq$ operators.
 
  %To the best of our knowledge, PrefixMatch is the only encryption scheme that achieves these security guarantees and is practical for our setting.
  Order-preserving encryption such as BCLO~\cite{boldyreva:ope} or mOPE~\cite{popa:mope} can provide the same and more functionality than PrefixMatch. In comparison, PrefixMatch provides significantly stronger security by not leaking the order of values encrypted, and achieves four orders of magnitude higher performance  (as we show in \S\ref{sec:eval}).
@@ -93,7 +93,7 @@ Our PrefixMatch encrypts in $< 0.5\mu$s per value (we evaluate in \S\ref{sec:eva
 
 
 \mypara{Functionality}
-PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. For each $P_i$, there is one or more corresponding encrypted prefixes: $\ov{P_{i,1}} \dots, \ov{P_{i, n_i}}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
+PrefixMatch encrypts a set of ranges or prefixes $P_1, \dots, P_n$ into a set of encrypted prefixes. The encryption of a prefix $P_i$ consists of one or more  encrypted prefixes: $\ov{P_{i,1}} \dots, \ov{P_{i, n_i}}$.  Additionally, \pmatch{} encrypts a value $v$ into an encrypted value $\Enc(v)$. These encryptions have the  property that, for all $i$,  
 %
 \[  v \in P_i  \Leftrightarrow \Enc(v) \in \ov{P_{i, 1}} \cup \dots \cup \ov{P_{i, n_i}}. \]
 %
@@ -117,11 +117,11 @@ $\ov{v_2}$ = dc2a:108f:1e16:992e:a53b:43a3:00bb:d2c2. We can see that $\ov{v_1} 
   \caption[]{Example of prefix encryption with PrefixMatch.\label{fig:rangeopts3}}
 \end{figure}
 
-We now explain how PrefixMatch works.  PrefixMatch provides two algorithms: EncryptPrefixes to encrypt prefixes/ranges and EncryptValue to encrypt a value $v$.
+  PrefixMatch consists of two algorithms: EncryptPrefixes to encrypt prefixes/ranges and EncryptValue to encrypt a value $v$.
 
 
 
-\mypara{Prefixes Encryption} \pmatch{} takes as input a set of prefixes or ranges $P_1 = [s_1, e_1], \dots, P_n=[s_n, e_n]$, 
+\mypara{Prefixes' Encryption} \pmatch{} takes as input a set of prefixes or ranges $P_1 = [s_1, e_1], \dots, P_n=[s_n, e_n]$, 
 whose endpoints have size $\len$ bits. \pmatch{} encrypts each prefix  into a set of encrypted prefixes: these prefixes are $\plen$ bits long. As we discuss below, the choice of $\plen$ depends on the maximum number of prefixes to be encrypted. For example,  $\plen = 16$ suffices for a typical firewall rule set.
 
 Consider all the endpoints $s_i$ and $e_i$ laid out on an axis in increasing order as in Fig.~\ref{fig:rangeopts3}.
@@ -129,7 +129,9 @@ Add on this axis the endpoints of $P_0$, the smallest and largest possible value
 Consider all the non-overlapping intervals formed by each consecutive pair of such endpoints. Each interval has the property that all points in that interval belong to the same set of prefixes.
 For example, in Fig.~\ref{fig:rangeopts3},  there are two prefixes to encrypt: $P_1$ and $P_2$. PrefixMatch computes the intervals $I_0, \dots, I_4$. Two or  more prefixes/ranges that overlap in exactly one endpoint define a one-element interval. For example, consider encrypting these two ranges [13::/16, 25::/16] and [25::/16, 27::/16]; they define three intervals: [13::/16, 25::/16-1], [25::/16, 25::/16], [25::/16+1, 27::/16].
 
-PrefixMatch now assigns an encrypted prefix to each interval. Note that each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefixes of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number because $\prefixes(I_0) = \prefixes(I_4)$.
+Each interval belongs to a set of prefixes. Let $\prefixes(I)$ denote the prefixes of interval $I$. For example, $\prefixes(I_2) = \{P_0, P_1, P_2\}$. 
+
+PrefixMatch now assigns an encrypted prefix to each interval. The encrypted prefix is simply a {\em random} number of size $\plen$. Each interval gets a different random value, except for intervals that belong to the same prefixes. For example, in Fig.~\ref{fig:rangeopts3}, intervals $I_0$ and $I_4$ receive the same random number because $\prefixes(I_0) = \prefixes(I_4)$.
 
 When a prefix overlaps partially with another prefix, it will have more than one encrypted prefix because it is broken into intervals. For example, $I_1$ was assigned a random number of 0x123c and $I_2$ of 0xabcc. The encryption of  $P_1$ in Fig.~\ref{fig:rangeopts3} will be the pair ($123c::/16$, $abcc::/16$).
 
