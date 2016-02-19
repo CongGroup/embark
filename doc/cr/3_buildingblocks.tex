@@ -13,13 +13,11 @@ When describing these schemes we refer to the encryptor as the gateway whose sec
 \subsection{KeywordMatch}\label{s:kwmatch}
 
 
-KeywordMatch detects if an encrypted keyword matches an encrypted data item by equality.
-For example, given an encryption of the keyword ``malicious'', and a list of encrypted strings  [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')], SP can  detect that the keyword matches the second string. 
-For  this, we use a searchable encryption scheme~\cite{song:search, blindbox}.
-Using this scheme, the gateway can encrypt a value $v$ into $\enc(v)$ and a rule $r$ into $\encr$ and SP can detect if there is a match between $v$ and $r$. 
- The security of searchable encryption is well studied~\cite{song:search, blindbox}: at a high level,  given a list of encrypted strings, and an encrypted keyword, SP does not learn anything about the encrypted strings, other than which strings match the keyword. 
+KeywordMatch is an encryption scheme using which SP can check if an encrypted rule (the ``keyword'') matches by equality an encrypted string.
+For example, given an encryption of the rule ``malicious'', and a list of encrypted strings  [$\Enc$(``alice''), $\Enc$(``malicious''), $\Enc$(``alice'')], SP can  detect that the rule matches the second string, but it does not learn anything about the first and third strings, not even that they are equal to each other.
+ KeywordMatch provides typical searchable security guarantees, which are well studied: at a high level,  given a list of encrypted strings, and an encrypted keyword, SP does not learn anything about the encrypted strings, other than which strings match the keyword. 
  The encryption of the strings is {\em randomized}, so it does not leak whether two encrypted strings are equal to each other, unless, of course, they both match the encrypted keyword. 
-  We use the technique from~\cite{blindbox} and hence do not elaborate on it.
+  We use the scheme from~\cite{blindbox} and hence do not elaborate on it.
 
 %!TEX root = mb.tex
 
