@@ -41,7 +41,7 @@ We first evaluate \sys's overheads at the enterprise. %including the gateway, en
 \noindent{\it How many servers does a typical enterprise require to outsource traffic to the cloud?}
 Fig.~\ref{fig:gwxput} shows the gateway throughput when encrypting traffic to send to the cloud, first with normal redirection (as used in APLOMB~\cite{aplomb}), then with \sys's L3/L4-header encryption, and finally with L3/L4-header encryption as well as stateless HTTP/proxy encryption. 
 For empirical traffic traces with payload encryption (DPI) disabled, \sys averages 9.6Gbps per core; for full-sized packets it achieves over 9.8Gbps.
-In scalability experiments (Fig.~\ref{fig:gwscale}) with 4 cores dedicated to processing, our server could could forward at up to 9.7Gbps for empirical traffic while encrypting for headers and HTTP traffic.
+In scalability experiments (Fig.~\ref{fig:gwscale}) with 4 cores dedicated to processing, our server could forward at up to 9.7Gbps for empirical traffic while encrypting for headers and HTTP traffic.
 There is little difference between the HTTP overhead and the L3/L4 overhead, as the HTTP encryption only occurs on HTTP requests -- a small fraction of packets. 
 With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting that an enterprise would need to devote at least 32 cores to the gateway.
 %Overall, \sys encryption for the stateless gateway reduces by about 60\% relative to baseline APLOMB encryption in the worst case (the min-sized workload; the reduction for the empirical (m57) workload is 38\%.  
@@ -55,7 +55,7 @@ With DPI enabled (not shown), throughput dropped to 240Mbps per core, suggesting
 
 \noindent{\it How do throughput and latency at the gateway scale with the number of rules for PrefixMatch?} 
 In \S\ref{sec:range}, we discussed how PrefixMatch stores sorted intervals; every packet encryption requires a binary search of intervals. Hence, as the size of the interval map goes larger, we can expect to require more time to process each packet and throughput to decrease. We measure this effect in Fig.~\ref{fig:xputrange}. 
-On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of binary search. From 0-10k rules, throughput drops from 3Mpps to 1.5Mpps; after this point the performance penalty of additional rules tapers off. Adding an additional 90k rules drops throughput to 1.1Mpps.
+On the $y_1$ axis, we show the aggregate per packet throughput at the gateway as the number of rules from 0 to 100k. The penalty here is logarithmic, which is the expected performance of the binary search. From 0-10k rules, throughput drops from 3Mpps to 1.5Mpps; after this point the performance penalty of additional rules tapers off. Adding additional 90k rules drops throughput to 1.1Mpps.
 On the $y_2$ axis, we measure the processing time per packet, \ie{}, the amount of time for the gateway to encrypt the packet; the processing time follows the same logarithmic trend.
 
 \noindent{\it Is PrefixMatch faster than existing order preserving algorithms?}
@@ -105,7 +105,7 @@ This overhead is negligible.% on any modern server.
 
 We use web performance to understand end-to-end user experience of \sys.
 Fig.~\ref{fig:e2eloads} shows a CDF for the Alexa top-500 sites loaded through our testbed. We compare the baseline (direct download) assuming three different service providers: an ISP hosting services in a Central Office (CO), a Content-Distribution Network, and a traditional cloud provider (EC2). The mean RTTs from the gateway are 60$\mu$s, 4ms, and 31ms, respectively. We deployed \sys on EC2 and used this deployment for our experiments, but for the CO and CDN we emulated the deployment with inflated latencies and servers in our testbed. We ran a pipeline of NAT, firewall and proxy (with empty cache) in the experiment.
-Because of the `bounce' redirection \sys uses, all page load times increase by some fraction; in the median case this increase is less than 50ms for the ISP/Central Office, 100ms for the CDN, and 720ms using EC2; hence ISP based deployments will escape human perception~\cite{millishumans} but a CDN (or a cloud deployment) may introduce human-noticeable overheads.
+Because of the `bounce' redirection \sys uses, all page load times increase by some fraction; in the median case this increase is less than 50ms for the ISP/Central Office, 100ms for the CDN, and 720ms using EC2; hence, ISP based deployments will escape human perception~\cite{millishumans} but a CDN (or a cloud deployment) may introduce human-noticeable overheads.
 
 \subsubsection{Bandwidth Overheads}
 We evaluate two costs: the increase in bandwidth due to our encryption and metadata, and the increase in bandwidth cost due to `bounce' redirection.
@@ -123,16 +123,16 @@ On the uplink, from the gateway to the middlebox service provider, traffic would
 \noindent{\it How much does bandwidth increase between the gateway and the cloud from using \sys? How much would this bandwidth increase an enterprises' networking costs?}
 \sys sends all network traffic to and from the middlebox service provider for processing, before sending that traffic out to the Internet at large. 
 
-In ISP contexts, the clients' middlebox service provider and network connectivity provider are one and the same and one might expect costs for relaying the traffic to and from the middleboxes to be rolled in to one service `package;' given the latency benefits of deployment at central offices (as we saw in Fig.~\ref{fig:e2eloads}) we expect that ISP-based deployments are the best option to deploy \sys.
+In ISP contexts, the clients' middlebox service provider and network connectivity provider are one and the same and one might expect costs for relaying the traffic to and from the middleboxes to be rolled into one service `package;' given the latency benefits of deployment at central offices (as we saw in Fig.~\ref{fig:e2eloads}) we expect that ISP-based deployments are the best option to deploy \sys.
 
 In the cloud service setting the client must pay a third party ISP to transfer the data to and from the cloud, before paying that ISP a third time to actually transfer the data over the network.
 Using current US bandwidth pricing~\cite{comcast-costs, megapath-costs, verizon-costs}, we can estimate how much outsourcing would increase overall bandwidth costs.
 Multi-site enterprises typically provision two kinds of networking costs: Internet access, and intra-domain connectivity. 
 Internet access typically has high bandwidth but a lower SLA; traffic may also be sent over shared Ethernet~\cite{comcast-costs, verizon-costs}.
 Intra-domain connectivity usually has a private, virtual Ethernet link between sites of the company with a high SLA and lower bandwidth.
-Because bounce redirection is over the `cheaper' link, the overall impact to bandwidth cost with header-only encryption given public sales numbers is between 15-50\%; with DPI encryption this cost increases to between 30-150\%. 
+Because bounce redirection is over the `cheaper' link, the overall impact on bandwidth cost with header-only encryption given public sales numbers is between 15-50\%; with DPI encryption, this cost increases to between 30-150\%. 
 
-%\eat{Getting frustrated with these numbers so leaving them here and will come back to them. Megapath offers a dedicated link at 5x5Mbps for \$250/mo; 20x20Mbps for \$1300/mo. Comcast offers enterprise cable at 150/20Mbps for \$250/mo. The three way bounce should result in a cost increase of 15-50\%, depending on how much the internal link is provisioned for. The DPI should be 2-3 times that, so, between 30-150\%... 
+%\eat{Getting frustrated with these numbers so leaving them here and will come back to them. Megapath offers a dedicated link at 5x5Mbps for \$250/mo; 20x20Mbps for \$1300/mo. Comcast offers enterprise cable at 150/20Mbps for \$250/mo. The three-way bounce should result in a cost increase of 15-50\%, depending on how much the internal link is provisioned for. The DPI should be 2-3 times that, so, between 30-150\%... 
 %}
 
 \subsection{Middleboxes}
@@ -177,7 +177,7 @@ In what follows, we provide some further middlebox-specific benchmarks for the f
 \noindent{\bf Firewalls:} 
 {\it Does \sys support all rules in a typical firewall configuration? How much does the ruleset ``expand'' due to encryption?}
 
-We tested our firewall with three rulesets provided to us by a network administrator at our institution and an IP firewall ruleset from Emerging Threats~\cite{emergingthreats}. We were able to encode all rules using range and keyword match encryptions. The size of 3 rulesets did not change after encryption, while the size of the other ruleset from Emerging Threats expanded from 1363 to 1370 -- a 0.5\% increase. Therefore we conclude that it has negligible impact on the firewall performance.
+We tested our firewall with three rulesets provided to us by a network administrator at our institution and an IP firewall ruleset from Emerging Threats~\cite{emergingthreats}. We were able to encode all rules using range and keyword match encryptions. The size of 3 rulesets did not change after encryption, while the size of the other ruleset from Emerging Threats expanded from 1363 to 1370 -- a 0.5\% increase. Therefore, we conclude that it has negligible impact on the firewall performance.
 
 
 % We also investigated how much the ruleset increased due to PrefixMatch. Rules are typically encoded in the firewall as prefixes, hence a rule over the range [4.0.0.0, 4.255.255.255] is in practice implemented as a bit-mask over the first 8 bits of every packet. Using PrefixMatch, the same prefix might be mapped to 9.128.0.0-10.128.0.0.0, resulting in two /9 prefix ranges in the final rule encoding: 9.128.0.0/9 or 10.128.0.0/9. As throughput for many middleboxes decreases with the number of rules, we were concerned that these mappings might degrade performance. However, in practice rules increased modestly, by between 5.8\% and 10.2\%.
