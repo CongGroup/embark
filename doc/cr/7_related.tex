@@ -17,7 +17,7 @@ Some systems which focus on {\it offline} processing allow some analysis over an
 Yamada et al~\cite{Yamada_IDS} show how one can perform some very limited processing on an SSL-encrypted packet by using only the size of data and the timing of packets, however they cannot perform analysis of the contents of connection data.
 
 \noindent{\bf Encryption Schemes:}
-\sys's PrefixMatch scheme is similar to order preserving encryption schemes, but no existing scheme provided both the performance and security properties we required.
+\sys's PrefixMatch scheme is similar to order preserving encryption schemes~\cite{agrawal:ope}, but no existing scheme provided both the performance and security properties we required.
 Order-preserving encryption (OPE) schemes such as~\cite{boldyreva:ope, popa:mope}  are 
  $>10000$ times slower than PrefixMatch (\S\ref{sec:eval}) and additionally leak the order of  the IP addresses encrypted. On the other hand, OPE schemes are more generic and applicable to a wider set of scenarios. PrefixMatch, on the other hand, is designed for our  particular scenario.
 
